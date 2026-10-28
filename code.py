@@ -136,92 +136,112 @@ while True:
                     door.append(firstexactdoor+i)
 
         start=random.choice(door)
+        doorban=[]
         c=0
-        while start in door:
-            if doorside==1 or doorside==-1:
-                a=[1,-1]
-            else:
-                a=[10,-10]
-            if c!=0:
-                a.remove(i)
-            b=random.choice(a)
-            if (start+b) in locate and not (start+b) in [0,9,199,190]:
-                c=0
-                start+=b
-                f.append(Map(start,'F'))
-                locate.remove(start)
-            else:
-                c=b
-        
-        c=[]
+        doorban.extend([0,9,190,199])
+        if doorside==1:
+            start+=1
+            doorban.extend(list(range(10,190,10)))
+        elif doorside==-1:
+            start-=1
+            doorban.extend(list(range(19,199,10)))
+        elif doorside==2:
+            start+=10
+            doorban.extend(list(range(1,9)))
+        else:
+            start-=10
+            doorban.extend(list(range(191,199)))
+        f.append(Map(start,'F'))    
+        locate.remove(start)
+                    
+        c=0
         doorside=0
         doorlong=0
-        while True:
-            a=[1,-1,10,-10]
-            if c:
-                if len(a)==1:
-                    c=[]
+        startablefloor=[]
+        
+        while True:    
+            while True:
+                if c!=0:
+                    a.remove(c)
                 else:
-                    for i in a:
-                        if i in c:
-                            a.remove(i)
-            b=random.choice(a)
-            if (start+b) in locate and not (start+b) in [0,9,199,190] and not (start+b) in door:
-                c=[]
-                d=list(range(1,9))+list(range(10,190,10))+list(range(19,199,10))+list(range(191,199))
-                if (start+b) in d:
-                    if (start+b) in list(range(1,9)):
-                        if doorside==0: 
-                            doorside=2
-                        elif doorside!=2:
-                            f.append(Map(start,'F'))
-                            locate.remove(start)                              
-                            break
-                        else:
-                            doorlong+=1
-                        if doorlong==6:
-                            break
-                    elif (start+b) in list(range(10,190)):
-                        if doorside==0: 
-                            doorside=1
-                        elif doorside!=1:
-                            f.append(Map(start,'F'))
-                            locate.remove(start)                              
-                            break
-                        else:
-                            doorlong+=1
-                        if doorlong==6:
-                            break
-                    elif (start+b) in list(range(19,199)):
-                        if doorside==0: 
-                            doorside=-1
-                        elif doorside!=(-1):
-                            f.append(Map(start,'F'))
-                            locate.remove(start)                              
-                            break
-                        else:
-                            doorlong+=1
-                        if doorlong==6:
-                            break
-                    elif (start+b) in list(range(191,199)):
-                        if doorside==0: 
-                            doorside=-2
-                        elif doorside!=(-2):
-                            start+=b
-                            f.append(Map(start,'F'))
-                            locate.remove(start)  
-                            break
-                        else:
-                            doorlong+=1
-                        if doorlong==6:
-                            break
-                start+=b
-                f.append(Map(start,'F'))
-                locate.remove(start)  
-            else:
-                c.append(b)
-            if len(locate)==5:
-                break
+                    if doorside==1 and start in list(range(10,190,10)):
+                        a=[1,10,-10]
+                    elif doorside==-1 and start in list(range(19,199,10)):
+                        a=[-1,10,-10]
+                    elif doorside==2 and start in list(range(1,9)):
+                        a=[1,10,-1]
+                    elif doorside==-2 and start in list(range(191,199)):
+                        a=[1,-1,-10]
+                    else:
+                        a=[1,-1,10,-10]
+                if len(a)==0:
+                    break
+                b=random.choice(a)
+                if (start+b) in locate and not (start+b) in doorban:
+                    side=0
+                    c=0
+                    d=list(range(1,9))+list(range(10,190,10))+list(range(19,199,10))+list(range(191,199))
+                    if (start+b) in d:
+                        if (start+b) in list(range(1,9)):
+                            if doorside==0: 
+                                doorside=2
+                            elif doorside!=2:                            
+                                break
+                            else:
+                                doorlong+=1
+                            if doorlong==5:
+                                break
+                            side=1
+                        elif (start+b) in list(range(10,190,10)):
+                            if doorside==0: 
+                                doorside=1
+                            elif doorside!=1:                             
+                                break
+                            else:
+                                doorlong+=1
+                            if doorlong==5:
+                                break
+                            side=1
+                        elif (start+b) in list(range(19,199,10)):
+                            if doorside==0: 
+                                doorside=-1
+                            elif doorside!=(-1):                          
+                                break
+                            else:
+                                doorlong+=1
+                            if doorlong==5:
+                                break
+                            side=1
+                        elif (start+b) in list(range(191,199)):
+                            if doorside==0: 
+                                doorside=-2
+                            elif doorside!=(-2):
+                                break
+                            else:
+                                doorlong+=1
+                            if doorlong==5:
+                                break
+                            side=1
+                    start+=b
+                    f.append(Map(start,'F'))
+                    locate.remove(start)
+                    if side==0: startablefloor.append(start)  
+                else:
+                    c=b
+            c=0
+            if doorside!=0:
+                if len(locate)<=130:
+                    break
+                else:
+                    doorban.extend(d)
+            while True:
+                start=random.choice(startablefloor)
+                if ((start+1) in locate and not (start+1) in doorban) or ((start-1) in locate and not (start-1) in doorban) or ((start+10) in locate and not (start+10) in doorban) or ((start-10) in locate and not (start-10) in doorban):
+                    break
+                else:
+                    startablefloor.remove(start)
+                                        
+            
         rendermap=False
             
     #draw on screen
