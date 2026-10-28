@@ -12,7 +12,7 @@ clock=pygame.time.Clock()
 
 class Map:
     def __init__(self,xy,type):
-        position=xy
+        self.position=xy
         self.y=xy%10*75
         self.x=(xy-xy%10)/10*75
         if type=='W':
@@ -37,7 +37,7 @@ class Map:
         screen.blit(self.img,(self.x,self.y))
 class Obstacle:
     def __init__(self,xy,type):
-        position=xy
+        self.position=xy
         self.y=xy%10*75
         self.x=(xy-xy%10)/10*75
         if type=='V':
@@ -54,25 +54,27 @@ class Obstacle:
             self.img='assets/SR.png'
         elif type=='ST':
             self.img='assets/ST.png'
+        elif type=='SRT':
+            self.img='assets/ST.png'
         self.img=pygame.image.load(self.img).convert_alpha()
         self.img=pygame.transform.scale(self.img,(75,75))
-        self.rect=pygame.rect(self.x,self.y,75,75)
+        self.rect=pygame.Rect(self.x,self.y,75,75)
     def draw(self,screen):
         screen.blit(self.img,(self.x,self.y))
 class Player:
     def __init__(self,xy):
-        position=xy
+        self.position=xy
         self.y=xy%10*75
         self.x=(xy-xy%10)/10*75
         self.img='assets/main'
         self.img=pygame.image.load(self.img).convert_alpha()
         self.img=pygame.transform.scale(self.img,(40,77))
-        self.rect=pygame.rect(self.x,self.y-(77-75),40,75)
+        self.rect=pygame.Rect(self.x,self.y-(77-75),40,75)
     def draw(self,screen):
         screen.blit(self.img,(self.x,self.y))
 class Creep:
     def __init__(self,xy,type):
-        position=xy
+        self.position=xy
         self.y=xy%10*75
         self.x=(xy-xy%10)/10*75
         self.img='assets/main'
@@ -80,25 +82,12 @@ class Creep:
         self.w=10
         self.img=pygame.image.load(self.img).convert_alpha()
         self.img=pygame.transform.scale(self.img,(self.w,self.h))
-        self.wallrect=pygame.rect(self.x,self.y-(self.h-75),self.w,75)
-        self.rect=pygame.rect(self.x,self.y,self.w,self.h)
+        self.wallrect=pygame.Rect(self.x,self.y-(self.h-75),self.w,75)
+        self.rect=pygame.Rect(self.x,self.y,self.w,self.h)
     def draw(self,screen):
         screen.blit(self.img,(self.x,self.y))
 rendermap=True
 firstdoor=[]  #for save the door for next map
-f=[]
-door=[]
-w=[]
-sr=[]
-sl=[]
-v=[]
-cl=[]
-cr=[]
-crl=[]
-slr=[]
-slrt=[]
-slt=[]
-st=[]
 #Game loop
 while True:
     dt=clock.tick(60)/1000
@@ -111,19 +100,22 @@ while True:
     #random map logic
     if rendermap:
         locate=list(range(200))
-        f.clear()
-        door.clear()
-        w.clear()
-        sr.clear()
-        sl.clear()
-        v.clear()
-        cl.clear()
-        cr.clear()
-        crl.clear()
-        slr.clear()
-        slrt.clear()
-        slt.clear()
-        st.clear()
+        map=[]
+        obstacle=[]
+        door=[]
+        w=[]
+        sr=[]
+        sl=[]
+        v=[]
+        cl=[]
+        cr=[]
+        crl=[]
+        slr=[]
+        slrt=[]
+        slt=[]
+        srt=[]
+        st=[]
+        insidef=[]
         if not firstdoor:
             doorlong=random.randint(1,5)
             doorside=random.choice([-1,1,-2,2])
@@ -133,28 +125,28 @@ while True:
                 firstexactdoor=random.choice(list(range(19,189+1-doorlong*10,10)))
                 firstdoor.append(firstexactdoor)                
                 for i in range(0,doorlong):   
-                    f.append(Map(firstexactdoor+i*10,'F'))
+                    map.append(Map(firstexactdoor+i*10,'F'))
                     locate.remove(firstexactdoor+i*10)
                     door.append(firstexactdoor+i*10)
             elif doorside==(1):
                 firstexactdoor=random.choice(list(range(10,180+1-doorlong*10,10))) 
                 firstdoor.append(firstexactdoor)
                 for i in range(0,doorlong):
-                    f.append(Map(firstexactdoor+i*10,'F'))
+                    map.append(Map(firstexactdoor+i*10,'F'))
                     locate.remove(firstexactdoor+i*10)
                     door.append(firstexactdoor+i*10)    
             elif doorside==(2):
                 firstexactdoor=random.choice(list(range(1,8+1-doorlong)))
                 firstdoor.append(firstexactdoor)
                 for i in range(0,doorlong):
-                    f.append(Map(firstexactdoor+i,'F'))
+                    map.append(Map(firstexactdoor+i,'F'))
                     locate.remove(firstexactdoor+i)
                     door.append(firstexactdoor+i)                
             elif doorside==(-2):
                 firstexactdoor=random.choice(list(range(191,198+1-doorlong)))
                 firstdoor.append(firstexactdoor)
                 for i in range(0,doorlong):
-                    f.append(Map(firstexactdoor+i,'F'))
+                    map.append(Map(firstexactdoor+i,'F'))
                     locate.remove(firstexactdoor+i)
                     door.append(firstexactdoor+i)
         else:
@@ -163,25 +155,25 @@ while True:
             if doorside==(-1):
                 firstexactdoor=random.choice(list(range(19,189+1-doorlong*10,10)))   
                 for i in range(0,doorlong):   
-                    f.append(Map(firstexactdoor+i*10,'F'))
+                    map.append(Map(firstexactdoor+i*10,'F'))
                     locate.remove(firstexactdoor+i*10)
                     door.append(firstexactdoor+i*10)
             elif doorside==(1):
                 firstexactdoor=random.choice(list(range(10,180+1-doorlong*10,10)))
                 for i in range(0,doorlong):
-                    f.append(Map(firstexactdoor+i*10,'F'))
+                    map.append(Map(firstexactdoor+i*10,'F'))
                     locate.remove(firstexactdoor+i*10)
                     door.append(firstexactdoor+i*10)    
             elif doorside==(2):
                 firstexactdoor=random.choice(list(range(1,8+1-doorlong)))
                 for i in range(0,doorlong):
-                    f.append(Map(firstexactdoor+i,'F'))
+                    map.append(Map(firstexactdoor+i,'F'))
                     locate.remove(firstexactdoor+i)
                     door.append(firstexactdoor+i)                
             elif doorside==(-2):
                 firstexactdoor=random.choice(list(range(191,198+1-doorlong)))
                 for i in range(0,doorlong):
-                    f.append(Map(firstexactdoor+i,'F'))
+                    map.append(Map(firstexactdoor+i,'F'))
                     locate.remove(firstexactdoor+i)
                     door.append(firstexactdoor+i)
 
@@ -201,7 +193,7 @@ while True:
         else:
             start-=10
             doorban.extend(list(range(191,199)))
-        f.append(Map(start,'F'))    
+        map.append(Map(start,'F'))    
         locate.remove(start)
         doorban.extend(door)            
         c=0
@@ -209,7 +201,7 @@ while True:
         doorlong=0
         startablefloor=[]
         firstdoor=[]
-        door=[]
+        
         while True:    
             while True:
                 unablemeetagain=False
@@ -239,53 +231,61 @@ while True:
                         if (start+b) in list(range(1,9)):
                             if doorside==0: 
                                 doorside=2
+                                door.append(start+b)
                             elif doorside!=2:                            
                                 break
                             elif unablemeetagain:
                                 break
                             else:
                                 doorlong+=1
+                                door.append(start+b)
                             if doorlong==5:
                                 break
                             side=1
                         elif (start+b) in list(range(10,190,10)):
                             if doorside==0: 
                                 doorside=1
+                                door.append(start+b)
                             elif doorside!=1:                             
                                 break
                             elif unablemeetagain:
                                 break
                             else:
                                 doorlong+=1
+                                door.append(start+b)
                             if doorlong==5:
                                 break
                             side=1
                         elif (start+b) in list(range(19,199,10)):
                             if doorside==0: 
                                 doorside=-1
+                                door.append(start+b)
                             elif doorside!=(-1):                          
                                 break
                             elif unablemeetagain:
                                 break
                             else:
                                 doorlong+=1
+                                door.append(start+b)
                             if doorlong==5:
                                 break
                             side=1
                         elif (start+b) in list(range(191,199)):
                             if doorside==0: 
                                 doorside=-2
+                                door.append(start+b)
                             elif doorside!=(-2):
                                 break
                             elif unablemeetagain:
                                 break
                             else:
                                 doorlong+=1
+                                door.append(start+b)
                             if doorlong==5:
                                 break
                             side=1
                     start+=b
-                    f.append(Map(start,'F'))
+                    map.append(Map(start,'F'))
                     locate.remove(start)
                     if side==0: startablefloor.append(start)  
                 else:
@@ -302,15 +302,95 @@ while True:
                     break
                 else:
                     startablefloor.remove(start)
-                                        
-        
         firstdoor.append(doorside)
         firstdoor.append(doorlong)   
         rendermap=False
-            
+        for i in map:
+            if not i.position in door:
+                insidef.append(i.position)
+        for i in insidef:
+            i-=1
+            if i in locate:
+                locate.remove(i)
+                if i-1 in locate:
+                    map.append(Map(i,'W'))
+                    w.append(i)
+                else:
+                    map.append(Map(i,'F'))
+                    insidef.append(i)
+        for i in insidef:
+            i-=10
+            if i in locate:
+                sr.append(i)
+        for i in insidef:
+            i+=10
+            if i in locate:
+                if i in sr:
+                    slr.append(i)
+                    sr.remove(i)
+                else:
+                    sl.append(i)
+        for i in insidef:
+            i+=1
+            if i in locate:
+                if i in sr:
+                    srt.append(i)
+                    sr.remove(i)
+                elif i in sl:
+                    slt.append(i)
+                    sl.remove(i)
+                elif i in slr:
+                    slrt.append(i)
+                    slr.remove(i)                            
+                else:
+                    st.append(i)               
+        #for i in locate:
+            #if (i-1 in sr or i-1 in srt) and (i+10 in st or i+10 in srt):
+                #cr.append(i)
+                #locate.remove(i)
+            #elif (i-1 in sl or i-1 in slt) and (i-10 in st or i-10 in slt):
+                #cl.append(i)
+                #locate.remove(i)
+            #elif i in slr:
+                #crl.append(i)
+                #locate.remove(i)                            
+            #else:
+                #st.append(i) 
+        if sr:
+            for i in sr:
+                locate.remove(i)
+                obstacle.append(Obstacle(i,'SR'))
+        if sl:
+            for i in sl:
+                locate.remove(i)
+                obstacle.append(Obstacle(i,'SL'))
+        if slr:
+            for i in slr:
+                locate.remove(i)
+                obstacle.append(Obstacle(i,'SLR'))
+        if slrt:
+            for i in slrt:
+                locate.remove(i)
+                obstacle.append(Obstacle(i,'SLRT'))
+        if slt:
+            for i in slt:
+                locate.remove(i)
+                obstacle.append(Obstacle(i,'SLT'))
+        if srt:
+            for i in srt:
+                locate.remove(i)
+                obstacle.append(Obstacle(i,'SRT'))
+        if st:
+            for i in st:
+                locate.remove(i)
+                obstacle.append(Obstacle(i,'ST'))
+                
+                
     #draw on screen
     screen.fill((0,0,0))
-    for i in f:
+    for i in map:
+        i.draw(screen)
+    for i in obstacle:
         i.draw(screen)             
             
                 
