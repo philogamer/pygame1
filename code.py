@@ -35,6 +35,13 @@ class Map:
         self.img=pygame.transform.scale(self.img,(75,75))
     def draw(self,screen):
         screen.blit(self.img,(self.x,self.y))
+class Goable:
+    def __init__(self,xy):
+        self.y=xy%10*75
+        self.x=(xy-xy%10)/10*75
+        self.rect=pygame.Rect(self.x,self.y,75,75)
+    def update(self):
+        self.rect=pygame.Rect(self.x,self.y,75,75)
 class Obstacle:
     def __init__(self,xy,type):
         self.position=xy
@@ -71,8 +78,8 @@ class Player:
         self.targetx=self.x
         self.targety=self.y
         self.direction='right'
-        self.speed=50
-        self.img='assets/main'
+        self.speed=100
+        self.img='assets/main.png'
         self.img=pygame.image.load(self.img).convert_alpha()
         self.img=pygame.transform.scale(self.img,(40,77))
         self.rect=pygame.Rect(self.x,self.y-(77-75),40,75)
@@ -85,7 +92,21 @@ class Player:
         distance=math.hypot(dx,dy)
         if self.speed*dt>=distance:
             self.x=self.targetx
-            self.y
+            self.y=self.targety
+        else:
+            self.x+=dx/distance*self.speed*dt
+            self.y+=dy/distance*self.speed*dt
+        if self.x<0:
+            self.x=0
+        if self.x>(1500-44):
+            self.x=(1500-44)
+        if self.y<0:
+            self.y=0  
+        if self.y>(750-77):
+            self.y=750-77
+    def update(self):
+        self.rect=pygame.Rect(self.x,self.y-(77-75),40,75)
+        
 class Creep:
     def __init__(self,xy,type):
         self.position=xy
@@ -109,11 +130,10 @@ while True:
         if event.type==pygame.QUIT:
             quit(0)
         keys=pygame.key.get_pressed()
-        if keys[pygame.K_SPACE]:
-            rendermap=True
     #random map logic
     if rendermap:
         locate=list(range(200))
+        goable=[]
         map=[]
         obstacle=[]
         door=[]
@@ -143,7 +163,7 @@ while True:
                     locate.remove(firstexactdoor+i*10)
                     door.append(firstexactdoor+i*10)
             elif doorside==(1):
-                firstexactdoor=random.choice(list(range(10,180+1-doorlong*10,10))) 
+                firstexactdoor=random.choice(list(range(10,180+1-doorlong*10,10)))
                 firstdoor.append(firstexactdoor)
                 for i in range(0,doorlong):
                     map.append(Map(firstexactdoor+i*10,'F'))
@@ -163,11 +183,12 @@ while True:
                     map.append(Map(firstexactdoor+i,'F'))
                     locate.remove(firstexactdoor+i)
                     door.append(firstexactdoor+i)
+            player=Player(random.choice(door))
         else:
             doorlong=firstdoor[1]
             doorside=firstdoor[0]*(-1)
             if doorside==(-1):
-                firstexactdoor=random.choice(list(range(19,189+1-doorlong*10,10)))   
+                firstexactdoor=random.choice(list(range(19,189+1-doorlong*10,10)))
                 for i in range(0,doorlong):   
                     map.append(Map(firstexactdoor+i*10,'F'))
                     locate.remove(firstexactdoor+i*10)
@@ -190,6 +211,7 @@ while True:
                     map.append(Map(firstexactdoor+i,'F'))
                     locate.remove(firstexactdoor+i)
                     door.append(firstexactdoor+i)
+            player=Player(random.choice(door))
 
         start=random.choice(door)
         doorban=[]
@@ -215,7 +237,7 @@ while True:
         doorlong=0
         startablefloor=[]
         firstdoor=[]
-        
+        goable=[]
         while True:    
             while True:
                 unablemeetagain=False
@@ -246,6 +268,7 @@ while True:
                             if doorside==0: 
                                 doorside=2
                                 door.append(start+b)
+                                goable.append(Goable(start+b))
                             elif doorside!=2:                            
                                 break
                             elif unablemeetagain:
@@ -253,6 +276,7 @@ while True:
                             else:
                                 doorlong+=1
                                 door.append(start+b)
+                                goable.append(Goable(start+b))
                             if doorlong==5:
                                 break
                             side=1
@@ -260,6 +284,7 @@ while True:
                             if doorside==0: 
                                 doorside=1
                                 door.append(start+b)
+                                goable.append(Goable(start+b))
                             elif doorside!=1:                             
                                 break
                             elif unablemeetagain:
@@ -267,6 +292,7 @@ while True:
                             else:
                                 doorlong+=1
                                 door.append(start+b)
+                                goable.append(Goable(start+b))
                             if doorlong==5:
                                 break
                             side=1
@@ -274,6 +300,7 @@ while True:
                             if doorside==0: 
                                 doorside=-1
                                 door.append(start+b)
+                                goable.append(Goable(start+b))
                             elif doorside!=(-1):                          
                                 break
                             elif unablemeetagain:
@@ -281,6 +308,7 @@ while True:
                             else:
                                 doorlong+=1
                                 door.append(start+b)
+                                goable.append(Goable(start+b))
                             if doorlong==5:
                                 break
                             side=1
@@ -288,6 +316,7 @@ while True:
                             if doorside==0: 
                                 doorside=-2
                                 door.append(start+b)
+                                goable.append(Goable(start+b))
                             elif doorside!=(-2):
                                 break
                             elif unablemeetagain:
@@ -295,6 +324,7 @@ while True:
                             else:
                                 doorlong+=1
                                 door.append(start+b)
+                                goable.append(Goable(start+b))
                             if doorlong==5:
                                 break
                             side=1
@@ -410,14 +440,42 @@ while True:
             for i in st:
                 locate.remove(i)
                 obstacle.append(Obstacle(i,'ST'))
-                
+        
+    
+    #main character logic
+    player.targetx=player.x
+    player.targety=player.y
+    if keys[pygame.K_a]:
+        player.targetx=player.x-1
+    if keys[pygame.K_d]:
+        player.targetx=player.x+1
+    if keys[pygame.K_w]:
+        player.targety=player.y-1
+    if keys[pygame.K_s]:
+        player.targety=player.y+1    
+    for i in goable:
+        if i.rect.colliderect(player.rect):
+            if player.x<=0 or player.x>=(1500-44) or player.y<=0 or player.y>=(750-77):
+                rendermap=True
+    player.move(dt)
+    player.update()
+        
+
+        
+            
+        
+                       
                 
     #draw on screen
     screen.fill((0,0,0))
     for i in map:
         i.draw(screen)
     for i in obstacle:
-        i.draw(screen)             
+        i.draw(screen)
+    pygame.draw.rect(screen,(225,0,0),player.rect,1)
+    player.draw(screen)
+    
+               
             
                 
             
