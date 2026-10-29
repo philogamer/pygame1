@@ -54,8 +54,10 @@ class Obstacle:
             self.img='assets/SR.png'
         elif type=='ST':
             self.img='assets/ST.png'
-        elif type=='SRT':
-            self.img='assets/ST.png'
+        elif type=='SRT':           
+            self.img='assets/SRT.png'
+        elif type=='S4':
+            self.img='assets/S4.png'
         self.img=pygame.image.load(self.img).convert_alpha()
         self.img=pygame.transform.scale(self.img,(75,75))
         self.rect=pygame.Rect(self.x,self.y,75,75)
@@ -66,12 +68,24 @@ class Player:
         self.position=xy
         self.y=xy%10*75
         self.x=(xy-xy%10)/10*75
+        self.targetx=self.x
+        self.targety=self.y
+        self.direction='right'
+        self.speed=50
         self.img='assets/main'
         self.img=pygame.image.load(self.img).convert_alpha()
         self.img=pygame.transform.scale(self.img,(40,77))
         self.rect=pygame.Rect(self.x,self.y-(77-75),40,75)
     def draw(self,screen):
         screen.blit(self.img,(self.x,self.y))
+    def move(self,dt):
+        dx=self.targetx-self.x
+        self.direction='right' if dx>0 else 'left'
+        dy=self.targety-self.y
+        distance=math.hypot(dx,dy)
+        if self.speed*dt>=distance:
+            self.x=self.targetx
+            self.y
 class Creep:
     def __init__(self,xy,type):
         self.position=xy
@@ -316,13 +330,29 @@ while True:
                     map.append(Map(i,'W'))
                     w.append(i)
                 else:
-                    map.append(Map(i,'F'))
-                    insidef.append(i)
+                    if i in d:
+                        map.append(Map(i,'W'))
+                        w.append(i)
+                    else:                        
+                        map.append(Map(i,'F'))
+                        insidef.append(i)
         for i in insidef:
             i-=10
             if i in locate:
                 sr.append(i)
+        for i in w:
+            i-=10
+            if i in locate:
+                sr.append(i)
         for i in insidef:
+            i+=10
+            if i in locate:
+                if i in sr:
+                    slr.append(i)
+                    sr.remove(i)
+                else:
+                    sl.append(i)
+        for i in w:
             i+=10
             if i in locate:
                 if i in sr:
@@ -344,18 +374,14 @@ while True:
                     slr.remove(i)                            
                 else:
                     st.append(i)               
-        #for i in locate:
-            #if (i-1 in sr or i-1 in srt) and (i+10 in st or i+10 in srt):
-                #cr.append(i)
-                #locate.remove(i)
-            #elif (i-1 in sl or i-1 in slt) and (i-10 in st or i-10 in slt):
-                #cl.append(i)
-                #locate.remove(i)
-            #elif i in slr:
-                #crl.append(i)
-                #locate.remove(i)                            
-            #else:
-                #st.append(i) 
+        
+        
+        #có thể làm góc sau này, có thể làm cạnh cho cửa
+        for i in locate:
+            v.append(i)
+        if v:
+            for i in v:
+                obstacle.append(Obstacle(i,'V'))
         if sr:
             for i in sr:
                 locate.remove(i)
