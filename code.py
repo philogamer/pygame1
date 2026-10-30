@@ -4,17 +4,19 @@ import math
 
 pygame.init()
 pygame.mixer.init()
-screen=pygame.display.set_mode((1500,750))
+screen=pygame.display.set_mode((1500,825))
 pygame.display.set_caption('Lost Soul')
 stage='map'
 clock=pygame.time.Clock()
 
+infobox1=pygame.Rect(0,700,1500,125)
+infobox2=pygame.Rect(70*20,0,100,825)
 
 class Map:
     def __init__(self,xy,type):
         self.position=xy
-        self.y=xy%10*75
-        self.x=(xy-xy%10)/10*75
+        self.y=xy%10*70
+        self.x=(xy-xy%10)/10*70
         if type=='W':
             self.img='assets/wall.png'
         elif type=='CL':
@@ -32,21 +34,22 @@ class Map:
             else:
                 self.img='assets/F3.png'
         self.img=pygame.image.load(self.img).convert_alpha()
-        self.img=pygame.transform.scale(self.img,(75,75))
+        self.img=pygame.transform.scale(self.img,(70,70))
     def draw(self,screen):
         screen.blit(self.img,(self.x,self.y))
 class Goable:
     def __init__(self,xy):
-        self.y=xy%10*75
-        self.x=(xy-xy%10)/10*75
-        self.rect=pygame.Rect(self.x,self.y,75,75)
+        self.position=xy
+        self.y=xy%10*70
+        self.x=(xy-xy%10)/10*70
+        self.rect=pygame.Rect(self.x,self.y,70,70)
     def update(self):
-        self.rect=pygame.Rect(self.x,self.y,75,75)
+        self.rect=pygame.Rect(self.x,self.y,70,70)
 class Obstacle:
     def __init__(self,xy,type):
         self.position=xy
-        self.y=xy%10*75
-        self.x=(xy-xy%10)/10*75
+        self.y=xy%10*70
+        self.x=(xy-xy%10)/10*70
         if type=='V':
             self.img='assets/V.png'
         elif type=='SL':
@@ -66,26 +69,26 @@ class Obstacle:
         elif type=='S4':
             self.img='assets/S4.png'
         self.img=pygame.image.load(self.img).convert_alpha()
-        self.img=pygame.transform.scale(self.img,(75,75))
-        self.rect=pygame.Rect(self.x,self.y,75,75)
+        self.img=pygame.transform.scale(self.img,(70,70))
+        self.rect=pygame.Rect(self.x,self.y,70,70)
     def draw(self,screen):
         screen.blit(self.img,(self.x,self.y))
 class Player:
     def __init__(self,xy):
         self.position=xy
-        self.y=xy%10*75
-        self.x=(xy-xy%10)/10*75
+        self.y=xy%10*70
+        self.x=(xy-xy%10)/10*70
         self.targetx=self.x
         self.targety=self.y
         self.direction='right'
         self.speed=200
         self.img='assets/main.png'
         self.img=pygame.image.load(self.img).convert_alpha()
-        self.img=pygame.transform.scale(self.img,(61,112))
-        self.rect=pygame.Rect(self.x,self.y-(112-75),61,112)
-        self.wallrect=pygame.Rect(self.x,self.y+(112-75)-(112-75),61,75)
+        self.img=pygame.transform.scale(self.img,(61,107))
+        self.rect=pygame.Rect(self.x,self.y-(107-70),61,107)
+        self.wallrect=pygame.Rect(self.x,self.y+(107-70)-(107-70),61,71)
     def draw(self,screen):
-        screen.blit(self.img,(self.x,self.y-(112-75)))
+        screen.blit(self.img,(self.x,self.y-(107-70)))
     def move(self,dt):
         dx=self.targetx-self.x
         self.direction='right' if dx>0 else 'left'
@@ -99,27 +102,27 @@ class Player:
             self.y+=dy/distance*self.speed*dt
         if self.x<0:
             self.x=0
-        if self.x>(1500-61):
-            self.x=(1500-61)
-        if self.y<(-112+75):
-            self.y=(-112+75)  
-        if self.y>(750-112):
-            self.y=750-112
+        if self.x>(1400-61):
+            self.x=(1400-61)
+        if self.y<-((107-70)-(107-70)):
+            self.y=-((107-70)-(107-70))  
+        if self.y>((700-107)+(107-70)):
+            self.y=700-107+(107-70)
     def update(self):
-        self.rect=pygame.Rect(self.x,self.y-(112-75),61,112)
+        self.rect=pygame.Rect(self.x,self.y-(107-70),61,107)
     def checkwall(self):
-        self.wallrect=pygame.Rect(self.targetx,self.targety+(112-75)-(112-75),61,75)
+        self.wallrect=pygame.Rect(self.targetx,self.targety+(107-70)-(107-70),61,71)
 class Creep:
     def __init__(self,xy,type):
         self.position=xy
-        self.y=xy%10*75
-        self.x=(xy-xy%10)/10*75
+        self.y=xy%10*70
+        self.x=(xy-xy%10)/10*70
         self.img='assets/main'
         self.h=10
         self.w=10
         self.img=pygame.image.load(self.img).convert_alpha()
         self.img=pygame.transform.scale(self.img,(self.w,self.h))
-        self.wallrect=pygame.Rect(self.x,self.y-(self.h-75),self.w,75)
+        self.wallrect=pygame.Rect(self.x,self.y-(self.h-70),self.w,70)
         self.rect=pygame.Rect(self.x,self.y,self.w,self.h)
     def draw(self,screen):
         screen.blit(self.img,(self.x,self.y))
@@ -152,6 +155,7 @@ while True:
         srt=[]
         st=[]
         insidef=[]
+        wall=[]
         if not firstdoor:
             doorlong=random.randint(1,5)
             doorside=random.choice([-1,1,-2,2])
@@ -363,11 +367,11 @@ while True:
                 if i in locate:
                     locate.remove(i)
                     if i-1 in locate:
-                        map.append(Map(i,'W'))
+                        wall.append(Map(i,'W'))
                         w.append(i)
                     else:
                         if i in d:
-                            map.append(Map(i,'W'))
+                            wall.append(Map(i,'W'))
                             w.append(i)
                         else:                        
                             map.append(Map(i,'F'))
@@ -401,7 +405,7 @@ while True:
                     else:
                         sl.append(i)
         for i in insidef:
-            if not i in list(range(19,199,10)):
+            if not i in list(range(19,199,10)) and not i==0:
                 i+=1
                 if i in locate:
                     if i in sr:
@@ -490,7 +494,7 @@ while True:
     player.update()
     for i in goable:
         if i.rect.colliderect(player.rect):
-            if player.x<=0 or player.x>=(1500-61) or player.y<=(-112+75) or player.y>=(750-112):
+            if player.x<=0 or player.x>=(1400-61) or player.y<=-((107-70)-(107-70)) or player.y>=((700-107)+(107-70)):
                 rendermap=True
 
     
@@ -503,12 +507,15 @@ while True:
                 
     #draw on screen
     screen.fill((0,0,0))
+    pygame.draw.rect(screen,(82,78,82),infobox1)
+    pygame.draw.rect(screen,(82,78,82),infobox2)
     for i in map:
         i.draw(screen)
     for i in obstacle:
         i.draw(screen)
-        pygame.draw.rect(screen,(225,0,0),i.rect,1)
-    pygame.draw.rect(screen,(225,0,0),player.wallrect,1)
+    for i in wall:
+        i.draw(screen)
+    pygame.draw.rect(screen,(225,0,0),player.rect,1)
     player.draw(screen)
     
                
