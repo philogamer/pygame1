@@ -78,13 +78,14 @@ class Player:
         self.targetx=self.x
         self.targety=self.y
         self.direction='right'
-        self.speed=100
+        self.speed=200
         self.img='assets/main.png'
         self.img=pygame.image.load(self.img).convert_alpha()
-        self.img=pygame.transform.scale(self.img,(40,77))
-        self.rect=pygame.Rect(self.x,self.y-(77-75),40,75)
+        self.img=pygame.transform.scale(self.img,(61,112))
+        self.rect=pygame.Rect(self.x,self.y-(112-75),61,112)
+        self.wallrect=pygame.Rect(self.x,self.y+(112-75)-(112-75),61,75)
     def draw(self,screen):
-        screen.blit(self.img,(self.x,self.y))
+        screen.blit(self.img,(self.x,self.y-(112-75)))
     def move(self,dt):
         dx=self.targetx-self.x
         self.direction='right' if dx>0 else 'left'
@@ -98,15 +99,16 @@ class Player:
             self.y+=dy/distance*self.speed*dt
         if self.x<0:
             self.x=0
-        if self.x>(1500-44):
-            self.x=(1500-44)
-        if self.y<0:
-            self.y=0  
-        if self.y>(750-77):
-            self.y=750-77
+        if self.x>(1500-61):
+            self.x=(1500-61)
+        if self.y<(-112+75):
+            self.y=(-112+75)  
+        if self.y>(750-112):
+            self.y=750-112
     def update(self):
-        self.rect=pygame.Rect(self.x,self.y-(77-75),40,75)
-        
+        self.rect=pygame.Rect(self.x,self.y-(112-75),61,112)
+    def checkwall(self):
+        self.wallrect=pygame.Rect(self.targetx,self.targety+(112-75)-(112-75),61,75)
 class Creep:
     def __init__(self,xy,type):
         self.position=xy
@@ -278,6 +280,7 @@ while True:
                                 door.append(start+b)
                                 goable.append(Goable(start+b))
                             if doorlong==5:
+                                doorlong-=1
                                 break
                             side=1
                         elif (start+b) in list(range(10,190,10)):
@@ -294,6 +297,7 @@ while True:
                                 door.append(start+b)
                                 goable.append(Goable(start+b))
                             if doorlong==5:
+                                doorlong-=1
                                 break
                             side=1
                         elif (start+b) in list(range(19,199,10)):
@@ -310,6 +314,7 @@ while True:
                                 door.append(start+b)
                                 goable.append(Goable(start+b))
                             if doorlong==5:
+                                doorlong-=1
                                 break
                             side=1
                         elif (start+b) in list(range(191,199)):
@@ -326,6 +331,7 @@ while True:
                                 door.append(start+b)
                                 goable.append(Goable(start+b))
                             if doorlong==5:
+                                doorlong-=1
                                 break
                             side=1
                     start+=b
@@ -347,63 +353,68 @@ while True:
                 else:
                     startablefloor.remove(start)
         firstdoor.append(doorside)
-        firstdoor.append(doorlong)   
+        firstdoor.append(doorlong+1)   
         rendermap=False
         for i in map:
-            if not i.position in door:
-                insidef.append(i.position)
+            insidef.append(i.position)
         for i in insidef:
-            i-=1
-            if i in locate:
-                locate.remove(i)
-                if i-1 in locate:
-                    map.append(Map(i,'W'))
-                    w.append(i)
-                else:
-                    if i in d:
+            if not i in list(range(10,190,10)):
+                i-=1
+                if i in locate:
+                    locate.remove(i)
+                    if i-1 in locate:
                         map.append(Map(i,'W'))
                         w.append(i)
-                    else:                        
-                        map.append(Map(i,'F'))
-                        insidef.append(i)
+                    else:
+                        if i in d:
+                            map.append(Map(i,'W'))
+                            w.append(i)
+                        else:                        
+                            map.append(Map(i,'F'))
+                            insidef.append(i)
         for i in insidef:
-            i-=10
-            if i in locate:
-                sr.append(i)
+            if not i in list(range(1,9)):
+                i-=10
+                if i in locate:
+                    sr.append(i)
         for i in w:
-            i-=10
-            if i in locate:
-                sr.append(i)
+            if not i in list(range(1,9)):
+                i-=10
+                if i in locate:
+                    sr.append(i)
         for i in insidef:
-            i+=10
-            if i in locate:
-                if i in sr:
-                    slr.append(i)
-                    sr.remove(i)
-                else:
-                    sl.append(i)
+            if not i in list(range(191,199)):
+                i+=10
+                if i in locate:
+                    if i in sr:
+                        slr.append(i)
+                        sr.remove(i)
+                    else:
+                        sl.append(i)
         for i in w:
-            i+=10
-            if i in locate:
-                if i in sr:
-                    slr.append(i)
-                    sr.remove(i)
-                else:
-                    sl.append(i)
+            if not i in list(range(191,199)):
+                i+=10
+                if i in locate:
+                    if i in sr:
+                        slr.append(i)
+                        sr.remove(i)
+                    else:
+                        sl.append(i)
         for i in insidef:
-            i+=1
-            if i in locate:
-                if i in sr:
-                    srt.append(i)
-                    sr.remove(i)
-                elif i in sl:
-                    slt.append(i)
-                    sl.remove(i)
-                elif i in slr:
-                    slrt.append(i)
-                    slr.remove(i)                            
-                else:
-                    st.append(i)               
+            if not i in list(range(19,199,10)):
+                i+=1
+                if i in locate:
+                    if i in sr:
+                        srt.append(i)
+                        sr.remove(i)
+                    elif i in sl:
+                        slt.append(i)
+                        sl.remove(i)
+                    elif i in slr:
+                        slrt.append(i)
+                        slr.remove(i)                            
+                    else:
+                        st.append(i)               
         
         
         #có thể làm góc sau này, có thể làm cạnh cho cửa
@@ -447,18 +458,42 @@ while True:
     player.targety=player.y
     if keys[pygame.K_a]:
         player.targetx=player.x-1
+        player.checkwall()
+        for i in obstacle:
+            if i.rect.colliderect(player.wallrect):
+                player.targetx=player.x
+                player.checkwall()
     if keys[pygame.K_d]:
         player.targetx=player.x+1
+        player.checkwall()
+        for i in obstacle:
+            if i.rect.colliderect(player.wallrect):
+                player.targetx=player.x
+                player.checkwall()
     if keys[pygame.K_w]:
         player.targety=player.y-1
+        player.checkwall()
+        for i in obstacle:
+            if i.rect.colliderect(player.wallrect):
+                player.targety=player.y
+                player.checkwall()
     if keys[pygame.K_s]:
-        player.targety=player.y+1    
-    for i in goable:
-        if i.rect.colliderect(player.rect):
-            if player.x<=0 or player.x>=(1500-44) or player.y<=0 or player.y>=(750-77):
-                rendermap=True
+        player.targety=player.y+1
+        player.checkwall()
+        for i in obstacle:
+            if i.rect.colliderect(player.wallrect):
+                player.targety=player.y
+                player.checkwall()
+    
+            
     player.move(dt)
     player.update()
+    for i in goable:
+        if i.rect.colliderect(player.rect):
+            if player.x<=0 or player.x>=(1500-61) or player.y<=(-112+75) or player.y>=(750-112):
+                rendermap=True
+
+    
         
 
         
@@ -472,7 +507,8 @@ while True:
         i.draw(screen)
     for i in obstacle:
         i.draw(screen)
-    pygame.draw.rect(screen,(225,0,0),player.rect,1)
+        pygame.draw.rect(screen,(225,0,0),i.rect,1)
+    pygame.draw.rect(screen,(225,0,0),player.wallrect,1)
     player.draw(screen)
     
                
