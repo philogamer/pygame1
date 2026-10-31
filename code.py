@@ -127,19 +127,39 @@ class Creep:
         self.type=type
         self.randomx=0
         self.randomy=0
+        self.shoot=0
         if self.type=='normal':
             self.img='assets/ghost.png'
             self.h=30*2
             self.w=24*2
             self.hp=100
             self.maxhp=100
+            self.range=200
+            self.view=300
+            self.dmg=10
+        elif self.type=='elite':
+            self.img='assets/ghost1.png'
+            self.h=30*2
+            self.w=24*2
+            self.hp=200
+            self.maxhp=200
+            self.range=200
+            self.view=300
+            self.dmg=15
+        elif self.type=='slime':
+            self.img='assets/slime.png'
+            self.h=14*2
+            self.w=19*2
+            self.hp=70
+            self.maxhp=70
             self.range=100
             self.view=200
+            self.dmg=3
         
         self.img=pygame.image.load(self.img).convert_alpha()
         self.img=pygame.transform.scale(self.img,(self.w,self.h))
-        self.wallrect=pygame.Rect(self.x,self.y+(self.h-70),self.w,70)
-        self.rect=pygame.Rect(self.targetx,self.targety,self.w,self.h)
+        self.wallrect=pygame.Rect(self.targetx,self.targety+(self.h-70),self.w,70)
+        self.rect=pygame.Rect(self.x,self.y,self.w,self.h)
     def draw(self,screen):
         screen.blit(self.img,(self.x,self.y))
         pygame.draw.rect(screen,(112,112,112),pygame.Rect(self.x,self.y-4,self.w,4))
@@ -167,7 +187,39 @@ class Creep:
         self.rect=pygame.Rect(self.x,self.y,self.w,self.h)
     def checkwall(self):
         self.wallrect=pygame.Rect(self.targetx,self.targety+(self.h-70),self.w,70)
+class Bullet:
+    def __init__(self,x,y,targetx,targety):
+        self.y=y+18
+        self.x=x
+        self.targetx=targetx
+        self.targety=targety
+        self.speed=200
+        self.img='assets/bullet.png'
+        self.img=pygame.image.load(self.img).convert_alpha()
+        self.img=pygame.transform.scale(self.img,(20,20))
+        self.rect=pygame.Rect(self.x,self.y,20,20)
+        self.wallrect=pygame.Rect(self.x,self.y-18,20,20+18)
+        self.dx=(self.targetx-self.x)*2000
+        self.dy=(self.targety-self.y)*2000
+        self.distance=math.hypot(self.dx,self.dy)
+        self.dmg=7
+    def draw(self,screen):
+        screen.blit(self.img,(self.x,self.y))
+    def move(self,dt):
+        self.x+=self.dx/self.distance*self.speed*dt
+        self.y+=self.dy/self.distance*self.speed*dt
+        if self.x<0:
+            self.x=0
+        if self.x>(1400-20):
+            self.x=(1400-20)
+        if self.y<0:
+            self.y=0  
+        if self.y>(700-20):
+            self.y=700-20
         
+    def update(self):
+        self.rect=pygame.Rect(self.x,self.y,20,20)
+        self.wallrect=pygame.Rect(self.x,self.y-18,20,20+18)        
 
 
 rendermap=True
@@ -201,6 +253,7 @@ while True:
         insidef=[]
         wall=[]
         creeps=[]
+        bullets=[]
         if not firstdoor:
             doorlong=random.randint(1,5)
             doorside=random.choice([-1,1,-2,2])
@@ -541,72 +594,91 @@ while True:
     creepsquare=random.sample(insidef,int(len(insidef)/5))
     if creeps==[]:
         for i in creepsquare:
-            creeps.append(Creep(i,'normal'))
+            creeps.append(Creep(i,random.choice(['slime','normal','elite'])))
     for creep in creeps:
-        if math.hypot(player.x-creep.x,player.y-creep.y)>creep.view:    
-            creep.targetx=creep.x
-            creep.targety=creep.y
-            if creep.touchwall:
-                creep.randomx=random.choice([-1,1])
-                creep.randomy=random.choice([-1,1])
-                creep.touchwall=False
-            if creep.randomx!=0:
+        if math.hypot(player.x-creep.x,player.y-creep.y)>creep.range:
+            if math.hypot(player.x-creep.x,player.y-creep.y)>creep.view:    
+                creep.targetx=creep.x
+                creep.targety=creep.y
+                if creep.touchwall:
+                    creep.randomx=random.choice([-1,1])
+                    creep.randomy=random.choice([-1,1])
+                    creep.touchwall=False
+                if creep.randomx!=0:
+                    creep.targetx=creep.x+creep.randomx
+                    creep.checkwall()
+                    for i in obstacle:
+                        if i.rect.colliderect(creep.wallrect):
+                            creep.targetx=creep.x
+                            creep.touchwall=True
+                            creep.checkwall()    
+                if creep.randomy!=0:
+                    creep.targety=creep.y+creep.randomy
+                    creep.checkwall()
+                    for i in obstacle:
+                        if i.rect.colliderect(creep.wallrect):
+                            creep.targety=creep.y
+                            creep.touchwall=True
+                            creep.checkwall()
+                if creep.x<=0 or creep.x>=(1400-creep.w) or creep.y<=0 or creep.y>=700-creep.h:
+                    creep.touchwall=True
+            else:
+                if creep.touchwallx:
+                    creep.randomx=random.choice([-1,1])
+                    creep.touchwallx=False
+                else:
+                    if player.x-creep.x>0:
+                        creep.randomx=1
+                    elif player.x-creep.x<0:
+                        creep.randomx=-1
+                if creep.touchwally:
+                    creep.randomy=random.choice([-1,1])
+                    creep.touchwally=False
+                else:
+                    if player.y-creep.y>0:
+                        creep.randomy=1
+                    elif player.y-creep.y<0:
+                        creep.randomy=-1
                 creep.targetx=creep.x+creep.randomx
                 creep.checkwall()
                 for i in obstacle:
                     if i.rect.colliderect(creep.wallrect):
                         creep.targetx=creep.x
-                        creep.touchwall=True
-                        creep.checkwall()    
-            if creep.randomy!=0:
+                        creep.touchwallx=True
+                        creep.checkwall()
                 creep.targety=creep.y+creep.randomy
                 creep.checkwall()
                 for i in obstacle:
                     if i.rect.colliderect(creep.wallrect):
                         creep.targety=creep.y
-                        creep.touchwall=True
+                        creep.touchwally=True
                         creep.checkwall()
-            if creep.x<=0 or creep.x>=(1400-creep.w) or creep.y<=0 or creep.y>=700-creep.h:
-                creep.touchwall=True
-        else:
-            if creep.touchwallx:
-                creep.randomx=random.choice([-1,1])
-                creep.touchwallx=False
-            else:
-                if player.x-creep.x>0:
-                    creep.randomx=1
-                elif player.x-creep.x<0:
-                    creep.randomx=-1
-            if creep.touchwally:
-                creep.randomy=random.choice([-1,1])
-                creep.touchwally=False
-            else:
-                if player.y-creep.y>0:
-                    creep.randomy=1
-                elif player.y-creep.y<0:
-                    creep.randomy=-1
-            creep.targetx=creep.x+creep.randomx
-            creep.checkwall()
-            for i in obstacle:
-                if i.rect.colliderect(creep.wallrect):
-                    creep.targetx=creep.x
+                if creep.x<=0 or creep.x>=(1400-creep.w):
                     creep.touchwallx=True
-                    creep.checkwall()
-            creep.targety=creep.y+creep.randomy
-            creep.checkwall()
-            for i in obstacle:
-                if i.rect.colliderect(creep.wallrect):
-                    creep.targety=creep.y
+                if creep.y<=0 or creep.y>=700-creep.h:
                     creep.touchwally=True
-                    creep.checkwall()
-            if creep.x<=0 or creep.x>=(1400-creep.w):
-                creep.touchwallx=True
-            if creep.y<=0 or creep.y>=700-creep.h:
-                creep.touchwally=True
-            
-    
-        creep.move(dt)
-        creep.update()   
+                
+        
+            creep.move(dt)
+            creep.update()
+        else:
+            creep.shoot+=dt
+            if creep.shoot>=1:
+                bullets.append(Bullet(creep.x,creep.y,player.x,player.y))
+                creep.shoot=0
+    for bullet in bullets:
+        bullet.move(dt)
+        bullet.update()
+        if bullet.rect.colliderect(player.rect):
+            bullets.remove(bullet)
+        elif bullet.x>=(1400-20) or bullet.x<=0 or bullet.y<=0 or bullet.y>=(700-20):
+            bullets.remove(bullet)
+        else:
+            for object in obstacle:
+                if bullet.wallrect.colliderect(object.rect):
+                    bullets.remove(bullet)
+                    break            
+        
             
             
     for i in goable:
@@ -635,7 +707,9 @@ while True:
         pygame.draw.rect(screen,(225,0,0),i.wallrect,1)
     pygame.draw.rect(screen,(225,0,0),player.wallrect,1)
     player.draw(screen)
-    
+    for i in bullets:
+        i.draw(screen)
+        pygame.draw.rect(screen,(225,0,0),i.wallrect,1)
                
             
                 
