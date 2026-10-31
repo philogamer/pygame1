@@ -4,13 +4,11 @@ import math
 
 pygame.init()
 pygame.mixer.init()
-screen=pygame.display.set_mode((1500,825))
+screen=pygame.display.set_mode((1500,800))
 pygame.display.set_caption('Lost Soul')
 stage='map'
 clock=pygame.time.Clock()
 
-infobox1=pygame.Rect(0,700,1500,125)
-infobox2=pygame.Rect(70*20,0,100,825)
 
 class Map:
     def __init__(self,xy,type):
@@ -82,11 +80,13 @@ class Player:
         self.targety=self.y
         self.direction='right'
         self.speed=200
+        self.hp=500
+        self.maxhp=500
         self.img='assets/main.png'
         self.img=pygame.image.load(self.img).convert_alpha()
         self.img=pygame.transform.scale(self.img,(61,107))
         self.rect=pygame.Rect(self.x,self.y-(107-70),61,107)
-        self.wallrect=pygame.Rect(self.x,self.y+(107-70)-(107-70),61,71)
+        self.wallrect=pygame.Rect(self.x,self.y+(107-73)-(107-70),61,71)
     def draw(self,screen):
         screen.blit(self.img,(self.x,self.y-(107-70)))
     def move(self,dt):
@@ -111,21 +111,61 @@ class Player:
     def update(self):
         self.rect=pygame.Rect(self.x,self.y-(107-70),61,107)
     def checkwall(self):
-        self.wallrect=pygame.Rect(self.targetx,self.targety+(107-70)-(107-70),61,71)
+        self.wallrect=pygame.Rect(self.targetx,self.targety+(107-73)-(107-70),61,71)
 class Creep:
     def __init__(self,xy,type):
         self.position=xy
         self.y=xy%10*70
         self.x=(xy-xy%10)/10*70
-        self.img='assets/main'
-        self.h=10
-        self.w=10
+        self.targetx=self.x
+        self.targety=self.y
+        self.direction='right'
+        self.speed=50
+        self.touchwall=True
+        self.type=type
+        self.randomx=0
+        self.randomy=0
+        if self.type=='normal':
+            self.img='assets/ghost.png'
+            self.h=30*2
+            self.w=24*2
+            self.hp=100
+            self.maxhp=100
+        
         self.img=pygame.image.load(self.img).convert_alpha()
         self.img=pygame.transform.scale(self.img,(self.w,self.h))
-        self.wallrect=pygame.Rect(self.x,self.y-(self.h-70),self.w,70)
-        self.rect=pygame.Rect(self.x,self.y,self.w,self.h)
+        self.wallrect=pygame.Rect(self.x,self.y+(self.h-70),self.w,70)
+        self.rect=pygame.Rect(self.targetx,self.targety,self.w,self.h)
     def draw(self,screen):
         screen.blit(self.img,(self.x,self.y))
+        pygame.draw.rect(screen,(112,112,112),pygame.Rect(self.x,self.y-4,self.w,4))
+        pygame.draw.rect(screen,(225,0,0),pygame.Rect(self.x,self.y-4,self.hp*self.w/self.maxhp,4))
+    def move(self,dt):
+        dx=self.targetx-self.x
+        self.direction='right' if dx>0 else 'left'
+        dy=self.targety-self.y
+        distance=math.hypot(dx,dy)
+        if self.speed*dt>=distance:
+            self.x=self.targetx
+            self.y=self.targety
+        else:
+            self.x+=dx/distance*self.speed*dt
+            self.y+=dy/distance*self.speed*dt
+        if self.x<0:
+            self.x=0
+        if self.x>(1400-self.w):
+            self.x=(1400-self.w)
+        if self.y<0:
+            self.y=0 
+        if self.y>700-self.h:
+            self.y=700-self.h
+    def update(self):
+        self.rect=pygame.Rect(self.x,self.y,self.w,self.h)
+    def checkwall(self):
+        self.wallrect=pygame.Rect(self.targetx,self.targety+(self.h-70),self.w,70)
+        
+
+
 rendermap=True
 firstdoor=[]  #for save the door for next map
 #Game loop
@@ -156,6 +196,7 @@ while True:
         st=[]
         insidef=[]
         wall=[]
+        creeps=[]
         if not firstdoor:
             doorlong=random.randint(1,5)
             doorside=random.choice([-1,1,-2,2])
@@ -488,10 +529,47 @@ while True:
             if i.rect.colliderect(player.wallrect):
                 player.targety=player.y
                 player.checkwall()
-    
-            
+                
     player.move(dt)
     player.update()
+    
+    #creep logic
+    creepsquare=random.sample(insidef,int(len(insidef)/5))
+    if creeps==[]:
+        for i in creepsquare:
+            creeps.append(Creep(i,'normal'))
+    for creep in creeps:
+        creep.targetx=creep.x
+        creep.targety=creep.y
+        if creep.touchwall:
+            creep.randomx=random.choice([-1,1])
+            creep.randomy=random.choice([-1,1])
+            creep.touchwall=False
+        if creep.randomx!=0:
+            creep.targetx=creep.x+creep.randomx
+            creep.checkwall()
+            for i in obstacle:
+                if i.rect.colliderect(creep.wallrect):
+                    creep.targetx=creep.x
+                    creep.touchwall=True
+                    creep.checkwall()
+            
+        if creep.randomy!=0:
+            creep.targety=creep.y+creep.randomy
+            creep.checkwall()
+            for i in obstacle:
+                if i.rect.colliderect(creep.wallrect):
+                    creep.targety=creep.y
+                    creep.touchwall=True
+                    creep.checkwall()
+        if creep.x<=0 or creep.x>=(1400-creep.w) or creep.y<=0 or creep.y>=700-creep.h:
+            creep.touchwall=True
+            
+    
+        creep.move(dt)
+        creep.update()   
+            
+            
     for i in goable:
         if i.rect.colliderect(player.rect):
             if player.x<=0 or player.x>=(1400-61) or player.y<=-((107-70)-(107-70)) or player.y>=((700-107)+(107-70)):
@@ -506,16 +584,16 @@ while True:
                        
                 
     #draw on screen
-    screen.fill((0,0,0))
-    pygame.draw.rect(screen,(82,78,82),infobox1)
-    pygame.draw.rect(screen,(82,78,82),infobox2)
+    screen.fill((70,70,70))
     for i in map:
         i.draw(screen)
     for i in obstacle:
         i.draw(screen)
     for i in wall:
         i.draw(screen)
-    pygame.draw.rect(screen,(225,0,0),player.rect,1)
+    for i in creeps:
+        i.draw(screen)
+    pygame.draw.rect(screen,(225,0,0),player.wallrect,1)
     player.draw(screen)
     
                
