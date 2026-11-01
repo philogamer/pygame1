@@ -131,6 +131,7 @@ class Creep:
         self.notry=False
         self.testx=False
         self.testy=False
+        self.takedame=False
         if self.type=='normal':
             self.img='assets/ghost.png'
             self.h=30*2
@@ -182,8 +183,8 @@ class Creep:
             self.x=0
         if self.x>(1400-self.w):
             self.x=(1400-self.w)
-        if self.y<0:
-            self.y=0 
+        if self.y<(70-self.h):
+            self.y=70-self.h 
         if self.y>700-self.h:
             self.y=700-self.h
     def update(self):
@@ -271,7 +272,7 @@ while True:
         wall=[]
         creeps=[]
         bullets=[]
-        slash=[]
+        slashes=[]
         slashcooldown=0
         if not firstdoor:
             doorlong=random.randint(1,5)
@@ -608,24 +609,33 @@ while True:
                 
     player.move(dt)
     player.update()
-    if keys[pygame.K_LEFT] and slashcooldown==0:
-        slash.append(Slash(player.x,player.y-(107-70),'left'))
-        slashcooldown=1            
-    if keys[pygame.K_RIGHT] and slashcooldown==0:
-        slash.append(Slash(player.x,player.y-(107-70),'right'))
-        slashcooldown=1
-    for i in slash:
+    if keys[pygame.K_LEFT] and slashcooldown<=0:
+        slashes.append(Slash(player.x,player.y-(107-70),'left'))
+        slashcooldown=0.5
+        for creep in creeps:
+            creep.takedame=True            
+    if keys[pygame.K_RIGHT] and slashcooldown<=0:
+        slashes.append(Slash(player.x,player.y-(107-70),'right'))
+        slashcooldown=0.5
+        for creep in creeps:
+            creep.takedame=True         
+    for i in slashes:
         i.present+=dt
         if i.present>=0.1:
-            slash.remove(i)
-            slashcooldown=0
+            slashes.remove(i)
+            for creep in creeps:
+                creep.takedame=False
+    if not slashes: slashcooldown-=dt
+    if slashes:
+        slash=slashes[0] 
                  
             
     #creep logic
     creepsquare=random.sample(insidef,int(len(insidef)/5/2))
     if creeps==[]:
         for i in creepsquare:
-            creeps.append(Creep(i,random.choice(['slime','normal','elite'])))
+            creeps.append(Creep(i,random.choice(['slime','normal'])))
+        creeps.append(Creep(random.choice(insidef),'elite'))
     for creep in creeps:
         if math.hypot(player.x-creep.x,player.y-creep.y)>creep.range:
             if math.hypot(player.x-creep.x,player.y-creep.y)>creep.view or creep.notry:    
@@ -781,18 +791,27 @@ while True:
             if creep.shoot>=5:
                 bullets.append(Bullet(creep.x,creep.y,player.x,player.y))
                 creep.shoot=0
+    if slashes:
+        for creep in creeps:
+            if creep.rect.colliderect(slash.rect) and creep.takedame:
+                creep.hp-=slash.dmg
+                creep.takedame=False
+            if creep.hp<=0:
+                creeps.remove(creep)
     for bullet in bullets:
         bullet.move(dt)
         bullet.update()
-        if bullet.rect.colliderect(player.rect):
-            bullets.remove(bullet)
-        elif bullet.x>=(1400-20) or bullet.x<=0 or bullet.y<=0 or bullet.y>=(700-20):
+        if bullet.rect.colliderect(player.rect) or bullet.x>=(1400-20) or bullet.x<=0 or bullet.y<=0 or bullet.y>=(700-20):
             bullets.remove(bullet)
         else:
             for object in obstacle:
                 if bullet.wallrect.colliderect(object.rect):
                     bullets.remove(bullet)
-                    break            
+                    break
+    if slashes:
+        for bullet in bullets:
+            if bullet.rect.colliderect(slash.rect):
+                bullets.remove(bullet)                    
         
             
             
@@ -819,13 +838,12 @@ while True:
         i.draw(screen)
     for i in creeps:
         i.draw(screen)
-        pygame.draw.rect(screen,(225,0,0),i.wallrect,1)
-    pygame.draw.rect(screen,(225,0,0),player.wallrect,1)
+        pygame.draw.rect(screen,(225,0,0),i.rect,1)
     player.draw(screen)
     for i in bullets:
         i.draw(screen)
-        pygame.draw.rect(screen,(225,0,0),i.wallrect,1)
-    for i in slash:
+        pygame.draw.rect(screen,(225,0,0),i.rect,1)
+    for i in slashes:
         i.draw(screen)          
             
                 
