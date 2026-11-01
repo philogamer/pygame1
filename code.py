@@ -129,6 +129,8 @@ class Creep:
         self.randomy=0
         self.shoot=0
         self.notry=False
+        self.testx=False
+        self.testy=False
         if self.type=='normal':
             self.img='assets/ghost.png'
             self.h=30*2
@@ -225,15 +227,14 @@ class Slash:
     def __init__(self,x,y,direction):
         self.y=y
         self.present=0
+        self.img='assets/slash.png'
         if direction=='right':
-            self.img='assets/slash2.png'
             self.x=x+63
         if direction=='left':
-            self.img='assets/slash1.png'
             self.x=x-51
         self.img=pygame.image.load(self.img).convert_alpha()
-        self.img=pygame.transform.scale(self.img,(48,90))
-        self.rect=pygame.Rect(self.x,self.y,48,90)
+        self.img=pygame.transform.scale(self.img,(48,107))
+        self.rect=pygame.Rect(self.x,self.y,48,107)
         self.dmg=10
     def draw(self,screen):
         screen.blit(self.img,(self.x,self.y))   
@@ -654,13 +655,86 @@ while True:
                             creep.checkwall()
                             creep.notry=False
                             break
-                if creep.x<=0 or creep.x>=(1400-creep.w) or creep.y<=0 or creep.y>=700-creep.h:
+                if creep.x<=0 or creep.x>=(1400-creep.w) or creep.y<=(70-creep.h) or creep.y>=700-creep.h:
                     creep.touchwall=True
                     creep.notry=False
             else:
                 if creep.touchwally and creep.touchwallx:
-                    creep.notry=True                                    
+                    if creep.testx:
+                        creep.randomx*=(-1)
+                        creep.touchwallx=False
+                    elif creep.testy:
+                        creep.randomy*=(-1)
+                        creep.touchwally=False                        
+                    else:
+                        creep.notry=True
+                        creep.touchwallx=False
+                        creep.touchwally=False                                    
+                elif creep.testx:
+                    creep.targetx=creep.x
+                    creep.targety=creep.y
+                    creep.testx=False
+                    creep.touchwallx=False
+                    creep.touchwally=False
+                    creep.targetx=creep.x+creep.randomx
+                    creep.checkwall()
+                    for i in obstacle:
+                        if i.rect.colliderect(creep.wallrect):
+                            creep.targetx=creep.x
+                            creep.touchwallx=True     
+                            creep.checkwall()
+                            break
+                    if player.y-creep.y>0:
+                        creep.randomy=1
+                    elif player.y-creep.y<0:
+                        creep.randomy=-1
+                    creep.targety=creep.y+creep.randomy
+                    creep.checkwall()
+                    for i in obstacle:
+                        if i.rect.colliderect(creep.wallrect):
+                            creep.targety=creep.y
+                            creep.touchwally=True
+                            creep.checkwall()
+                            creep.testx=True
+                            break
+                    if creep.x<=0 or creep.x>=(1400-creep.w):
+                        creep.touchwallx=True
+                    if creep.y<=(70-creep.h) or creep.y>=700-creep.h:
+                        creep.touchwally=True
+                elif creep.testy:
+                    creep.targetx=creep.x
+                    creep.targety=creep.y                    
+                    creep.testy=False
+                    creep.touchwallx=False
+                    creep.touchwally=False
+                    if player.x-creep.x>0:
+                        creep.randomx=1
+                    elif player.x-creep.x<0:
+                        creep.randomx=-1                    
+                    creep.targetx=creep.x+creep.randomx
+                    creep.checkwall()
+                    for i in obstacle:
+                        if i.rect.colliderect(creep.wallrect):
+                            creep.targetx=creep.x
+                            creep.touchwallx=True     
+                            creep.checkwall()
+                            creep.testy=True
+                            break
+                    creep.targety=creep.y+creep.randomy
+                    creep.checkwall()
+                    for i in obstacle:
+                        if i.rect.colliderect(creep.wallrect):
+                            creep.targety=creep.y
+                            creep.touchwally=True
+                            creep.checkwall()
+                            break
+                    if creep.x<=0 or creep.x>=(1400-creep.w):
+                        creep.touchwallx=True
+                    if creep.y<=(70-creep.h) or creep.y>=700-creep.h:
+                        creep.touchwally=True
                 else:
+                    creep.targetx=creep.x
+                    creep.targety=creep.y                    
                     creep.touchwallx=False
                     creep.touchwally=False
                     if player.x-creep.x>0:
@@ -687,10 +761,16 @@ while True:
                             creep.touchwally=True
                             creep.checkwall()
                             break
-                    if creep.x<=0 or creep.x>=(1400-creep.w):
+                    if creep.x<=(70-creep.h) or creep.x>=(1400-creep.w):
                         creep.touchwallx=True
-                    if creep.y<=0 or creep.y>=700-creep.h:
+                    if creep.y<=(70-creep.h) or creep.y>=700-creep.h:
                         creep.touchwally=True
+                    if creep.touchwally and int(creep.x)==int(player.x) and not creep.touchwallx:
+                        creep.testx=True
+                        creep.randomx=1 if player.x-creep.x>=0 else -1
+                    if creep.touchwallx and int(creep.y)==int(player.y) and not creep.touchwally:
+                        creep.testy=True
+                        creep.randomy=1 if player.y-creep.y>=0 else -1
                     
                 
         
