@@ -4,11 +4,15 @@ import math
 
 pygame.init()
 pygame.mixer.init()
+pygame.font.init()
 screen=pygame.display.set_mode((1500,800))
 pygame.display.set_caption('Lost Soul')
 stage='map'
 clock=pygame.time.Clock()
+font=pygame.font.Font('assets/font.ttf',30)
 
+def type(text,font,color,x,y):
+    screen.blit(font.render(text,True,color),(x,y))
 
 class Map:
     def __init__(self,xy,type):
@@ -79,55 +83,60 @@ class Player:
         self.targetx=self.x
         self.targety=self.y
         self.direction='right'
+        self.dmg=10
         self.speed=200
+        self.maxspeed=200
         self.hp=hp
         self.maxhp=500
-        self.mana=50
-        self.maxmana=50
-        self.manareload=0
+        self.mana=100
+        self.maxmana=100
         self.img='assets/main.png'
         self.img=pygame.image.load(self.img).convert_alpha()
         self.img=pygame.transform.scale(self.img,(61,107))
         self.rect=pygame.Rect(self.x,self.y-(107-70),61,107)
         self.wallrect=pygame.Rect(self.x,self.y+(107-73)-(107-70),61,71)
+        self.manaregen=12
+        self.attackspeed=0.5
     def draw(self,screen):
         screen.blit(self.img,(self.x,self.y-(107-70)))
-        pygame.draw.rect(screen,(0,0,0),pygame.Rect(45,705,310,40))
-        pygame.draw.rect(screen,(225,0,0),pygame.Rect(50,710,self.hp*300/self.maxhp,30))
-        pygame.draw.rect(screen,(0,0,0),pygame.Rect(45,750,310,40))
-        pygame.draw.rect(screen,(50,107,250),pygame.Rect(50,755,self.mana*300/self.maxmana,30))
+        pygame.draw.rect(screen,(0,0,0),pygame.Rect(85,705,310,40))
+        pygame.draw.rect(screen,(225,0,0),pygame.Rect(90,710,self.hp*300/self.maxhp,30))
+        pygame.draw.rect(screen,(0,0,0),pygame.Rect(85,750,310,40))
+        pygame.draw.rect(screen,(50,107,250),pygame.Rect(90,755,self.mana*300/self.maxmana,30))
     def move(self,dt):
         dx=self.targetx-self.x
         self.direction='right' if dx>0 else 'left'
         dy=self.targety-self.y
         distance=math.hypot(dx,dy)
-        if self.speed*dt>=distance:
-            self.x=self.targetx
-            self.y=self.targety
-        else:
-            self.x+=dx/distance*self.speed*dt
-            self.y+=dy/distance*self.speed*dt
-        if self.x<0:
-            self.x=0
-        if self.x>(1400-61):
-            self.x=(1400-61)
-        if self.y<-((107-70)-(107-70)):
-            self.y=-((107-70)-(107-70))  
-        if self.y>((700-107)+(107-70)):
-            self.y=700-107+(107-70)
+        if dx!=0 or dy!=0:    
+            if player.mana>0: player.mana-=9*dt
+            if self.speed*dt>=distance:
+                self.x=self.targetx
+                self.y=self.targety    
+            else:
+                self.x+=dx/distance*self.speed*dt
+                self.y+=dy/distance*self.speed*dt
+            if self.x<0:
+                self.x=0
+            if self.x>(1400-61):
+                self.x=(1400-61)
+            if self.y<-((107-70)-(107-70)):
+                self.y=-((107-70)-(107-70))  
+            if self.y>((700-107)+(107-70)):
+                self.y=700-107+(107-70)
     def update(self):
         self.rect=pygame.Rect(self.x,self.y-(107-70),61,107)
     def checkwall(self):
         self.wallrect=pygame.Rect(self.targetx,self.targety+(107-73)-(107-70),61,71)
 class Creep:
-    def __init__(self,xy,type):
+    def __init__(self,xy,type,buff):
         self.position=xy
         self.y=xy%10*70
         self.x=(xy-xy%10)/10*70
         self.targetx=self.x
         self.targety=self.y
         self.direction='right'
-        self.speed=50
+        self.speed=50*(1+0.01*buff)
         self.touchwall=True
         self.touchwallx=False
         self.touchwally=False
@@ -143,29 +152,29 @@ class Creep:
             self.img='assets/ghost.png'
             self.h=30*2
             self.w=24*2
-            self.hp=100
-            self.maxhp=100
-            self.range=200
-            self.view=300
-            self.dmg=10
+            self.hp=70*(1+0.08*buff)
+            self.maxhp=70*(1+0.08*buff)
+            self.range=130
+            self.view=400
+            self.dmg=10*(1+0.05*buff)
         elif self.type=='elite':
             self.img='assets/ghost1.png'
             self.h=30*2
             self.w=24*2
-            self.hp=200
-            self.maxhp=200
-            self.range=200
-            self.view=300
-            self.dmg=15
+            self.hp=150*(1+0.08*buff)
+            self.maxhp=150*(1+0.08*buff)
+            self.range=130
+            self.view=400
+            self.dmg=15*(1+0.05*buff)
         elif self.type=='slime':
             self.img='assets/slime.png'
             self.h=14*2
             self.w=19*2
-            self.hp=70
-            self.maxhp=70
+            self.hp=50*(1+0.08*buff)
+            self.maxhp=50*(1+0.08*buff)
             self.range=100
-            self.view=200
-            self.dmg=3
+            self.view=400
+            self.dmg=5*(1+0.05*buff)
         
         self.img=pygame.image.load(self.img).convert_alpha()
         self.img=pygame.transform.scale(self.img,(self.w,self.h))
@@ -199,7 +208,7 @@ class Creep:
     def checkwall(self):
         self.wallrect=pygame.Rect(self.targetx,self.targety+(self.h-70),self.w,70)
 class Bullet:
-    def __init__(self,x,y,targetx,targety):
+    def __init__(self,x,y,targetx,targety,dmg):
         self.y=y+18
         self.x=x
         self.targetx=targetx
@@ -213,7 +222,7 @@ class Bullet:
         self.dx=(self.targetx-self.x)*2000
         self.dy=(self.targety-self.y)*2000
         self.distance=math.hypot(self.dx,self.dy)
-        self.dmg=7
+        self.dmg=dmg
     def draw(self,screen):
         screen.blit(self.img,(self.x,self.y))
     def move(self,dt):
@@ -232,7 +241,7 @@ class Bullet:
         self.rect=pygame.Rect(self.x,self.y,20,20)
         self.wallrect=pygame.Rect(self.x,self.y-18,20,20+18)        
 class Slash:
-    def __init__(self,x,y,direction):
+    def __init__(self,x,y,direction,dmg):
         self.y=y
         self.present=0
         self.img='assets/slash.png'
@@ -243,14 +252,43 @@ class Slash:
         self.img=pygame.image.load(self.img).convert_alpha()
         self.img=pygame.transform.scale(self.img,(48,107))
         self.rect=pygame.Rect(self.x,self.y,48,107)
-        self.dmg=10
+        self.dmg=dmg
+    def draw(self,screen):
+        screen.blit(self.img,(self.x,self.y))
+class Plus:
+    def __init__(self,type):
+        self.type=type
+        self.img='assets/plus.png'
+        if type=='dmg':
+            self.x=600
+            self.y=705
+        elif type=='maxmana':
+            self.x=640
+            self.y=750
+        elif type=='maxhp':
+            self.x=860
+            self.y=705
+        elif type=='movespeed':
+            self.x=914
+            self.y=750
+        elif type=='manaregen':
+            self.x=1150
+            self.y=705
+        elif type=='attackspeed':
+            self.x=1200
+            self.y=750
+        self.img=pygame.image.load(self.img).convert_alpha()
+        self.img=pygame.transform.scale(self.img,(30,30))
+        self.rect=pygame.Rect(self.x,self.y,30,30)
     def draw(self,screen):
         screen.blit(self.img,(self.x,self.y))   
 
 rendermap=True
 firstdoor=[]  #for save the door for next map
 hp=500
-
+wave=0
+plus=[]
+creepspeed=50
 #Game loop
 while True:
     dt=clock.tick(60)/1000
@@ -585,6 +623,7 @@ while True:
         
     
     #main character logic
+    player.speed=creepspeed+(player.maxspeed-creepspeed)*(player.mana/player.maxmana)
     player.targetx=player.x
     player.targety=player.y
     if keys[pygame.K_a]:
@@ -600,7 +639,7 @@ while True:
         for i in obstacle:
             if i.rect.colliderect(player.wallrect):
                 player.targetx=player.x
-                player.checkwall()
+                player.checkwall() 
     if keys[pygame.K_w]:
         player.targety=player.y-1
         player.checkwall()
@@ -616,18 +655,16 @@ while True:
                 player.targety=player.y
                 player.checkwall()
                 
-    player.move(dt)
-    player.update()
-    if keys[pygame.K_LEFT] and slashcooldown<=0:
-        player.mana-=1
-        slashes.append(Slash(player.x,player.y-(107-70),'left'))
-        slashcooldown=0.5
+    if keys[pygame.K_LEFT] and slashcooldown<=0 and player.mana>=6:
+        player.mana-=6
+        slashes.append(Slash(player.x,player.y-(107-70),'left',player.dmg))
+        slashcooldown=1-player.attackspeed
         for creep in creeps:
             creep.takedame=True            
-    if keys[pygame.K_RIGHT] and slashcooldown<=0:
-        player.mana-=1
-        slashes.append(Slash(player.x,player.y-(107-70),'right'))
-        slashcooldown=0.5
+    if keys[pygame.K_RIGHT] and slashcooldown<=0 and player.mana>=6:
+        player.mana-=6
+        slashes.append(Slash(player.x,player.y-(107-70),'right',player.dmg))
+        slashcooldown=1-player.attackspeed
         for creep in creeps:
             creep.takedame=True         
     for i in slashes:
@@ -640,19 +677,23 @@ while True:
     if slashes:
         slash=slashes[0]
     if player.mana<player.maxmana:
-        if player.manareload>=1:
-            player.mana+=1
-            player.manareload=0
-        else:
-            player.manareload+=dt 
+        player.mana+=player.manaregen*dt
+        if player.mana>player.maxmana:
+            player.mana=player.maxmana
+            
+    
+    player.move(dt)
+    player.update()
                  
             
     #creep logic
-    creepsquare=random.sample(insidef,int(len(insidef)/5/2))
+    creepsquare=random.sample(insidef,int(len(insidef)/12))
     if creeps==[]:
+        wave+=1
         for i in creepsquare:
-            creeps.append(Creep(i,random.choice(['slime','normal'])))
-        creeps.append(Creep(random.choice(insidef),'elite'))
+            creeps.append(Creep(i,random.choice(['slime','normal']),wave))
+        creeps.append(Creep(random.choice(insidef),'elite',wave))
+    creepspeed=50*(1+0.01*wave)
     for creep in creeps:
         if math.hypot(player.x-creep.x,player.y-creep.y)>creep.range:
             if math.hypot(player.x-creep.x,player.y-creep.y)>creep.view or creep.notry:    
@@ -801,8 +842,8 @@ while True:
                 
         else:
             creep.shoot+=dt
-            if creep.shoot>=5:
-                bullets.append(Bullet(creep.x,creep.y,player.x,player.y))
+            if creep.shoot>=2.5:
+                bullets.append(Bullet(creep.x,creep.y,player.x,player.y,creep.dmg))
                 creep.shoot=0
             if creep.touchwally and creep.touchwallx:
                 if creep.testx:
@@ -971,11 +1012,29 @@ while True:
         i.draw(screen)
         pygame.draw.rect(screen,(225,0,0),i.rect,1)
     player.draw(screen)
+    type('HP',font,(0,0,0),40,699)
+    type('MANA',font,(0,0,0),20,744)
+    type('DAMAGE:'+str(player.dmg),font,(0,0,0),450,699)
+    type('MAX MANA:'+str(player.maxmana),font,(0,0,0),450,744)
+    type('MAX HP:'+str(player.maxhp),font,(0,0,0),700,699)
+    type('MOVE SPEED:'+str(player.maxspeed),font,(0,0,0),700,744)
+    type('MANA REGEN:'+str(player.manaregen),font,(0,0,0),950,699)
+    type('ATTACK SPEED:'+str(player.attackspeed),font,(0,0,0),950,744)
+    if not plus: 
+        plus.append(Plus('dmg'))
+        plus.append(Plus('maxmana'))
+        plus.append(Plus('maxhp'))
+        plus.append(Plus('movespeed'))
+        plus.append(Plus('manaregen'))
+        plus.append(Plus('attackspeed'))
     for i in bullets:
         i.draw(screen)
         pygame.draw.rect(screen,(225,0,0),i.rect,1)
     for i in slashes:
-        i.draw(screen)          
+        i.draw(screen)
+    for i in plus:
+        i.draw(screen)
+                  
             
                 
             
