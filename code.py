@@ -11,7 +11,7 @@ stage='map'
 clock=pygame.time.Clock()
 font=pygame.font.Font('assets/font.ttf',30)
 
-def type(text,font,color,x,y):
+def write(text,font,color,x,y):
     screen.blit(font.render(text,True,color),(x,y))
 
 class Map:
@@ -97,12 +97,17 @@ class Player:
         self.wallrect=pygame.Rect(self.x,self.y+(107-73)-(107-70),61,71)
         self.manaregen=12
         self.attackspeed=0.5
+        self.exp=0
+        self.level=1
+        self.buffstat=0
     def draw(self,screen):
         screen.blit(self.img,(self.x,self.y-(107-70)))
         pygame.draw.rect(screen,(0,0,0),pygame.Rect(85,705,310,40))
         pygame.draw.rect(screen,(225,0,0),pygame.Rect(90,710,self.hp*300/self.maxhp,30))
         pygame.draw.rect(screen,(0,0,0),pygame.Rect(85,750,310,40))
         pygame.draw.rect(screen,(50,107,250),pygame.Rect(90,755,self.mana*300/self.maxmana,30))
+        pygame.draw.rect(screen,(0,0,0),pygame.Rect(1425,120,50,500))
+        pygame.draw.rect(screen,(52,6,59),pygame.Rect(1425,120,50,self.exp*500/(90+25*(self.level-1)+5*(self.level-1)**2)))
     def move(self,dt):
         dx=self.targetx-self.x
         self.direction='right' if dx>0 else 'left'
@@ -161,8 +166,8 @@ class Creep:
             self.img='assets/ghost1.png'
             self.h=30*2
             self.w=24*2
-            self.hp=150*(1+0.08*buff)
-            self.maxhp=150*(1+0.08*buff)
+            self.hp=150*(1+0.06*buff)
+            self.maxhp=150*(1+0.06*buff)
             self.range=130
             self.view=400
             self.dmg=15*(1+0.05*buff)
@@ -170,8 +175,8 @@ class Creep:
             self.img='assets/slime.png'
             self.h=14*2
             self.w=19*2
-            self.hp=50*(1+0.08*buff)
-            self.maxhp=50*(1+0.08*buff)
+            self.hp=50*(1+0.07*buff)
+            self.maxhp=50*(1+0.07*buff)
             self.range=100
             self.view=400
             self.dmg=5*(1+0.05*buff)
@@ -287,15 +292,19 @@ rendermap=True
 firstdoor=[]  #for save the door for next map
 hp=500
 wave=0
-plus=[]
+pluses=[]
 creepspeed=50
 #Game loop
 while True:
+    click=False
     dt=clock.tick(60)/1000
     for event in pygame.event.get():
         if event.type==pygame.QUIT:
             quit(0)
         keys=pygame.key.get_pressed()
+        if event.type==pygame.MOUSEBUTTONDOWN and event.button==1:
+            click=True
+            mousepos=event.pos
     #random map logic
     if rendermap:
         locate=list(range(200))
@@ -623,7 +632,7 @@ while True:
         
     
     #main character logic
-    player.speed=creepspeed+(player.maxspeed-creepspeed)*(player.mana/player.maxmana)
+    player.speed=creepspeed-10+(player.maxspeed-creepspeed)*(player.mana/player.maxmana)
     player.targetx=player.x
     player.targety=player.y
     if keys[pygame.K_a]:
@@ -684,6 +693,40 @@ while True:
     
     player.move(dt)
     player.update()
+    
+    if player.exp>=(90+25*(player.level-1)+5*(player.level-1)**2):
+        player.level+=1
+        player.exp-=(90+25*(player.level-1)+5*(player.level-1)**2)
+        player.buffstat+=2
+    if player.buffstat>0:
+        if not pluses:
+            pluses.append(Plus('dmg'))
+            pluses.append(Plus('maxmana'))
+            pluses.append(Plus('maxhp'))
+            pluses.append(Plus('movespeed'))
+            pluses.append(Plus('manaregen'))
+            pluses.append(Plus('attackspeed'))
+        for plus in pluses:
+            if click:
+                if plus.rect.collidepoint(mousepos):
+                    player.buffstat-=1
+                    if plus.type=='dmg':
+                        player.dmg+=1
+                    elif plus.type=='maxmana':
+                        player.maxmana+=15
+                        player.mana+=15
+                    elif plus.type=='maxhp':
+                        player.maxhp+=35
+                        player.hp+=15
+                    elif plus.type=='movespeed':
+                        player.maxspeed+=1                        
+                    elif plus.type=='manaregen':
+                        player.manaregen+=1
+                    elif plus.type=='attackspeed':
+                        player.attackspeed+=0.03
+    else:
+        if pluses: pluses=[]                    
+                    
                  
             
     #creep logic
@@ -966,6 +1009,14 @@ while True:
                 creep.takedame=False
             if creep.hp<=0:
                 creeps.remove(creep)
+                if creep.type=='normal':
+                    player.exp+=12*(1+0.02*wave)
+                elif creep.type=='slime':
+                    player.exp+=8*(1+0.02*wave)
+                elif creep.type=='elite':
+                    player.exp+=30*(1+0.02*wave)
+                if len(creeps)==0:
+                    player.exp+=12*(1+0.02*wave)
     for bullet in bullets:
         bullet.move(dt)
         bullet.update()
@@ -1012,27 +1063,23 @@ while True:
         i.draw(screen)
         pygame.draw.rect(screen,(225,0,0),i.rect,1)
     player.draw(screen)
-    type('HP',font,(0,0,0),40,699)
-    type('MANA',font,(0,0,0),20,744)
-    type('DAMAGE:'+str(player.dmg),font,(0,0,0),450,699)
-    type('MAX MANA:'+str(player.maxmana),font,(0,0,0),450,744)
-    type('MAX HP:'+str(player.maxhp),font,(0,0,0),700,699)
-    type('MOVE SPEED:'+str(player.maxspeed),font,(0,0,0),700,744)
-    type('MANA REGEN:'+str(player.manaregen),font,(0,0,0),950,699)
-    type('ATTACK SPEED:'+str(player.attackspeed),font,(0,0,0),950,744)
-    if not plus: 
-        plus.append(Plus('dmg'))
-        plus.append(Plus('maxmana'))
-        plus.append(Plus('maxhp'))
-        plus.append(Plus('movespeed'))
-        plus.append(Plus('manaregen'))
-        plus.append(Plus('attackspeed'))
+    write('HP',font,(0,0,0),40,699)
+    write('MANA',font,(0,0,0),20,744)
+    write('DAMAGE:'+str(player.dmg),font,(0,0,0),450,699)
+    write('MAX MANA:'+str(player.maxmana),font,(0,0,0),450,744)
+    write('MAX HP:'+str(player.maxhp),font,(0,0,0),700,699)
+    write('MOVE SPEED:'+str(player.maxspeed),font,(0,0,0),700,744)
+    write('MANA REGEN:'+str(player.manaregen),font,(0,0,0),950,699)
+    write('ATTACK SPEED:'+str(player.attackspeed),font,(0,0,0),950,744)
+    write('level',font,(0,0,0),1410,30)
+    write(str(player.level),font,(0,0,0),1430,70)
+    write(str(player.level+1),font,(0,0,0),1430,630)
     for i in bullets:
         i.draw(screen)
         pygame.draw.rect(screen,(225,0,0),i.rect,1)
     for i in slashes:
         i.draw(screen)
-    for i in plus:
+    for i in pluses:
         i.draw(screen)
                   
             
