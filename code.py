@@ -7,9 +7,10 @@ pygame.mixer.init()
 pygame.font.init()
 screen=pygame.display.set_mode((1500,800))
 pygame.display.set_caption('Lost Soul')
-stage='map'
 clock=pygame.time.Clock()
 font=pygame.font.Font('assets/font.ttf',30)
+titlefont=pygame.font.Font('assets/endfont.ttf',100)
+codefont=pygame.font.Font('assets/endfont.ttf',50)
 
 def write(text,font,color,x,y):
     screen.blit(font.render(text,True,color),(x,y))
@@ -294,6 +295,9 @@ hp=500
 wave=0
 pluses=[]
 creepspeed=50
+enemykilled=0
+bosscount=0
+stage='play'
 #Game loop
 while True:
     click=False
@@ -305,471 +309,591 @@ while True:
         if event.type==pygame.MOUSEBUTTONDOWN and event.button==1:
             click=True
             mousepos=event.pos
-    #random map logic
-    if rendermap:
-        locate=list(range(200))
-        goable=[]
-        map=[]
-        obstacle=[]
-        door=[]
-        w=[]
-        sr=[]
-        sl=[]
-        v=[]
-        cl=[]
-        cr=[]
-        crl=[]
-        slr=[]
-        slrt=[]
-        slt=[]
-        srt=[]
-        st=[]
-        insidef=[]
-        wall=[]
-        creeps=[]
-        bullets=[]
-        slashes=[]
-        slashcooldown=0
-        if not firstdoor:
-            doorlong=random.randint(1,5)
-            doorside=random.choice([-1,1,-2,2])
-            firstdoor.append(doorside)
-            firstdoor.append(doorlong)
-            if doorside==(-1):
-                firstexactdoor=random.choice(list(range(19,189+1-doorlong*10,10)))
-                firstdoor.append(firstexactdoor)                
-                for i in range(0,doorlong):   
-                    map.append(Map(firstexactdoor+i*10,'F'))
-                    locate.remove(firstexactdoor+i*10)
-                    door.append(firstexactdoor+i*10)
-            elif doorside==(1):
-                firstexactdoor=random.choice(list(range(10,180+1-doorlong*10,10)))
-                firstdoor.append(firstexactdoor)
-                for i in range(0,doorlong):
-                    map.append(Map(firstexactdoor+i*10,'F'))
-                    locate.remove(firstexactdoor+i*10)
-                    door.append(firstexactdoor+i*10)    
-            elif doorside==(2):
-                firstexactdoor=random.choice(list(range(1,8+1-doorlong)))
-                firstdoor.append(firstexactdoor)
-                for i in range(0,doorlong):
-                    map.append(Map(firstexactdoor+i,'F'))
-                    locate.remove(firstexactdoor+i)
-                    door.append(firstexactdoor+i)                
-            elif doorside==(-2):
-                firstexactdoor=random.choice(list(range(191,198+1-doorlong)))
-                firstdoor.append(firstexactdoor)
-                for i in range(0,doorlong):
-                    map.append(Map(firstexactdoor+i,'F'))
-                    locate.remove(firstexactdoor+i)
-                    door.append(firstexactdoor+i)
-            player=Player(random.choice(door),hp)
-        else:
-            doorlong=firstdoor[1]
-            doorside=firstdoor[0]*(-1)
-            if doorside==(-1):
-                firstexactdoor=random.choice(list(range(19,189+1-doorlong*10,10)))
-                for i in range(0,doorlong):   
-                    map.append(Map(firstexactdoor+i*10,'F'))
-                    locate.remove(firstexactdoor+i*10)
-                    door.append(firstexactdoor+i*10)
-            elif doorside==(1):
-                firstexactdoor=random.choice(list(range(10,180+1-doorlong*10,10)))
-                for i in range(0,doorlong):
-                    map.append(Map(firstexactdoor+i*10,'F'))
-                    locate.remove(firstexactdoor+i*10)
-                    door.append(firstexactdoor+i*10)    
-            elif doorside==(2):
-                firstexactdoor=random.choice(list(range(1,8+1-doorlong)))
-                for i in range(0,doorlong):
-                    map.append(Map(firstexactdoor+i,'F'))
-                    locate.remove(firstexactdoor+i)
-                    door.append(firstexactdoor+i)                
-            elif doorside==(-2):
-                firstexactdoor=random.choice(list(range(191,198+1-doorlong)))
-                for i in range(0,doorlong):
-                    map.append(Map(firstexactdoor+i,'F'))
-                    locate.remove(firstexactdoor+i)
-                    door.append(firstexactdoor+i)
-            player=Player(random.choice(door),hp)
+    if stage=='play':
+        #random map logic
+        if rendermap:
+            locate=list(range(200))
+            goable=[]
+            map=[]
+            obstacle=[]
+            door=[]
+            w=[]
+            sr=[]
+            sl=[]
+            v=[]
+            cl=[]
+            cr=[]
+            crl=[]
+            slr=[]
+            slrt=[]
+            slt=[]
+            srt=[]
+            st=[]
+            insidef=[]
+            wall=[]
+            creeps=[]
+            bullets=[]
+            slashes=[]
+            slashcooldown=0
+            if not firstdoor:
+                doorlong=random.randint(1,5)
+                doorside=random.choice([-1,1,-2,2])
+                firstdoor.append(doorside)
+                firstdoor.append(doorlong)
+                if doorside==(-1):
+                    firstexactdoor=random.choice(list(range(19,189+1-doorlong*10,10)))
+                    firstdoor.append(firstexactdoor)                
+                    for i in range(0,doorlong):   
+                        map.append(Map(firstexactdoor+i*10,'F'))
+                        locate.remove(firstexactdoor+i*10)
+                        door.append(firstexactdoor+i*10)
+                elif doorside==(1):
+                    firstexactdoor=random.choice(list(range(10,180+1-doorlong*10,10)))
+                    firstdoor.append(firstexactdoor)
+                    for i in range(0,doorlong):
+                        map.append(Map(firstexactdoor+i*10,'F'))
+                        locate.remove(firstexactdoor+i*10)
+                        door.append(firstexactdoor+i*10)    
+                elif doorside==(2):
+                    firstexactdoor=random.choice(list(range(1,8+1-doorlong)))
+                    firstdoor.append(firstexactdoor)
+                    for i in range(0,doorlong):
+                        map.append(Map(firstexactdoor+i,'F'))
+                        locate.remove(firstexactdoor+i)
+                        door.append(firstexactdoor+i)                
+                elif doorside==(-2):
+                    firstexactdoor=random.choice(list(range(191,198+1-doorlong)))
+                    firstdoor.append(firstexactdoor)
+                    for i in range(0,doorlong):
+                        map.append(Map(firstexactdoor+i,'F'))
+                        locate.remove(firstexactdoor+i)
+                        door.append(firstexactdoor+i)
+                player=Player(random.choice(door),hp)
+            else:
+                doorlong=firstdoor[1]
+                doorside=firstdoor[0]*(-1)
+                if doorside==(-1):
+                    firstexactdoor=random.choice(list(range(19,189+1-doorlong*10,10)))
+                    for i in range(0,doorlong):   
+                        map.append(Map(firstexactdoor+i*10,'F'))
+                        locate.remove(firstexactdoor+i*10)
+                        door.append(firstexactdoor+i*10)
+                elif doorside==(1):
+                    firstexactdoor=random.choice(list(range(10,180+1-doorlong*10,10)))
+                    for i in range(0,doorlong):
+                        map.append(Map(firstexactdoor+i*10,'F'))
+                        locate.remove(firstexactdoor+i*10)
+                        door.append(firstexactdoor+i*10)    
+                elif doorside==(2):
+                    firstexactdoor=random.choice(list(range(1,8+1-doorlong)))
+                    for i in range(0,doorlong):
+                        map.append(Map(firstexactdoor+i,'F'))
+                        locate.remove(firstexactdoor+i)
+                        door.append(firstexactdoor+i)                
+                elif doorside==(-2):
+                    firstexactdoor=random.choice(list(range(191,198+1-doorlong)))
+                    for i in range(0,doorlong):
+                        map.append(Map(firstexactdoor+i,'F'))
+                        locate.remove(firstexactdoor+i)
+                        door.append(firstexactdoor+i)
+                player=Player(random.choice(door),hp)
 
-        start=random.choice(door)
-        doorban=[]
-        c=0
-        doorban.extend([0,9,190,199])
-        if doorside==1:
-            start+=1
-            doorban.extend(list(range(10,190,10)))
-        elif doorside==-1:
-            start-=1
-            doorban.extend(list(range(19,199,10)))
-        elif doorside==2:
-            start+=10
-            doorban.extend(list(range(1,9)))
-        else:
-            start-=10
-            doorban.extend(list(range(191,199)))
-        map.append(Map(start,'F'))    
-        locate.remove(start)
-        doorban.extend(door)            
-        c=0
-        doorside=0
-        doorlong=0
-        startablefloor=[]
-        firstdoor=[]
-        goable=[]
-        while True:    
-            while True:
-                unablemeetagain=False
-                if c!=0:
-                    a.remove(c)
-                else:
-                    if doorside==1 and start in list(range(10,190,10)):
-                        a=[1,10,-10]
-                    elif doorside==-1 and start in list(range(19,199,10)):
-                        a=[-1,10,-10]
-                    elif doorside==2 and start in list(range(1,9)):
-                        a=[1,10,-1]
-                    elif doorside==-2 and start in list(range(191,199)):
-                        a=[1,-1,-10]
-                    else:
-                        a=[1,-1,10,-10]
-                if len(a)==0:
-                    break
-                b=random.choice(a)
-                if (doorside==1 and not start in list(range(10,190,10))) or (doorside==-1 and not start in list(range(19,199,10))) or (doorside==2 and not start in list(range(1,9))) or (doorside==-2 and not start in list(range(191,199))):
-                    unablemeetagain=True
-                if (start+b) in locate and not (start+b) in doorban:
-                    side=0
-                    c=0
-                    d=list(range(1,9))+list(range(10,190,10))+list(range(19,199,10))+list(range(191,199))
-                    if (start+b) in d:
-                        if (start+b) in list(range(1,9)):
-                            if doorside==0: 
-                                doorside=2
-                                door.append(start+b)
-                                goable.append(Goable(start+b))
-                            elif doorside!=2:                            
-                                break
-                            elif unablemeetagain:
-                                break
-                            else:
-                                doorlong+=1
-                                door.append(start+b)
-                                goable.append(Goable(start+b))
-                            if doorlong==5:
-                                doorlong-=1
-                                break
-                            side=1
-                        elif (start+b) in list(range(10,190,10)):
-                            if doorside==0: 
-                                doorside=1
-                                door.append(start+b)
-                                goable.append(Goable(start+b))
-                            elif doorside!=1:                             
-                                break
-                            elif unablemeetagain:
-                                break
-                            else:
-                                doorlong+=1
-                                door.append(start+b)
-                                goable.append(Goable(start+b))
-                            if doorlong==5:
-                                doorlong-=1
-                                break
-                            side=1
-                        elif (start+b) in list(range(19,199,10)):
-                            if doorside==0: 
-                                doorside=-1
-                                door.append(start+b)
-                                goable.append(Goable(start+b))
-                            elif doorside!=(-1):                          
-                                break
-                            elif unablemeetagain:
-                                break
-                            else:
-                                doorlong+=1
-                                door.append(start+b)
-                                goable.append(Goable(start+b))
-                            if doorlong==5:
-                                doorlong-=1
-                                break
-                            side=1
-                        elif (start+b) in list(range(191,199)):
-                            if doorside==0: 
-                                doorside=-2
-                                door.append(start+b)
-                                goable.append(Goable(start+b))
-                            elif doorside!=(-2):
-                                break
-                            elif unablemeetagain:
-                                break
-                            else:
-                                doorlong+=1
-                                door.append(start+b)
-                                goable.append(Goable(start+b))
-                            if doorlong==5:
-                                doorlong-=1
-                                break
-                            side=1
-                    start+=b
-                    map.append(Map(start,'F'))
-                    locate.remove(start)
-                    if side==0: startablefloor.append(start)  
-                else:
-                    c=b
+            start=random.choice(door)
+            doorban=[]
             c=0
-            if doorside!=0:
-                if len(locate)<=130:
-                    break
-                else:
-                    doorban.extend(d)
-            while True:
-                start=random.choice(startablefloor)
-                if ((start+1) in locate and not (start+1) in doorban) or ((start-1) in locate and not (start-1) in doorban) or ((start+10) in locate and not (start+10) in doorban) or ((start-10) in locate and not (start-10) in doorban):
-                    break
-                else:
-                    startablefloor.remove(start)
-        firstdoor.append(doorside)
-        firstdoor.append(doorlong+1)   
-        rendermap=False
-        for i in map:
-            insidef.append(i.position)
-        for i in insidef:
-            if not i in list(range(10,190,10)):
-                i-=1
-                if i in locate:
-                    locate.remove(i)
-                    if i-1 in locate:
-                        wall.append(Map(i,'W'))
-                        w.append(i)
+            doorban.extend([0,9,190,199])
+            if doorside==1:
+                start+=1
+                doorban.extend(list(range(10,190,10)))
+            elif doorside==-1:
+                start-=1
+                doorban.extend(list(range(19,199,10)))
+            elif doorside==2:
+                start+=10
+                doorban.extend(list(range(1,9)))
+            else:
+                start-=10
+                doorban.extend(list(range(191,199)))
+            map.append(Map(start,'F'))    
+            locate.remove(start)
+            doorban.extend(door)            
+            c=0
+            doorside=0
+            doorlong=0
+            startablefloor=[]
+            firstdoor=[]
+            goable=[]
+            while True:    
+                while True:
+                    unablemeetagain=False
+                    if c!=0:
+                        a.remove(c)
                     else:
-                        if i in d:
+                        if doorside==1 and start in list(range(10,190,10)):
+                            a=[1,10,-10]
+                        elif doorside==-1 and start in list(range(19,199,10)):
+                            a=[-1,10,-10]
+                        elif doorside==2 and start in list(range(1,9)):
+                            a=[1,10,-1]
+                        elif doorside==-2 and start in list(range(191,199)):
+                            a=[1,-1,-10]
+                        else:
+                            a=[1,-1,10,-10]
+                    if len(a)==0:
+                        break
+                    b=random.choice(a)
+                    if (doorside==1 and not start in list(range(10,190,10))) or (doorside==-1 and not start in list(range(19,199,10))) or (doorside==2 and not start in list(range(1,9))) or (doorside==-2 and not start in list(range(191,199))):
+                        unablemeetagain=True
+                    if (start+b) in locate and not (start+b) in doorban:
+                        side=0
+                        c=0
+                        d=list(range(1,9))+list(range(10,190,10))+list(range(19,199,10))+list(range(191,199))
+                        if (start+b) in d:
+                            if (start+b) in list(range(1,9)):
+                                if doorside==0: 
+                                    doorside=2
+                                    door.append(start+b)
+                                    goable.append(Goable(start+b))
+                                elif doorside!=2:                            
+                                    break
+                                elif unablemeetagain:
+                                    break
+                                else:
+                                    doorlong+=1
+                                    door.append(start+b)
+                                    goable.append(Goable(start+b))
+                                if doorlong==5:
+                                    doorlong-=1
+                                    break
+                                side=1
+                            elif (start+b) in list(range(10,190,10)):
+                                if doorside==0: 
+                                    doorside=1
+                                    door.append(start+b)
+                                    goable.append(Goable(start+b))
+                                elif doorside!=1:                             
+                                    break
+                                elif unablemeetagain:
+                                    break
+                                else:
+                                    doorlong+=1
+                                    door.append(start+b)
+                                    goable.append(Goable(start+b))
+                                if doorlong==5:
+                                    doorlong-=1
+                                    break
+                                side=1
+                            elif (start+b) in list(range(19,199,10)):
+                                if doorside==0: 
+                                    doorside=-1
+                                    door.append(start+b)
+                                    goable.append(Goable(start+b))
+                                elif doorside!=(-1):                          
+                                    break
+                                elif unablemeetagain:
+                                    break
+                                else:
+                                    doorlong+=1
+                                    door.append(start+b)
+                                    goable.append(Goable(start+b))
+                                if doorlong==5:
+                                    doorlong-=1
+                                    break
+                                side=1
+                            elif (start+b) in list(range(191,199)):
+                                if doorside==0: 
+                                    doorside=-2
+                                    door.append(start+b)
+                                    goable.append(Goable(start+b))
+                                elif doorside!=(-2):
+                                    break
+                                elif unablemeetagain:
+                                    break
+                                else:
+                                    doorlong+=1
+                                    door.append(start+b)
+                                    goable.append(Goable(start+b))
+                                if doorlong==5:
+                                    doorlong-=1
+                                    break
+                                side=1
+                        start+=b
+                        map.append(Map(start,'F'))
+                        locate.remove(start)
+                        if side==0: startablefloor.append(start)  
+                    else:
+                        c=b
+                c=0
+                if doorside!=0:
+                    if len(locate)<=130:
+                        break
+                    else:
+                        doorban.extend(d)
+                while True:
+                    start=random.choice(startablefloor)
+                    if ((start+1) in locate and not (start+1) in doorban) or ((start-1) in locate and not (start-1) in doorban) or ((start+10) in locate and not (start+10) in doorban) or ((start-10) in locate and not (start-10) in doorban):
+                        break
+                    else:
+                        startablefloor.remove(start)
+            firstdoor.append(doorside)
+            firstdoor.append(doorlong+1)   
+            rendermap=False
+            for i in map:
+                insidef.append(i.position)
+            for i in insidef:
+                if not i in list(range(10,190,10)):
+                    i-=1
+                    if i in locate:
+                        locate.remove(i)
+                        if i-1 in locate:
                             wall.append(Map(i,'W'))
                             w.append(i)
-                        else:                        
-                            map.append(Map(i,'F'))
-                            insidef.append(i)
-        for i in insidef:
-            if not i in list(range(1,9)):
-                i-=10
-                if i in locate:
-                    sr.append(i)
-        for i in w:
-            if not i in list(range(1,9)):
-                i-=10
-                if i in locate:
-                    sr.append(i)
-        for i in insidef:
-            if not i in list(range(191,199)):
-                i+=10
-                if i in locate:
-                    if i in sr:
-                        slr.append(i)
-                        sr.remove(i)
-                    else:
-                        sl.append(i)
-        for i in w:
-            if not i in list(range(191,199)):
-                i+=10
-                if i in locate:
-                    if i in sr:
-                        slr.append(i)
-                        sr.remove(i)
-                    else:
-                        sl.append(i)
-        for i in insidef:
-            if not i in list(range(19,199,10)) and not i==0:
-                i+=1
-                if i in locate:
-                    if i in sr:
-                        srt.append(i)
-                        sr.remove(i)
-                    elif i in sl:
-                        slt.append(i)
-                        sl.remove(i)
-                    elif i in slr:
-                        slrt.append(i)
-                        slr.remove(i)                            
-                    else:
-                        st.append(i)               
-        
-        
-        #có thể làm góc sau này, có thể làm cạnh cho cửa
-        for i in locate:
-            v.append(i)
-        if v:
-            for i in v:
-                obstacle.append(Obstacle(i,'V'))
-        if sr:
-            for i in sr:
-                locate.remove(i)
-                obstacle.append(Obstacle(i,'SR'))
-        if sl:
-            for i in sl:
-                locate.remove(i)
-                obstacle.append(Obstacle(i,'SL'))
-        if slr:
-            for i in slr:
-                locate.remove(i)
-                obstacle.append(Obstacle(i,'SLR'))
-        if slrt:
-            for i in slrt:
-                locate.remove(i)
-                obstacle.append(Obstacle(i,'SLRT'))
-        if slt:
-            for i in slt:
-                locate.remove(i)
-                obstacle.append(Obstacle(i,'SLT'))
-        if srt:
-            for i in srt:
-                locate.remove(i)
-                obstacle.append(Obstacle(i,'SRT'))
-        if st:
-            for i in st:
-                locate.remove(i)
-                obstacle.append(Obstacle(i,'ST'))
+                        else:
+                            if i in d:
+                                wall.append(Map(i,'W'))
+                                w.append(i)
+                            else:                        
+                                map.append(Map(i,'F'))
+                                insidef.append(i)
+            for i in insidef:
+                if not i in list(range(1,9)):
+                    i-=10
+                    if i in locate:
+                        sr.append(i)
+            for i in w:
+                if not i in list(range(1,9)):
+                    i-=10
+                    if i in locate:
+                        sr.append(i)
+            for i in insidef:
+                if not i in list(range(191,199)):
+                    i+=10
+                    if i in locate:
+                        if i in sr:
+                            slr.append(i)
+                            sr.remove(i)
+                        else:
+                            sl.append(i)
+            for i in w:
+                if not i in list(range(191,199)):
+                    i+=10
+                    if i in locate:
+                        if i in sr:
+                            slr.append(i)
+                            sr.remove(i)
+                        else:
+                            sl.append(i)
+            for i in insidef:
+                if not i in list(range(19,199,10)) and not i==0:
+                    i+=1
+                    if i in locate:
+                        if i in sr:
+                            srt.append(i)
+                            sr.remove(i)
+                        elif i in sl:
+                            slt.append(i)
+                            sl.remove(i)
+                        elif i in slr:
+                            slrt.append(i)
+                            slr.remove(i)                            
+                        else:
+                            st.append(i)
+                            
+            for i in locate:
+                v.append(i)
+            if v:
+                for i in v:
+                    obstacle.append(Obstacle(i,'V'))
+            if sr:
+                for i in sr:
+                    locate.remove(i)
+                    obstacle.append(Obstacle(i,'SR'))
+            if sl:
+                for i in sl:
+                    locate.remove(i)
+                    obstacle.append(Obstacle(i,'SL'))
+            if slr:
+                for i in slr:
+                    locate.remove(i)
+                    obstacle.append(Obstacle(i,'SLR'))
+            if slrt:
+                for i in slrt:
+                    locate.remove(i)
+                    obstacle.append(Obstacle(i,'SLRT'))
+            if slt:
+                for i in slt:
+                    locate.remove(i)
+                    obstacle.append(Obstacle(i,'SLT'))
+            if srt:
+                for i in srt:
+                    locate.remove(i)
+                    obstacle.append(Obstacle(i,'SRT'))
+            if st:
+                for i in st:
+                    locate.remove(i)
+                    obstacle.append(Obstacle(i,'ST'))
         
     
-    #main character logic
-    player.speed=creepspeed-10+(player.maxspeed-creepspeed)*(player.mana/player.maxmana)
-    player.targetx=player.x
-    player.targety=player.y
-    if keys[pygame.K_a]:
-        player.targetx=player.x-1
-        player.checkwall()
-        for i in obstacle:
-            if i.rect.colliderect(player.wallrect):
-                player.targetx=player.x
-                player.checkwall()
-    if keys[pygame.K_d]:
-        player.targetx=player.x+1
-        player.checkwall()
-        for i in obstacle:
-            if i.rect.colliderect(player.wallrect):
-                player.targetx=player.x
-                player.checkwall() 
-    if keys[pygame.K_w]:
-        player.targety=player.y-1
-        player.checkwall()
-        for i in obstacle:
-            if i.rect.colliderect(player.wallrect):
-                player.targety=player.y
-                player.checkwall()
-    if keys[pygame.K_s]:
-        player.targety=player.y+1
-        player.checkwall()
-        for i in obstacle:
-            if i.rect.colliderect(player.wallrect):
-                player.targety=player.y
-                player.checkwall()
-                
-    if keys[pygame.K_LEFT] and slashcooldown<=0 and player.mana>=6:
-        player.mana-=6
-        slashes.append(Slash(player.x,player.y-(107-70),'left',player.dmg))
-        slashcooldown=1-player.attackspeed
-        for creep in creeps:
-            creep.takedame=True            
-    if keys[pygame.K_RIGHT] and slashcooldown<=0 and player.mana>=6:
-        player.mana-=6
-        slashes.append(Slash(player.x,player.y-(107-70),'right',player.dmg))
-        slashcooldown=1-player.attackspeed
-        for creep in creeps:
-            creep.takedame=True         
-    for i in slashes:
-        i.present+=dt
-        if i.present>=0.1:
-            slashes.remove(i)
-            for creep in creeps:
-                creep.takedame=False
-    if not slashes: slashcooldown-=dt
-    if slashes:
-        slash=slashes[0]
-    if player.mana<player.maxmana:
-        player.mana+=player.manaregen*dt
-        if player.mana>player.maxmana:
-            player.mana=player.maxmana
-            
-    
-    player.move(dt)
-    player.update()
-    
-    if player.exp>=(90+25*(player.level-1)+5*(player.level-1)**2):
-        player.level+=1
-        player.exp-=(90+25*(player.level-1)+5*(player.level-1)**2)
-        player.buffstat+=2
-    if player.buffstat>0:
-        if not pluses:
-            pluses.append(Plus('dmg'))
-            pluses.append(Plus('maxmana'))
-            pluses.append(Plus('maxhp'))
-            pluses.append(Plus('movespeed'))
-            pluses.append(Plus('manaregen'))
-            pluses.append(Plus('attackspeed'))
-        for plus in pluses:
-            if click:
-                if plus.rect.collidepoint(mousepos):
-                    player.buffstat-=1
-                    if plus.type=='dmg':
-                        player.dmg+=1
-                    elif plus.type=='maxmana':
-                        player.maxmana+=15
-                        player.mana+=15
-                    elif plus.type=='maxhp':
-                        player.maxhp+=35
-                        player.hp+=15
-                    elif plus.type=='movespeed':
-                        player.maxspeed+=1                        
-                    elif plus.type=='manaregen':
-                        player.manaregen+=1
-                    elif plus.type=='attackspeed':
-                        player.attackspeed+=0.03
-    else:
-        if pluses: pluses=[]                    
+        #main character logic
+        player.speed=creepspeed-10+(player.maxspeed-creepspeed)*(player.mana/player.maxmana)
+        player.targetx=player.x
+        player.targety=player.y
+        if keys[pygame.K_a]:
+            player.targetx=player.x-1
+            player.checkwall()
+            for i in obstacle:
+                if i.rect.colliderect(player.wallrect):
+                    player.targetx=player.x
+                    player.checkwall()
+        if keys[pygame.K_d]:
+            player.targetx=player.x+1
+            player.checkwall()
+            for i in obstacle:
+                if i.rect.colliderect(player.wallrect):
+                    player.targetx=player.x
+                    player.checkwall() 
+        if keys[pygame.K_w]:
+            player.targety=player.y-1
+            player.checkwall()
+            for i in obstacle:
+                if i.rect.colliderect(player.wallrect):
+                    player.targety=player.y
+                    player.checkwall()
+        if keys[pygame.K_s]:
+            player.targety=player.y+1
+            player.checkwall()
+            for i in obstacle:
+                if i.rect.colliderect(player.wallrect):
+                    player.targety=player.y
+                    player.checkwall()
                     
-                 
-            
-    #creep logic
-    creepsquare=random.sample(insidef,int(len(insidef)/12))
-    if creeps==[]:
-        wave+=1
-        for i in creepsquare:
-            creeps.append(Creep(i,random.choice(['slime','normal']),wave))
-        creeps.append(Creep(random.choice(insidef),'elite',wave))
-    creepspeed=50*(1+0.01*wave)
-    for creep in creeps:
-        if math.hypot(player.x-creep.x,player.y-creep.y)>creep.range:
-            if math.hypot(player.x-creep.x,player.y-creep.y)>creep.view or creep.notry:    
-                creep.targetx=creep.x
-                creep.targety=creep.y
-                if creep.touchwall:
-                    creep.randomx=random.choice([-1,1])
-                    creep.randomy=random.choice([-1,1])
-                    creep.touchwall=False
-                if creep.randomx!=0:
-                    creep.targetx=creep.x+creep.randomx
-                    creep.checkwall()
-                    for i in obstacle:
-                        if i.rect.colliderect(creep.wallrect):
-                            creep.targetx=creep.x
-                            creep.touchwall=True
-                            creep.checkwall()
-                            creep.notry=False
-                            break    
-                if creep.randomy!=0:
-                    creep.targety=creep.y+creep.randomy
-                    creep.checkwall()
-                    for i in obstacle:
-                        if i.rect.colliderect(creep.wallrect):
-                            creep.targety=creep.y
-                            creep.touchwall=True
-                            creep.checkwall()
-                            creep.notry=False
-                            break
-                if creep.x<=0 or creep.x>=(1400-creep.w) or creep.y<=(70-creep.h) or creep.y>=700-creep.h:
-                    creep.touchwall=True
-                    creep.notry=False
+        if keys[pygame.K_LEFT] and slashcooldown<=0 and player.mana>=6:
+            player.mana-=6
+            slashes.append(Slash(player.x,player.y-(107-70),'left',player.dmg))
+            slashcooldown=1-player.attackspeed
+            for creep in creeps:
+                creep.takedame=True            
+        if keys[pygame.K_RIGHT] and slashcooldown<=0 and player.mana>=6:
+            player.mana-=6
+            slashes.append(Slash(player.x,player.y-(107-70),'right',player.dmg))
+            slashcooldown=1-player.attackspeed
+            for creep in creeps:
+                creep.takedame=True         
+        for i in slashes:
+            i.present+=dt
+            if i.present>=0.1:
+                slashes.remove(i)
+                for creep in creeps:
+                    creep.takedame=False
+        if not slashes: slashcooldown-=dt
+        if slashes:
+            slash=slashes[0]
+        if player.mana<player.maxmana:
+            player.mana+=player.manaregen*dt
+            if player.mana>player.maxmana:
+                player.mana=player.maxmana
+                
+        
+        player.move(dt)
+        player.update()
+        
+        if player.exp>=(90+25*(player.level-1)+5*(player.level-1)**2):
+            player.level+=1
+            player.exp-=(90+25*(player.level-1)+5*(player.level-1)**2)
+            player.buffstat+=2
+        if player.buffstat>0:
+            if not pluses:
+                pluses.append(Plus('dmg'))
+                pluses.append(Plus('maxmana'))
+                pluses.append(Plus('maxhp'))
+                pluses.append(Plus('movespeed'))
+                pluses.append(Plus('manaregen'))
+                pluses.append(Plus('attackspeed'))
+            for plus in pluses:
+                if click:
+                    if plus.rect.collidepoint(mousepos):
+                        player.buffstat-=1
+                        if plus.type=='dmg':
+                            player.dmg+=1
+                        elif plus.type=='maxmana':
+                            player.maxmana+=15
+                            player.mana+=15
+                        elif plus.type=='maxhp':
+                            player.maxhp+=35
+                            player.hp+=15
+                        elif plus.type=='movespeed':
+                            player.maxspeed+=1                        
+                        elif plus.type=='manaregen':
+                            player.manaregen+=1
+                        elif plus.type=='attackspeed':
+                            player.attackspeed+=0.03
+        else:
+            if pluses: pluses=[]
+        
+        if player.hp<=0:
+            stage='end'                    
+                        
+                    
+                
+        #creep logic
+        creepsquare=random.sample(insidef,int(len(insidef)/12))
+        if creeps==[]:
+            wave+=1
+            for i in creepsquare:
+                creeps.append(Creep(i,random.choice(['slime','normal']),wave))
+            creeps.append(Creep(random.choice(insidef),'elite',wave))
+        creepspeed=50*(1+0.01*wave)
+        for creep in creeps:
+            if math.hypot(player.x-creep.x,player.y-creep.y)>creep.range:
+                if math.hypot(player.x-creep.x,player.y-creep.y)>creep.view or creep.notry:    
+                    creep.targetx=creep.x
+                    creep.targety=creep.y
+                    if creep.touchwall:
+                        creep.randomx=random.choice([-1,1])
+                        creep.randomy=random.choice([-1,1])
+                        creep.touchwall=False
+                    if creep.randomx!=0:
+                        creep.targetx=creep.x+creep.randomx
+                        creep.checkwall()
+                        for i in obstacle:
+                            if i.rect.colliderect(creep.wallrect):
+                                creep.targetx=creep.x
+                                creep.touchwall=True
+                                creep.checkwall()
+                                creep.notry=False
+                                break    
+                    if creep.randomy!=0:
+                        creep.targety=creep.y+creep.randomy
+                        creep.checkwall()
+                        for i in obstacle:
+                            if i.rect.colliderect(creep.wallrect):
+                                creep.targety=creep.y
+                                creep.touchwall=True
+                                creep.checkwall()
+                                creep.notry=False
+                                break
+                    if creep.x<=0 or creep.x>=(1400-creep.w) or creep.y<=(70-creep.h) or creep.y>=700-creep.h:
+                        creep.touchwall=True
+                        creep.notry=False
+                else:
+                    if creep.touchwally and creep.touchwallx:
+                        if creep.testx:
+                            creep.randomx*=(-1)
+                            creep.touchwallx=False
+                        elif creep.testy:
+                            creep.randomy*=(-1)
+                            creep.touchwally=False                        
+                        else:
+                            creep.notry=True
+                            creep.touchwallx=False
+                            creep.touchwally=False                                    
+                    elif creep.testx:
+                        creep.targetx=creep.x
+                        creep.targety=creep.y
+                        creep.testx=False
+                        creep.touchwallx=False
+                        creep.touchwally=False
+                        creep.targetx=creep.x+creep.randomx
+                        creep.checkwall()
+                        for i in obstacle:
+                            if i.rect.colliderect(creep.wallrect):
+                                creep.targetx=creep.x
+                                creep.touchwallx=True     
+                                creep.checkwall()
+                                break
+                        if player.y-creep.y>0:
+                            creep.randomy=1
+                        elif player.y-creep.y<0:
+                            creep.randomy=-1
+                        creep.targety=creep.y+creep.randomy
+                        creep.checkwall()
+                        for i in obstacle:
+                            if i.rect.colliderect(creep.wallrect):
+                                creep.targety=creep.y
+                                creep.touchwally=True
+                                creep.checkwall()
+                                creep.testx=True
+                                break
+                        if creep.x<=0 or creep.x>=(1400-creep.w):
+                            creep.touchwallx=True
+                        if creep.y<=(70-creep.h) or creep.y>=700-creep.h:
+                            creep.touchwally=True
+                    elif creep.testy:
+                        creep.targetx=creep.x
+                        creep.targety=creep.y                    
+                        creep.testy=False
+                        creep.touchwallx=False
+                        creep.touchwally=False
+                        if player.x-creep.x>0:
+                            creep.randomx=1
+                        elif player.x-creep.x<0:
+                            creep.randomx=-1                    
+                        creep.targetx=creep.x+creep.randomx
+                        creep.checkwall()
+                        for i in obstacle:
+                            if i.rect.colliderect(creep.wallrect):
+                                creep.targetx=creep.x
+                                creep.touchwallx=True     
+                                creep.checkwall()
+                                creep.testy=True
+                                break
+                        creep.targety=creep.y+creep.randomy
+                        creep.checkwall()
+                        for i in obstacle:
+                            if i.rect.colliderect(creep.wallrect):
+                                creep.targety=creep.y
+                                creep.touchwally=True
+                                creep.checkwall()
+                                break
+                        if creep.x<=0 or creep.x>=(1400-creep.w):
+                            creep.touchwallx=True
+                        if creep.y<=(70-creep.h) or creep.y>=700-creep.h:
+                            creep.touchwally=True
+                    else:
+                        creep.targetx=creep.x
+                        creep.targety=creep.y                    
+                        creep.touchwallx=False
+                        creep.touchwally=False
+                        if player.x-creep.x>0:
+                            creep.randomx=1
+                        elif player.x-creep.x<0:
+                            creep.randomx=-1
+                        creep.targetx=creep.x+creep.randomx
+                        creep.checkwall()
+                        for i in obstacle:
+                            if i.rect.colliderect(creep.wallrect):
+                                creep.targetx=creep.x
+                                creep.touchwallx=True     #hết đi được x
+                                creep.checkwall()
+                                break
+                        if player.y-creep.y>0:
+                            creep.randomy=1
+                        elif player.y-creep.y<0:
+                            creep.randomy=-1
+                        creep.targety=creep.y+creep.randomy
+                        creep.checkwall()
+                        for i in obstacle:
+                            if i.rect.colliderect(creep.wallrect):
+                                creep.targety=creep.y
+                                creep.touchwally=True
+                                creep.checkwall()
+                                break
+                        if creep.x<=(70-creep.h) or creep.x>=(1400-creep.w):
+                            creep.touchwallx=True
+                        if creep.y<=(70-creep.h) or creep.y>=700-creep.h:
+                            creep.touchwally=True
+                        if creep.touchwally and int(creep.x)==int(player.x) and not creep.touchwallx:
+                            creep.testx=True
+                            creep.randomx=1 if player.x-creep.x>=0 else -1
+                        if creep.touchwallx and int(creep.y)==int(player.y) and not creep.touchwally:
+                            creep.testy=True
+                            creep.randomy=1 if player.y-creep.y>=0 else -1
+                    
             else:
+                creep.shoot+=dt
+                if creep.shoot>=2.5:
+                    bullets.append(Bullet(creep.x,creep.y,player.x,player.y,creep.dmg))
+                    creep.shoot=0
                 if creep.touchwally and creep.touchwallx:
                     if creep.testx:
                         creep.randomx*=(-1)
@@ -787,7 +911,7 @@ while True:
                     creep.testx=False
                     creep.touchwallx=False
                     creep.touchwally=False
-                    creep.targetx=creep.x+creep.randomx
+                    creep.targetx=creep.x-creep.randomx
                     creep.checkwall()
                     for i in obstacle:
                         if i.rect.colliderect(creep.wallrect):
@@ -799,7 +923,7 @@ while True:
                         creep.randomy=1
                     elif player.y-creep.y<0:
                         creep.randomy=-1
-                    creep.targety=creep.y+creep.randomy
+                    creep.targety=creep.y-creep.randomy
                     creep.checkwall()
                     for i in obstacle:
                         if i.rect.colliderect(creep.wallrect):
@@ -822,7 +946,7 @@ while True:
                         creep.randomx=1
                     elif player.x-creep.x<0:
                         creep.randomx=-1                    
-                    creep.targetx=creep.x+creep.randomx
+                    creep.targetx=creep.x-creep.randomx
                     creep.checkwall()
                     for i in obstacle:
                         if i.rect.colliderect(creep.wallrect):
@@ -831,7 +955,7 @@ while True:
                             creep.checkwall()
                             creep.testy=True
                             break
-                    creep.targety=creep.y+creep.randomy
+                    creep.targety=creep.y-creep.randomy
                     creep.checkwall()
                     for i in obstacle:
                         if i.rect.colliderect(creep.wallrect):
@@ -852,7 +976,7 @@ while True:
                         creep.randomx=1
                     elif player.x-creep.x<0:
                         creep.randomx=-1
-                    creep.targetx=creep.x+creep.randomx
+                    creep.targetx=creep.x-creep.randomx
                     creep.checkwall()
                     for i in obstacle:
                         if i.rect.colliderect(creep.wallrect):
@@ -882,167 +1006,59 @@ while True:
                     if creep.touchwallx and int(creep.y)==int(player.y) and not creep.touchwally:
                         creep.testy=True
                         creep.randomy=1 if player.y-creep.y>=0 else -1
-                
-        else:
-            creep.shoot+=dt
-            if creep.shoot>=2.5:
-                bullets.append(Bullet(creep.x,creep.y,player.x,player.y,creep.dmg))
-                creep.shoot=0
-            if creep.touchwally and creep.touchwallx:
-                if creep.testx:
-                    creep.randomx*=(-1)
-                    creep.touchwallx=False
-                elif creep.testy:
-                    creep.randomy*=(-1)
-                    creep.touchwally=False                        
-                else:
-                    creep.notry=True
-                    creep.touchwallx=False
-                    creep.touchwally=False                                    
-            elif creep.testx:
-                creep.targetx=creep.x
-                creep.targety=creep.y
-                creep.testx=False
-                creep.touchwallx=False
-                creep.touchwally=False
-                creep.targetx=creep.x-creep.randomx
-                creep.checkwall()
-                for i in obstacle:
-                    if i.rect.colliderect(creep.wallrect):
-                        creep.targetx=creep.x
-                        creep.touchwallx=True     
-                        creep.checkwall()
-                        break
-                if player.y-creep.y>0:
-                    creep.randomy=1
-                elif player.y-creep.y<0:
-                    creep.randomy=-1
-                creep.targety=creep.y-creep.randomy
-                creep.checkwall()
-                for i in obstacle:
-                    if i.rect.colliderect(creep.wallrect):
-                        creep.targety=creep.y
-                        creep.touchwally=True
-                        creep.checkwall()
-                        creep.testx=True
-                        break
-                if creep.x<=0 or creep.x>=(1400-creep.w):
-                    creep.touchwallx=True
-                if creep.y<=(70-creep.h) or creep.y>=700-creep.h:
-                    creep.touchwally=True
-            elif creep.testy:
-                creep.targetx=creep.x
-                creep.targety=creep.y                    
-                creep.testy=False
-                creep.touchwallx=False
-                creep.touchwally=False
-                if player.x-creep.x>0:
-                    creep.randomx=1
-                elif player.x-creep.x<0:
-                    creep.randomx=-1                    
-                creep.targetx=creep.x-creep.randomx
-                creep.checkwall()
-                for i in obstacle:
-                    if i.rect.colliderect(creep.wallrect):
-                        creep.targetx=creep.x
-                        creep.touchwallx=True     
-                        creep.checkwall()
-                        creep.testy=True
-                        break
-                creep.targety=creep.y-creep.randomy
-                creep.checkwall()
-                for i in obstacle:
-                    if i.rect.colliderect(creep.wallrect):
-                        creep.targety=creep.y
-                        creep.touchwally=True
-                        creep.checkwall()
-                        break
-                if creep.x<=0 or creep.x>=(1400-creep.w):
-                    creep.touchwallx=True
-                if creep.y<=(70-creep.h) or creep.y>=700-creep.h:
-                    creep.touchwally=True
-            else:
-                creep.targetx=creep.x
-                creep.targety=creep.y                    
-                creep.touchwallx=False
-                creep.touchwally=False
-                if player.x-creep.x>0:
-                    creep.randomx=1
-                elif player.x-creep.x<0:
-                    creep.randomx=-1
-                creep.targetx=creep.x-creep.randomx
-                creep.checkwall()
-                for i in obstacle:
-                    if i.rect.colliderect(creep.wallrect):
-                        creep.targetx=creep.x
-                        creep.touchwallx=True     #hết đi được x
-                        creep.checkwall()
-                        break
-                if player.y-creep.y>0:
-                    creep.randomy=1
-                elif player.y-creep.y<0:
-                    creep.randomy=-1
-                creep.targety=creep.y+creep.randomy
-                creep.checkwall()
-                for i in obstacle:
-                    if i.rect.colliderect(creep.wallrect):
-                        creep.targety=creep.y
-                        creep.touchwally=True
-                        creep.checkwall()
-                        break
-                if creep.x<=(70-creep.h) or creep.x>=(1400-creep.w):
-                    creep.touchwallx=True
-                if creep.y<=(70-creep.h) or creep.y>=700-creep.h:
-                    creep.touchwally=True
-                if creep.touchwally and int(creep.x)==int(player.x) and not creep.touchwallx:
-                    creep.testx=True
-                    creep.randomx=1 if player.x-creep.x>=0 else -1
-                if creep.touchwallx and int(creep.y)==int(player.y) and not creep.touchwally:
-                    creep.testy=True
-                    creep.randomy=1 if player.y-creep.y>=0 else -1
-        creep.move(dt)
-        creep.update()
-    if slashes:
-        for creep in creeps:
-            if creep.rect.colliderect(slash.rect) and creep.takedame:
-                creep.hp-=slash.dmg
-                creep.takedame=False
-            if creep.hp<=0:
-                creeps.remove(creep)
-                if creep.type=='normal':
-                    player.exp+=12*(1+0.02*wave)
-                elif creep.type=='slime':
-                    player.exp+=8*(1+0.02*wave)
-                elif creep.type=='elite':
-                    player.exp+=30*(1+0.02*wave)
-                if len(creeps)==0:
-                    player.exp+=12*(1+0.02*wave)
-    for bullet in bullets:
-        bullet.move(dt)
-        bullet.update()
-        if bullet.rect.colliderect(player.rect):
-            player.hp-=bullet.dmg
-            hp-=bullet.dmg
-            bullets.remove(bullet)
-        elif bullet.x>=(1400-20) or bullet.x<=0 or bullet.y<=0 or bullet.y>=(700-20):
-            bullets.remove(bullet)
-        else:
-            for object in obstacle:
-                if bullet.wallrect.colliderect(object.rect):
-                    bullets.remove(bullet)
-                    break
-    if slashes:
+            creep.move(dt)
+            creep.update()
+        if slashes:
+            for creep in creeps:
+                if creep.rect.colliderect(slash.rect) and creep.takedame:
+                    creep.hp-=slash.dmg
+                    creep.takedame=False
+                if creep.hp<=0:
+                    creeps.remove(creep)
+                    if creep.type=='normal':
+                        player.exp+=12*(1+0.02*wave)
+                    elif creep.type=='slime':
+                        player.exp+=8*(1+0.02*wave)
+                    elif creep.type=='elite':
+                        player.exp+=30*(1+0.02*wave)
+                    if len(creeps)==0:
+                        player.exp+=12*(1+0.02*wave)
         for bullet in bullets:
-            if bullet.rect.colliderect(slash.rect):
-                bullets.remove(bullet)                    
-        
+            bullet.move(dt)
+            bullet.update()
+            if bullet.rect.colliderect(player.rect):
+                player.hp-=bullet.dmg
+                hp-=bullet.dmg
+                bullets.remove(bullet)
+            elif bullet.x>=(1400-20) or bullet.x<=0 or bullet.y<=0 or bullet.y>=(700-20):
+                bullets.remove(bullet)
+            else:
+                for object in obstacle:
+                    if bullet.wallrect.colliderect(object.rect):
+                        bullets.remove(bullet)
+                        break
+        if slashes:
+            for bullet in bullets:
+                if bullet.rect.colliderect(slash.rect):
+                    bullets.remove(bullet)                    
             
-            
-    for i in goable:
-        if i.rect.colliderect(player.rect):
-            if player.x<=0 or player.x>=(1400-61) or player.y<=-((107-70)-(107-70)) or player.y>=((700-107)+(107-70)):
-                rendermap=True
-
+                
+                
+        for i in goable:
+            if i.rect.colliderect(player.rect):
+                if player.x<=0 or player.x>=(1400-61) or player.y<=-((107-70)-(107-70)) or player.y>=((700-107)+(107-70)):
+                    rendermap=True
+    if stage=='end':
+        if keys[pygame.K_r]:
+            stage='play'
+            rendermap=True
+            firstdoor=[]
+            hp=500
+            wave=0
+            pluses=[]
+            creepspeed=50
+            enemykilled=0
+            bosscount=0
     
         
 
@@ -1052,35 +1068,48 @@ while True:
                        
                 
     #draw on screen
-    screen.fill((70,70,70))
-    for i in map:
-        i.draw(screen)
-    for i in obstacle:
-        i.draw(screen)
-    for i in wall:
-        i.draw(screen)
-    for i in creeps:
-        i.draw(screen)
-        pygame.draw.rect(screen,(225,0,0),i.rect,1)
-    player.draw(screen)
-    write('HP',font,(0,0,0),40,699)
-    write('MANA',font,(0,0,0),20,744)
-    write('DAMAGE:'+str(player.dmg),font,(0,0,0),450,699)
-    write('MAX MANA:'+str(player.maxmana),font,(0,0,0),450,744)
-    write('MAX HP:'+str(player.maxhp),font,(0,0,0),700,699)
-    write('MOVE SPEED:'+str(player.maxspeed),font,(0,0,0),700,744)
-    write('MANA REGEN:'+str(player.manaregen),font,(0,0,0),950,699)
-    write('ATTACK SPEED:'+str(player.attackspeed),font,(0,0,0),950,744)
-    write('level',font,(0,0,0),1410,30)
-    write(str(player.level),font,(0,0,0),1430,70)
-    write(str(player.level+1),font,(0,0,0),1430,630)
-    for i in bullets:
-        i.draw(screen)
-        pygame.draw.rect(screen,(225,0,0),i.rect,1)
-    for i in slashes:
-        i.draw(screen)
-    for i in pluses:
-        i.draw(screen)
+    
+    if stage=='play':
+        screen.fill((70,70,70))
+        for i in map:
+            i.draw(screen)
+        for i in obstacle:
+            i.draw(screen)
+        for i in wall:
+            i.draw(screen)
+        for i in creeps:
+            i.draw(screen)
+            pygame.draw.rect(screen,(225,0,0),i.rect,1)
+        player.draw(screen)
+        write('HP',font,(0,0,0),40,699)
+        write('MANA',font,(0,0,0),20,744)
+        write('DAMAGE:'+str(player.dmg),font,(0,0,0),450,699)
+        write('MAX MANA:'+str(player.maxmana),font,(0,0,0),450,744)
+        write('MAX HP:'+str(player.maxhp),font,(0,0,0),700,699)
+        write('MOVE SPEED:'+str(player.maxspeed),font,(0,0,0),700,744)
+        write('MANA REGEN:'+str(player.manaregen),font,(0,0,0),950,699)
+        write('ATTACK SPEED:'+str(player.attackspeed),font,(0,0,0),950,744)
+        write('level',font,(0,0,0),1410,30)
+        write(str(player.level),font,(0,0,0),1430,70)
+        write(str(player.level+1),font,(0,0,0),1430,630)
+        for i in bullets:
+            i.draw(screen)
+            pygame.draw.rect(screen,(225,0,0),i.rect,1)
+        for i in slashes:
+            i.draw(screen)
+        for i in pluses:
+            i.draw(screen)
+    
+    if stage=='end':
+        screen.fill((0,0,0))
+        write('You dead!',titlefont,(111,13,181),30,5)
+        write('wave '+str(wave),codefont,(111,13,181),50,150)
+        write('enemy killed: '+str(enemykilled),codefont,(111,13,181),50,250)
+        write('level '+str(player.level),codefont,(111,13,181),50,350)
+        write('boss killed: '+str(bosscount),codefont,(111,13,181),50,450)
+        write('press R to replay >>',codefont,(111,13,181),50,550)
+        
+        
                   
             
                 
