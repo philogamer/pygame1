@@ -6,6 +6,7 @@ pygame.init()
 pygame.mixer.init()
 pygame.font.init()
 screen=pygame.display.set_mode((1500,800))
+transparentscreen=pygame.Surface((1500,800), pygame.SRCALPHA)
 pygame.display.set_caption('Lost Soul')
 clock=pygame.time.Clock()
 font=pygame.font.Font('assets/font.ttf',30)
@@ -94,6 +95,7 @@ class Player:
         self.exp=0
         self.level=1
         self.buffstat=0
+        self.takedame=True
     def put(self,xy):
         self.y=xy%10*70
         self.x=(xy-xy%10)/10*70    
@@ -291,7 +293,7 @@ class Boss:
         self.hp=280*(1+0.09*buff)
         self.maxhp=280*(1+0.09*buff)
         self.speed=65*(1+0.15*buff)
-        self.cooldown=1.8
+        self.cooldown=0
         self.dmg=20**(1+0.09*buff)
         self.img='assets/skull.png'
         self.w=150
@@ -302,13 +304,14 @@ class Boss:
         self.targetx=self.x
         self.targety=self.y
         self.takedame=False
+        self.skillchoose=0
+        self.skillprepare=0
     def draw(self,screen):
         screen.blit(self.img,(self.x,self.y))
         pygame.draw.rect(screen,(112,112,112),pygame.Rect(200,10,1000,30))
         pygame.draw.rect(screen,(225,0,0),pygame.Rect(200,10,self.hp*1000/self.maxhp,30))
     def move(self,dt):
         dx=self.targetx-self.x
-        self.direction='right' if dx>0 else 'left'
         dy=self.targety-self.y
         distance=math.hypot(dx,dy)
         if self.speed*dt>=distance:
@@ -1122,16 +1125,45 @@ while True:
                     rendermap=True
     if stage=='boss':
         for boss in bosses:
+            boss.update()
             if slashes:
-                    boss.update()
                     if boss.rect.colliderect(slash.rect) and boss.takedame:
                         boss.hp-=slash.dmg
                         boss.takedame=False
                     if boss.hp<=0:
                         bosses.remove(boss)
                         bosscount+=1
+                        player.exp+=90
                         stage='normal'
-                        rendermap=True                   
+                        rendermap=True
+            boss.cooldown+=dt
+            if boss.cooldown>=1.8:
+                if boss.skillchoose==0: boss.skillchoose=random.randint(1,2)
+                if boss.skillchoose==1:
+                    for i in range(0,360,10):
+                        bullets.append(Bullet(boss.x+boss.w/2,boss.y+boss.h/2-18,boss.x+2000*math.cos(math.radians(i)),boss.y+2000*math.sin(math.radians(i)),boss.dmg))
+                    boss.cooldown=0
+                    boss.skillchoose=0  
+                if boss.skillchoose==2:
+                    if boss.skillprepare==0:
+                        boss.targetx=player.x
+                        boss.targety=player.y
+                        boss.skillprepare=1
+                        player.takedame=True
+                    else:
+                        boss.move(dt)
+                        boss.update()
+                        if boss.rect.colliderect(player.rect) and player.takedame:
+                            player.hp-=boss.dmg
+                            player.takedame=False
+                        if boss.x==boss.targetx and boss.y==boss.targety:
+                            boss.skillchoose=0
+                            boss.skillprepare=0
+                            boss.cooldown=0                      
+                        
+                    
+                    
+                              
     if stage=='normal' or stage=='boss':    
         for bullet in bullets:
             bullet.move(dt)
@@ -1188,7 +1220,6 @@ while True:
         for i in creeps:
             i.draw(screen)
             pygame.draw.rect(screen,(225,0,0),i.rect,1)
-        player.draw(screen)
         write('HP',font,(0,0,0),40,699)
         write('MANA',font,(0,0,0),20,744)
         write('DAMAGE:'+str(player.dmg),font,(0,0,0),450,699)
@@ -1202,6 +1233,7 @@ while True:
         write(str(player.level+1),font,(0,0,0),1430,630)
         for i in bosses:
             i.draw(screen)
+        player.draw(screen)
         for i in bullets:
             i.draw(screen)
             pygame.draw.rect(screen,(225,0,0),i.rect,1)
