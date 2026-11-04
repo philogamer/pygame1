@@ -22,12 +22,6 @@ class Map:
         self.x=(xy-xy%10)/10*70
         if type=='W':
             self.img='assets/wall.png'
-        elif type=='CL':
-            self.img='assets/CL.png'
-        elif type=='CR':
-            self.img='assets/CR.png'
-        elif type=='CRL':
-            self.img='assets/CRL.png'
         elif type=='F':
             gacha=random.randint(1,3)
             if gacha==1:
@@ -290,7 +284,49 @@ class Plus:
         self.rect=pygame.Rect(self.x,self.y,30,30)
     def draw(self,screen):
         screen.blit(self.img,(self.x,self.y))   
-
+class Boss:
+    def __init__(self,buff):
+        self.x=750
+        self.y=400
+        self.hp=280*(1+0.09*buff)
+        self.maxhp=280*(1+0.09*buff)
+        self.speed=65*(1+0.15*buff)
+        self.cooldown=1.8
+        self.dmg=20**(1+0.09*buff)
+        self.img='assets/skull.png'
+        self.w=150
+        self.h=150
+        self.img=pygame.image.load(self.img).convert_alpha()
+        self.img=pygame.transform.scale(self.img,(self.w,self.h))
+        self.rect=pygame.Rect(self.x,self.y,self.w,self.h)
+        self.targetx=self.x
+        self.targety=self.y
+        self.takedame=False
+    def draw(self,screen):
+        screen.blit(self.img,(self.x,self.y))
+        pygame.draw.rect(screen,(112,112,112),pygame.Rect(200,10,1000,30))
+        pygame.draw.rect(screen,(225,0,0),pygame.Rect(200,10,self.hp*1000/self.maxhp,30))
+    def move(self,dt):
+        dx=self.targetx-self.x
+        self.direction='right' if dx>0 else 'left'
+        dy=self.targety-self.y
+        distance=math.hypot(dx,dy)
+        if self.speed*dt>=distance:
+            self.x=self.targetx
+            self.y=self.targety
+        else:
+            self.x+=dx/distance*self.speed*dt
+            self.y+=dy/distance*self.speed*dt
+        if self.x<70:
+            self.x=70
+        if self.x>(1400-70-self.w):
+            self.x=(1400-70-self.w)
+        if self.y<70:
+            self.y=70 
+        if self.y>(700-70-self.h):
+            self.y=700-70-self.h
+    def update(self):
+        self.rect=pygame.Rect(self.x,self.y,self.w,self.h)
 
 rendermap=True
 firstdoor=[]  #for save the door for next map
@@ -300,8 +336,9 @@ creepspeed=50
 enemykilled=0
 bosscount=0
 mapcount=0
-stage='play'
+stage='boss'
 player=Player()
+bosses=[]
 #Game loop
 while True:
     click=False
@@ -313,7 +350,7 @@ while True:
         if event.type==pygame.MOUSEBUTTONDOWN and event.button==1:
             click=True
             mousepos=event.pos
-    if stage=='play':
+    if stage=='normal':
         #random map logic
         if rendermap:
             player.mana=player.maxmana
@@ -640,8 +677,43 @@ while True:
                     locate.remove(i)
                     obstacle.append(Obstacle(i,'ST'))
         
-    
+    if stage=='boss':
+        if rendermap:
+            player.put(12)
+            player.mana=player.maxmana
+            map=[]
+            obstacle=[]
+            bullets=[]
+            slashes=[]
+            wall=[]
+            slashcooldown=0
+            mapcount+=1
+            bosses.append(Boss(wave))
+            for i in range(1,199):
+                if i%10==1:
+                    wall.append(Map(i,'W'))
+                else:
+                    map.append(Map(i,'F'))
+            for i in range(1,9):
+                obstacle.append(Obstacle(i,'SR'))
+            for i in range(191,199):
+                obstacle.append(Obstacle(i,'SL'))
+            for i in range(19,199,10):
+                obstacle.append(Obstacle(i,'ST'))
+            for i in range(0,200,10):
+                obstacle.append(Obstacle(i,'V'))
+            obstacle.append(Obstacle(9,'V'))
+            obstacle.append(Obstacle(199,'V'))
+            rendermap=False
+            creeps=[]    #delete after
+
+            
+        
+        
+        
         #main character logic
+    if stage=='normal' or stage=='boss':
+        creepspeed=50*(1+0.01*wave)
         player.speed=creepspeed-10+(player.maxspeed-creepspeed)*(player.mana/player.maxmana)
         player.targetx=player.x
         player.targety=player.y
@@ -679,13 +751,20 @@ while True:
             slashes.append(Slash(player.x,player.y-(107-70),'left',player.dmg))
             slashcooldown=1-player.attackspeed
             for creep in creeps:
-                creep.takedame=True            
+                creep.takedame=True
+            if bosses:
+                for boss in bosses:
+                    boss.takedame=True
+                                
         if keys[pygame.K_RIGHT] and slashcooldown<=0 and player.mana>=6:
             player.mana-=6
             slashes.append(Slash(player.x,player.y-(107-70),'right',player.dmg))
             slashcooldown=1-player.attackspeed
             for creep in creeps:
-                creep.takedame=True         
+                creep.takedame=True
+            if bosses:
+                for boss in bosses:
+                    boss.takedame=True         
         for i in slashes:
             i.present+=dt
             if i.present>=0.1:
@@ -743,14 +822,18 @@ while True:
                     
                 
         #creep logic
+    if stage=='normal':
         if not creeps:
-            creepsquare=random.sample(insidef,int(len(insidef)/12*(1+0.5*mapstay)))
-            mapstay+=1
             wave+=1
-            for i in creepsquare:
-                creeps.append(Creep(i,random.choice(['slime','normal']),wave))
-            creeps.append(Creep(random.choice(insidef),'elite',wave))
-        creepspeed=50*(1+0.01*wave)
+            if wave==12:
+                stage='boss'
+                rendermap=True
+            else:
+                creepsquare=random.sample(insidef,int(len(insidef)/12*(1+0.5*mapstay)))
+                mapstay+=1
+                for i in creepsquare:
+                    creeps.append(Creep(i,random.choice(['slime','normal']),wave))
+                creeps.append(Creep(random.choice(insidef),'elite',wave))
         for creep in creeps:
             if math.hypot(player.x-creep.x,player.y-creep.y)>creep.range:
                 if math.hypot(player.x-creep.x,player.y-creep.y)>creep.view or creep.notry:    
@@ -1032,6 +1115,24 @@ while True:
                         player.exp+=30*(1+0.02*wave)
                     if len(creeps)==0:
                         player.exp+=30*(1+0.02*wave)
+
+        for i in goable:
+            if i.rect.colliderect(player.rect):
+                if player.x<=0 or player.x>=(1400-61) or player.y<=-((107-70)-(107-70)) or player.y>=((700-107)+(107-70)):
+                    rendermap=True
+    if stage=='boss':
+        for boss in bosses:
+            if slashes:
+                    boss.update()
+                    if boss.rect.colliderect(slash.rect) and boss.takedame:
+                        boss.hp-=slash.dmg
+                        boss.takedame=False
+                    if boss.hp<=0:
+                        bosses.remove(boss)
+                        bosscount+=1
+                        stage='normal'
+                        rendermap=True                   
+    if stage=='normal' or stage=='boss':    
         for bullet in bullets:
             bullet.move(dt)
             bullet.update()
@@ -1052,13 +1153,10 @@ while True:
             
                 
                 
-        for i in goable:
-            if i.rect.colliderect(player.rect):
-                if player.x<=0 or player.x>=(1400-61) or player.y<=-((107-70)-(107-70)) or player.y>=((700-107)+(107-70)):
-                    rendermap=True
+
     if stage=='end':
         if keys[pygame.K_r]:
-            stage='play'
+            stage='normal'
             rendermap=True
             firstdoor=[]
             wave=0
@@ -1068,6 +1166,7 @@ while True:
             bosscount=0
             player=Player()
             mapcount=0
+            boss=0
     
         
 
@@ -1078,13 +1177,13 @@ while True:
                 
     #draw on screen
     
-    if stage=='play':
+    if stage=='normal' or stage=='boss':
         screen.fill((70,70,70))
         for i in map:
             i.draw(screen)
-        for i in obstacle:
-            i.draw(screen)
         for i in wall:
+            i.draw(screen)
+        for i in obstacle:
             i.draw(screen)
         for i in creeps:
             i.draw(screen)
@@ -1101,6 +1200,8 @@ while True:
         write('level',font,(0,0,0),1410,30)
         write(str(player.level),font,(0,0,0),1430,70)
         write(str(player.level+1),font,(0,0,0),1430,630)
+        for i in bosses:
+            i.draw(screen)
         for i in bullets:
             i.draw(screen)
             pygame.draw.rect(screen,(225,0,0),i.rect,1)
