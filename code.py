@@ -77,17 +77,16 @@ class Obstacle:
     def draw(self,screen):
         screen.blit(self.img,(self.x,self.y))
 class Player:
-    def __init__(self,xy,hp):
-        self.position=xy
-        self.y=xy%10*70
-        self.x=(xy-xy%10)/10*70
+    def __init__(self):
+        self.y=0
+        self.x=0
         self.targetx=self.x
         self.targety=self.y
         self.direction='right'
         self.dmg=10
         self.speed=200
         self.maxspeed=200
-        self.hp=hp
+        self.hp=500
         self.maxhp=500
         self.mana=100
         self.maxmana=100
@@ -101,6 +100,9 @@ class Player:
         self.exp=0
         self.level=1
         self.buffstat=0
+    def put(self,xy):
+        self.y=xy%10*70
+        self.x=(xy-xy%10)/10*70    
     def draw(self,screen):
         screen.blit(self.img,(self.x,self.y-(107-70)))
         pygame.draw.rect(screen,(0,0,0),pygame.Rect(85,705,310,40))
@@ -289,15 +291,17 @@ class Plus:
     def draw(self,screen):
         screen.blit(self.img,(self.x,self.y))   
 
+
 rendermap=True
 firstdoor=[]  #for save the door for next map
-hp=500
 wave=0
 pluses=[]
 creepspeed=50
 enemykilled=0
 bosscount=0
+mapcount=0
 stage='play'
+player=Player()
 #Game loop
 while True:
     click=False
@@ -312,6 +316,7 @@ while True:
     if stage=='play':
         #random map logic
         if rendermap:
+            player.mana=player.maxmana
             locate=list(range(200))
             goable=[]
             map=[]
@@ -335,6 +340,8 @@ while True:
             bullets=[]
             slashes=[]
             slashcooldown=0
+            mapstay=0
+            mapcount+=1
             if not firstdoor:
                 doorlong=random.randint(1,5)
                 doorside=random.choice([-1,1,-2,2])
@@ -368,7 +375,7 @@ while True:
                         map.append(Map(firstexactdoor+i,'F'))
                         locate.remove(firstexactdoor+i)
                         door.append(firstexactdoor+i)
-                player=Player(random.choice(door),hp)
+                player.put(random.choice(door))
             else:
                 doorlong=firstdoor[1]
                 doorside=firstdoor[0]*(-1)
@@ -396,7 +403,7 @@ while True:
                         map.append(Map(firstexactdoor+i,'F'))
                         locate.remove(firstexactdoor+i)
                         door.append(firstexactdoor+i)
-                player=Player(random.choice(door),hp)
+                player.put(random.choice(door))
 
             start=random.choice(door)
             doorban=[]
@@ -736,8 +743,9 @@ while True:
                     
                 
         #creep logic
-        creepsquare=random.sample(insidef,int(len(insidef)/12))
-        if creeps==[]:
+        if not creeps:
+            creepsquare=random.sample(insidef,int(len(insidef)/12*(1+0.5*mapstay)))
+            mapstay+=1
             wave+=1
             for i in creepsquare:
                 creeps.append(Creep(i,random.choice(['slime','normal']),wave))
@@ -1015,6 +1023,7 @@ while True:
                     creep.takedame=False
                 if creep.hp<=0:
                     creeps.remove(creep)
+                    enemykilled+=1
                     if creep.type=='normal':
                         player.exp+=12*(1+0.02*wave)
                     elif creep.type=='slime':
@@ -1022,13 +1031,12 @@ while True:
                     elif creep.type=='elite':
                         player.exp+=30*(1+0.02*wave)
                     if len(creeps)==0:
-                        player.exp+=12*(1+0.02*wave)
+                        player.exp+=30*(1+0.02*wave)
         for bullet in bullets:
             bullet.move(dt)
             bullet.update()
             if bullet.rect.colliderect(player.rect):
                 player.hp-=bullet.dmg
-                hp-=bullet.dmg
                 bullets.remove(bullet)
             elif bullet.x>=(1400-20) or bullet.x<=0 or bullet.y<=0 or bullet.y>=(700-20):
                 bullets.remove(bullet)
@@ -1053,12 +1061,13 @@ while True:
             stage='play'
             rendermap=True
             firstdoor=[]
-            hp=500
             wave=0
             pluses=[]
             creepspeed=50
             enemykilled=0
             bosscount=0
+            player=Player()
+            mapcount=0
     
         
 
@@ -1103,11 +1112,12 @@ while True:
     if stage=='end':
         screen.fill((0,0,0))
         write('You dead!',titlefont,(111,13,181),30,5)
-        write('wave '+str(wave),codefont,(111,13,181),50,150)
-        write('enemy killed: '+str(enemykilled),codefont,(111,13,181),50,250)
-        write('level '+str(player.level),codefont,(111,13,181),50,350)
-        write('boss killed: '+str(bosscount),codefont,(111,13,181),50,450)
-        write('press R to replay >>',codefont,(111,13,181),50,550)
+        write('level '+str(player.level),codefont,(111,13,181),50,150)
+        write('wave '+str(wave),codefont,(111,13,181),50,250)
+        write('map '+str(mapcount),codefont,(111,13,181),50,350)
+        write('enemy killed: '+str(enemykilled),codefont,(111,13,181),50,450)
+        write('boss killed: '+str(bosscount),codefont,(111,13,181),50,550)
+        write('press R to replay >>',codefont,(111,13,181),50,650)
         
         
                   
