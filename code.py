@@ -330,6 +330,19 @@ class Boss:
             self.y=700-70-self.h
     def update(self):
         self.rect=pygame.Rect(self.x,self.y,self.w,self.h)
+class Bossattack:
+    def __init__(self,x,y,dmg):
+        self.y=y
+        self.x=x
+        self.img='assets/bossattack.png'
+        self.img=pygame.image.load(self.img).convert_alpha()
+        self.img=pygame.transform.scale(self.img,(105,130.5))
+        self.dmg=dmg
+    def warn(self):
+        pygame.draw.rect(screen,(225,0,0),(self.x,self.y,105,130.5))
+    def update(self,screen):
+        screen.blit(self.img,(self.x,self.y))
+        self.rect=pygame.Rect(self.x,self.y,105,130.5) 
 
 rendermap=True
 firstdoor=[]  #for save the door for next map
@@ -692,6 +705,7 @@ while True:
             slashcooldown=0
             mapcount+=1
             bosses.append(Boss(wave))
+            bossattacks=[]
             for i in range(1,199):
                 if i%10==1:
                     wall.append(Map(i,'W'))
@@ -1138,7 +1152,9 @@ while True:
                         rendermap=True
             boss.cooldown+=dt
             if boss.cooldown>=1.8:
-                if boss.skillchoose==0: boss.skillchoose=random.randint(1,2)
+                if boss.skillchoose==0: 
+                    boss.skillchoose=random.randint(1,3)
+                    boss.skillprepare=0
                 if boss.skillchoose==1:
                     for i in range(0,360,10):
                         bullets.append(Bullet(boss.x+boss.w/2,boss.y+boss.h/2-18,boss.x+2000*math.cos(math.radians(i)),boss.y+2000*math.sin(math.radians(i)),boss.dmg))
@@ -1158,8 +1174,21 @@ while True:
                             player.takedame=False
                         if boss.x==boss.targetx and boss.y==boss.targety:
                             boss.skillchoose=0
-                            boss.skillprepare=0
-                            boss.cooldown=0                      
+                            boss.cooldown=0
+                if boss.skillchoose==3:
+                    if boss.skillprepare==0:
+                        for i in range(10):
+                            bossattacks.append(Bossattack(random.uniform(71,1329),random.uniform(141,629),boss.dmg))
+                    elif boss.skillprepare>=1:
+                        for bossattack in bossattacks:
+                            if bossattack.rect.colliderect(player.rect):
+                                player.hp-=bossattack.dmg
+                                bossattacks.remove(bossattack)
+                        if boss.skillprepare>=2:
+                            boss.skillchoose=0
+                            boss.cooldown=0
+                            bossattacks.clear()
+                    boss.skillprepare+=dt                      
                         
                     
                     
@@ -1233,6 +1262,14 @@ while True:
         write(str(player.level+1),font,(0,0,0),1430,630)
         for i in bosses:
             i.draw(screen)
+        if bossattacks:
+            if boss.skillprepare<1:
+                for bossattack in bossattacks:
+                    bossattack.warn()
+            elif boss.skillprepare>=1:
+                for bossattack in bossattacks:
+                    bossattack.update(screen)
+            
         player.draw(screen)
         for i in bullets:
             i.draw(screen)
