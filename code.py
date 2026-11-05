@@ -1304,49 +1304,49 @@ while True:
         writeduration+=1
         screen.fill((0,0,0))
         if writeduration<len(line1) and changeline==1:
-            write(line1[:writeduration],titlefont,(111,13,181),30,5)
+            write(line1[:writeduration]+'_',titlefont,(111,13,181),30,5)
         elif changeline>=1:
             write(line1,titlefont,(111,13,181),30,5)
             if changeline==1:
                 changeline+=1
                 writeduration=0
         if writeduration<len(line2) and changeline==2:
-            write(line2[:writeduration],codefont,(111,13,181),50,150)
+            write(line2[:writeduration]+'_',codefont,(111,13,181),50,150)
         elif changeline>=2:
             write(line2,codefont,(111,13,181),50,150)
             if changeline==2:
                 changeline+=1
                 writeduration=0
         if writeduration<len(line3) and changeline==3:
-            write(line3[:writeduration],codefont,(111,13,181),50,250)
+            write(line3[:writeduration]+'_',codefont,(111,13,181),50,250)
         elif changeline>=3:
             write(line3,codefont,(111,13,181),50,250)
             if changeline==3:
                 changeline+=1
                 writeduration=0
         if writeduration<len(line4) and changeline==4:
-            write(line4[:writeduration],codefont,(111,13,181),50,350)
+            write(line4[:writeduration]+'_',codefont,(111,13,181),50,350)
         elif changeline>=4:
             write(line4,codefont,(111,13,181),50,350)
             if changeline==4:
                 changeline+=1
                 writeduration=0            
         if writeduration<len(line5) and changeline==5:
-            write(line5[:writeduration],codefont,(111,13,181),50,450)
+            write(line5[:writeduration]+'_',codefont,(111,13,181),50,450)
         elif changeline>=5:
             write(line5,codefont,(111,13,181),50,450)
             if changeline==5:
                 changeline+=1
                 writeduration=0
         if writeduration<len(line6) and changeline==6:
-            write(line6[:writeduration],codefont,(111,13,181),50,550)
+            write(line6[:writeduration]+'_',codefont,(111,13,181),50,550)
         elif changeline>=6:
             write(line6,codefont,(111,13,181),50,550)
             if changeline==6:
                 changeline+=1
                 writeduration=0
         if writeduration<len(line7) and changeline==7:
-            write(line7[:writeduration],codefont,(111,13,181),50,650)
+            write(line7[:writeduration]+'_',codefont,(111,13,181),50,650)
         elif changeline>=7:
             write(line7,codefont,(111,13,181),50,650)
             if changeline==7:
