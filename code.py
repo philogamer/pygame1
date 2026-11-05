@@ -850,7 +850,7 @@ while True:
     if stage=='normal':
         if not creeps:
             wave+=1
-            if wave==12:
+            if wave%12==0:
                 stage='boss'
                 rendermap=True
             else:
@@ -1223,7 +1223,7 @@ while True:
                 
                 
 
-    if stage=='end':
+    if stage=='end' and changeline>7:
         if keys[pygame.K_r]:
             stage='normal'
             rendermap=True
@@ -1235,7 +1235,7 @@ while True:
             bosscount=0
             player=Player()
             mapcount=0
-            boss=0
+            bosses=[]
             startwrite=0
             writeduration=0
             changeline=1
@@ -1352,6 +1352,7 @@ while True:
             if changeline==7:
                 changeline+=1
                 writeduration=0
+        
 
         
                   
