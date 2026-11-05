@@ -292,7 +292,7 @@ class Boss:
         self.y=400
         self.hp=280*(1+0.09*buff)
         self.maxhp=280*(1+0.09*buff)
-        self.speed=65*(1+0.15*buff)
+        self.speed=182*(1+0.15*buff)
         self.cooldown=0
         self.dmg=20**(1+0.09*buff)
         self.img='assets/skull.png'
@@ -331,19 +331,22 @@ class Boss:
     def update(self):
         self.rect=pygame.Rect(self.x,self.y,self.w,self.h)
 class Bossattack:
-    def __init__(self,x,y,dmg):
+    def __init__(self,x,y,dmg,width):
         self.y=y
         self.x=x
+        self.w=width
         self.img='assets/bossattack.png'
         self.img=pygame.image.load(self.img).convert_alpha()
-        self.img=pygame.transform.scale(self.img,(105,130.5))
+        self.img=pygame.transform.scale(self.img,(width,width*87/70))
         self.dmg=dmg
     def warn(self):
-        pygame.draw.rect(screen,(225,0,0),(self.x,self.y,105,130.5))
+        pygame.draw.rect(screen,(225,0,0),(self.x,self.y,self.w,self.w*87/70))
     def update(self,screen):
         screen.blit(self.img,(self.x,self.y))
-        self.rect=pygame.Rect(self.x,self.y,105,130.5) 
+        self.rect=pygame.Rect(self.x,self.y,self.w,self.w*87/70) 
 
+stage='normal'
+#normal and boss
 rendermap=True
 firstdoor=[]  #for save the door for next map
 wave=0
@@ -352,9 +355,14 @@ creepspeed=50
 enemykilled=0
 bosscount=0
 mapcount=0
-stage='boss'
 player=Player()
 bosses=[]
+#end
+startwrite=0
+writeduration=0
+changeline=1
+
+
 #Game loop
 while True:
     click=False
@@ -395,6 +403,7 @@ while True:
             slashcooldown=0
             mapstay=0
             mapcount+=1
+            bossattacks=[]
             if not firstdoor:
                 doorlong=random.randint(1,5)
                 doorside=random.choice([-1,1,-2,2])
@@ -722,7 +731,6 @@ while True:
             obstacle.append(Obstacle(9,'V'))
             obstacle.append(Obstacle(199,'V'))
             rendermap=False
-            creeps=[]    #delete after
 
             
         
@@ -1156,7 +1164,7 @@ while True:
                     boss.skillchoose=random.randint(1,3)
                     boss.skillprepare=0
                 if boss.skillchoose==1:
-                    for i in range(0,360,10):
+                    for i in range(0,360,int(360/(24+6*bosscount))):
                         bullets.append(Bullet(boss.x+boss.w/2,boss.y+boss.h/2-18,boss.x+2000*math.cos(math.radians(i)),boss.y+2000*math.sin(math.radians(i)),boss.dmg))
                     boss.cooldown=0
                     boss.skillchoose=0  
@@ -1177,8 +1185,8 @@ while True:
                             boss.cooldown=0
                 if boss.skillchoose==3:
                     if boss.skillprepare==0:
-                        for i in range(10):
-                            bossattacks.append(Bossattack(random.uniform(71,1329),random.uniform(141,629),boss.dmg))
+                        for i in range(8+2*bosscount):
+                            bossattacks.append(Bossattack(random.uniform(71,1329),random.uniform(141,629),0.6*boss.dmg,90+10*bosscount))
                     elif boss.skillprepare>=1:
                         for bossattack in bossattacks:
                             if bossattack.rect.colliderect(player.rect):
@@ -1228,6 +1236,9 @@ while True:
             player=Player()
             mapcount=0
             boss=0
+            startwrite=0
+            writeduration=0
+            changeline=1
     
         
 
@@ -1239,6 +1250,7 @@ while True:
     #draw on screen
     
     if stage=='normal' or stage=='boss':
+        startwrite=0
         screen.fill((70,70,70))
         for i in map:
             i.draw(screen)
@@ -1279,16 +1291,68 @@ while True:
         for i in pluses:
             i.draw(screen)
     
-    if stage=='end':
+    line1='You dead!'
+    line2='level '+str(player.level)
+    line3='wave '+str(wave)
+    line4='map '+str(mapcount)
+    line5='enemy killed: '+str(enemykilled)
+    line6='boss killed: '+str(bosscount)
+    line7='press R to replay >>'
+    if stage=='end' and changeline!=8: startwrite+=dt
+    if stage=='end' and startwrite>=0.125:
+        startwrite=0
+        writeduration+=1
         screen.fill((0,0,0))
-        write('You dead!',titlefont,(111,13,181),30,5)
-        write('level '+str(player.level),codefont,(111,13,181),50,150)
-        write('wave '+str(wave),codefont,(111,13,181),50,250)
-        write('map '+str(mapcount),codefont,(111,13,181),50,350)
-        write('enemy killed: '+str(enemykilled),codefont,(111,13,181),50,450)
-        write('boss killed: '+str(bosscount),codefont,(111,13,181),50,550)
-        write('press R to replay >>',codefont,(111,13,181),50,650)
-        
+        if writeduration<len(line1) and changeline==1:
+            write(line1[:writeduration],titlefont,(111,13,181),30,5)
+        elif changeline>=1:
+            write(line1,titlefont,(111,13,181),30,5)
+            if changeline==1:
+                changeline+=1
+                writeduration=0
+        if writeduration<len(line2) and changeline==2:
+            write(line2[:writeduration],codefont,(111,13,181),50,150)
+        elif changeline>=2:
+            write(line2,codefont,(111,13,181),50,150)
+            if changeline==2:
+                changeline+=1
+                writeduration=0
+        if writeduration<len(line3) and changeline==3:
+            write(line3[:writeduration],codefont,(111,13,181),50,250)
+        elif changeline>=3:
+            write(line3,codefont,(111,13,181),50,250)
+            if changeline==3:
+                changeline+=1
+                writeduration=0
+        if writeduration<len(line4) and changeline==4:
+            write(line4[:writeduration],codefont,(111,13,181),50,350)
+        elif changeline>=4:
+            write(line4,codefont,(111,13,181),50,350)
+            if changeline==4:
+                changeline+=1
+                writeduration=0            
+        if writeduration<len(line5) and changeline==5:
+            write(line5[:writeduration],codefont,(111,13,181),50,450)
+        elif changeline>=5:
+            write(line5,codefont,(111,13,181),50,450)
+            if changeline==5:
+                changeline+=1
+                writeduration=0
+        if writeduration<len(line6) and changeline==6:
+            write(line6[:writeduration],codefont,(111,13,181),50,550)
+        elif changeline>=6:
+            write(line6,codefont,(111,13,181),50,550)
+            if changeline==6:
+                changeline+=1
+                writeduration=0
+        if writeduration<len(line7) and changeline==7:
+            write(line7[:writeduration],codefont,(111,13,181),50,650)
+        elif changeline>=7:
+            write(line7,codefont,(111,13,181),50,650)
+            if changeline==7:
+                changeline+=1
+                writeduration=0
+
         
                   
             
