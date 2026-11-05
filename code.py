@@ -340,12 +340,13 @@ class Bossattack:
         self.img=pygame.transform.scale(self.img,(width,width*87/70))
         self.dmg=dmg
     def warn(self):
-        pygame.draw.rect(screen,(225,0,0),(self.x,self.y,self.w,self.w*87/70))
+        pygame.draw.rect(transparentscreen,(225,0,0,20),(self.x,self.y,self.w,self.w*87/70))
+        screen.blit(transparentscreen,(0,0))
     def update(self,screen):
         screen.blit(self.img,(self.x,self.y))
         self.rect=pygame.Rect(self.x,self.y,self.w,self.w*87/70) 
 
-stage='normal'
+stage='boss'
 #normal and boss
 rendermap=True
 firstdoor=[]  #for save the door for next map
@@ -731,6 +732,7 @@ while True:
             obstacle.append(Obstacle(9,'V'))
             obstacle.append(Obstacle(199,'V'))
             rendermap=False
+            creeps=[]
 
             
         
