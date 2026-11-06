@@ -826,8 +826,7 @@ while True:
                 wall.append(Map(i,'W'))
             rendermap=False
             creeps=[]
-            dark=True
-            guidenumber=0
+            guidenumber=1
         else:
             if player.y<=-((107-70)-(107-70)): 
                 player.put(99)
@@ -1420,44 +1419,7 @@ while True:
             i.draw(screen)
         for i in pluses:
             i.draw(screen)
-            
-    if stage=='guide' and not dark:
-        if guidenumber==1:
-            write('this is your character, you',chatfont,(111,13,181),385,225)
-            write('will control him by WASD',chatfont,(111,13,181),385,255)
-        else:
-            for i in map:
-                i.draw(screen)
-            for i in wall:
-                i.draw(screen)
-            for i in obstacle:
-                i.draw(screen)
-            for i in creeps:
-                i.draw(screen)
-            write('HP',font,(0,0,0),40,699)
-            write('MANA',font,(0,0,0),20,744)
-            write('DAMAGE:'+str(player.dmg),font,(0,0,0),450,699)
-            write('MAX MANA:'+str(player.maxmana),font,(0,0,0),450,744)
-            write('MAX HP:'+str(player.maxhp),font,(0,0,0),700,699)
-            write('MOVE SPEED:'+str(player.maxspeed),font,(0,0,0),700,744)
-            write('MANA REGEN:'+str(player.manaregen),font,(0,0,0),950,699)
-            write('ATTACK SPEED:'+str(player.attackspeed),font,(0,0,0),950,744)
-            write('level',font,(0,0,0),1410,30)
-            write(str(player.level),font,(0,0,0),1430,70)
-            write(str(player.level+1),font,(0,0,0),1430,630)
-                
-            player.draw(screen)
-            for i in bullets:
-                i.draw(screen)
-            for i in smallbullets:
-                i.draw(screen)
-                
-            for i in slashes:
-                i.draw(screen)
-            for i in pluses:
-                i.draw(screen)
-    
-    if stage=='guide' and dark: 
+    def drawsmallfeatures():
         screen.fill((70,70,70))
         for i in map:
             i.draw(screen)
@@ -1488,13 +1450,37 @@ while True:
         for i in slashes:
             i.draw(screen)
         for i in pluses:
-            i.draw(screen)
-        pygame.draw.rect(screen,(0,0,0),pygame.Rect(420,280,560,140))
-        transparentscreen.fill((0,0,0,130))
-        pygame.draw.circle(transparentscreen,(225,225,225,0),(662,655),65)
-        screen.blit(transparentscreen)
-        guidenumber+=1
-        dark=False
+            i.draw(screen)                
+    if stage=='guide': startwrite+=dt
+    if stage=='guide':
+        line1='this is your character, you will'
+        line2='control him by WASD'
+    if stage=='guide':
+        if guidenumber==1:
+            if startwrite>=0.125:
+                startwrite=0
+                writeduration+=1
+                screen.fill((0,0,0))
+                drawsmallfeatures()
+                pygame.draw.rect(screen,(0,0,0),pygame.Rect(420,280,560,140))
+                transparentscreen.fill((0,0,0,170))
+                if changeline==3: pygame.draw.circle(transparentscreen,(225,225,225,0),(662,655),65)
+                screen.blit(transparentscreen)
+                if writeduration<len(line1) and changeline==1:
+                    write(line1[:writeduration]+'_',chatfont,(111,13,181),385,235)
+                elif changeline>=1:
+                    write(line1,chatfont,(111,13,181),385,235)
+                    if changeline==1:
+                        changeline+=1
+                        writeduration=0
+                if writeduration<len(line2) and changeline==2:
+                    write(line2[:writeduration]+'_',chatfont,(111,13,181),385,275)
+                elif changeline>=2:
+                    write(line2,chatfont,(111,13,181),385,275)
+                    if changeline==2:
+                        changeline+=1
+                        writeduration=0
+
     
     if stage=='end':
         line1='You dead!'
