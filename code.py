@@ -379,7 +379,7 @@ class Bossattack:
         screen.blit(self.img,(self.x,self.y))
         self.rect=pygame.Rect(self.x,self.y,self.w,self.w*87/70) 
 
-stage='start'
+stage='guide'
 #normal and boss
 rendermap=True
 firstdoor=[]  #for save the door for next map
@@ -774,13 +774,62 @@ while True:
             obstacle.append(Obstacle(199,'V'))
             rendermap=False
             creeps=[]
+    if stage=='guide':
+        if rendermap:
+            player.put(99)
+            player.mana=player.maxmana
+            map=[]
+            obstacle=[]
+            bullets=[]
+            smallbullets=[]
+            slashes=[]
+            wall=[]
+            slashcooldown=0
+            mapcount+=1
+            bosses=[]
+            bossattacks=[]
+            for i in range(1,199):
+                if i%10==1 and i!=91 and i!=101:
+                    wall.append(Map(i,'W'))
+                else:
+                    map.append(Map(i,'F'))
+            for i in range(1,9):
+                obstacle.append(Obstacle(i,'SR'))
+            for i in range(191,199):
+                obstacle.append(Obstacle(i,'SL'))
+            for i in range(19,199,10):
+                if i!=99 and i!=109 and i!=119 and i!=89:
+                    obstacle.append(Obstacle(i,'ST'))
+            for i in range(0,200,10):
+                if i!=90 and i!=100 and i!=80 and i!=110:
+                    obstacle.append(Obstacle(i,'V'))
+            obstacle.append(Obstacle(9,'V'))
+            obstacle.append(Obstacle(199,'V'))
+            obstacle.append(Obstacle(80,'SR'))
+            obstacle.append(Obstacle(110,'SL'))
+            obstacle.append(Obstacle(89,'SRT'))
+            obstacle.append(Obstacle(119,'SLT'))
+            obstacle.append(Obstacle(143,'SRT'))
+            obstacle.append(Obstacle(53,'SLT'))
+            for i in range(63,143,10):
+                obstacle.append(Obstacle(i,'ST'))
+            for i in range(54,57):
+                obstacle.append(Obstacle(i,'SL'))
+            for i in range(144,147):
+                obstacle.append(Obstacle(i,'SR'))
+            for i in range(66,146,10):
+                obstacle.append(Obstacle(i,'V'))
+            for i in range(57,157,10):
+                wall.append(Map(i,'W'))
+            rendermap=False
+            creeps=[]
 
             
         
         
         
         #main character logic
-    if stage=='normal' or stage=='boss':
+    if stage=='normal' or stage=='boss' or stage=='guide':
         creepspeed=50*(1+0.01*wave)
         player.speed=creepspeed-10+(player.maxspeed-creepspeed)*(player.mana/player.maxmana)
         player.targetx=player.x
@@ -1319,7 +1368,7 @@ while True:
                 
     #draw on screen
     
-    if stage=='normal' or stage=='boss':
+    if stage=='normal' or stage=='boss' or stage=='guide':
         startwrite=0
         screen.fill((70,70,70))
         for i in map:
@@ -1362,6 +1411,8 @@ while True:
             i.draw(screen)
         for i in pluses:
             i.draw(screen)
+    
+    if stage=='guide': pygame.draw.rect(screen,(0,0,0),pygame.Rect(420,280,560,140))
     
     if stage=='end':
         line1='You dead!'
