@@ -12,6 +12,8 @@ clock=pygame.time.Clock()
 font=pygame.font.Font('assets/font.ttf',30)
 titlefont=pygame.font.Font('assets/endfont.ttf',100)
 codefont=pygame.font.Font('assets/endfont.ttf',50)
+chatfont=pygame.font.Font('assets/endfont.ttf',30)
+
 
 def write(text,font,color,x,y):
     screen.blit(font.render(text,True,color),(x,y))
@@ -774,6 +776,7 @@ while True:
             obstacle.append(Obstacle(199,'V'))
             rendermap=False
             creeps=[]
+    
     if stage=='guide':
         if rendermap:
             player.put(99)
@@ -823,6 +826,13 @@ while True:
                 wall.append(Map(i,'W'))
             rendermap=False
             creeps=[]
+            dark=True
+            guidenumber=0
+        else:
+            if player.y<=-((107-70)-(107-70)): 
+                player.put(99)
+                player.mana=player.maxmana
+            
 
             
         
@@ -1368,7 +1378,7 @@ while True:
                 
     #draw on screen
     
-    if stage=='normal' or stage=='boss' or stage=='guide':
+    if stage=='normal' or stage=='boss':
         startwrite=0
         screen.fill((70,70,70))
         for i in map:
@@ -1379,7 +1389,6 @@ while True:
             i.draw(screen)
         for i in creeps:
             i.draw(screen)
-            pygame.draw.rect(screen,(225,0,0),i.rect,1)
         write('HP',font,(0,0,0),40,699)
         write('MANA',font,(0,0,0),20,744)
         write('DAMAGE:'+str(player.dmg),font,(0,0,0),450,699)
@@ -1411,8 +1420,81 @@ while True:
             i.draw(screen)
         for i in pluses:
             i.draw(screen)
+            
+    if stage=='guide' and not dark:
+        if guidenumber==1:
+            write('this is your character, you',chatfont,(111,13,181),385,225)
+            write('will control him by WASD',chatfont,(111,13,181),385,255)
+        else:
+            for i in map:
+                i.draw(screen)
+            for i in wall:
+                i.draw(screen)
+            for i in obstacle:
+                i.draw(screen)
+            for i in creeps:
+                i.draw(screen)
+            write('HP',font,(0,0,0),40,699)
+            write('MANA',font,(0,0,0),20,744)
+            write('DAMAGE:'+str(player.dmg),font,(0,0,0),450,699)
+            write('MAX MANA:'+str(player.maxmana),font,(0,0,0),450,744)
+            write('MAX HP:'+str(player.maxhp),font,(0,0,0),700,699)
+            write('MOVE SPEED:'+str(player.maxspeed),font,(0,0,0),700,744)
+            write('MANA REGEN:'+str(player.manaregen),font,(0,0,0),950,699)
+            write('ATTACK SPEED:'+str(player.attackspeed),font,(0,0,0),950,744)
+            write('level',font,(0,0,0),1410,30)
+            write(str(player.level),font,(0,0,0),1430,70)
+            write(str(player.level+1),font,(0,0,0),1430,630)
+                
+            player.draw(screen)
+            for i in bullets:
+                i.draw(screen)
+            for i in smallbullets:
+                i.draw(screen)
+                
+            for i in slashes:
+                i.draw(screen)
+            for i in pluses:
+                i.draw(screen)
     
-    if stage=='guide': pygame.draw.rect(screen,(0,0,0),pygame.Rect(420,280,560,140))
+    if stage=='guide' and dark: 
+        screen.fill((70,70,70))
+        for i in map:
+            i.draw(screen)
+        for i in wall:
+            i.draw(screen)
+        for i in obstacle:
+            i.draw(screen)
+        for i in creeps:
+            i.draw(screen)
+        write('HP',font,(0,0,0),40,699)
+        write('MANA',font,(0,0,0),20,744)
+        write('DAMAGE:'+str(player.dmg),font,(0,0,0),450,699)
+        write('MAX MANA:'+str(player.maxmana),font,(0,0,0),450,744)
+        write('MAX HP:'+str(player.maxhp),font,(0,0,0),700,699)
+        write('MOVE SPEED:'+str(player.maxspeed),font,(0,0,0),700,744)
+        write('MANA REGEN:'+str(player.manaregen),font,(0,0,0),950,699)
+        write('ATTACK SPEED:'+str(player.attackspeed),font,(0,0,0),950,744)
+        write('level',font,(0,0,0),1410,30)
+        write(str(player.level),font,(0,0,0),1430,70)
+        write(str(player.level+1),font,(0,0,0),1430,630)
+            
+        player.draw(screen)
+        for i in bullets:
+            i.draw(screen)
+        for i in smallbullets:
+            i.draw(screen)
+            
+        for i in slashes:
+            i.draw(screen)
+        for i in pluses:
+            i.draw(screen)
+        pygame.draw.rect(screen,(0,0,0),pygame.Rect(420,280,560,140))
+        transparentscreen.fill((0,0,0,130))
+        pygame.draw.circle(transparentscreen,(225,225,225,0),(662,655),65)
+        screen.blit(transparentscreen)
+        guidenumber+=1
+        dark=False
     
     if stage=='end':
         line1='You dead!'
