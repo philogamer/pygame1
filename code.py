@@ -346,7 +346,7 @@ class Bossattack:
         screen.blit(self.img,(self.x,self.y))
         self.rect=pygame.Rect(self.x,self.y,self.w,self.w*87/70) 
 
-stage='normal'
+stage='boss'
 #normal and boss
 rendermap=True
 firstdoor=[]  #for save the door for next map
@@ -852,7 +852,7 @@ while True:
     if stage=='normal':
         if not creeps:
             wave+=1
-            if wave%12==0:
+            if wave%5==0:
                 stage='boss'
                 rendermap=True
             else:
@@ -1163,7 +1163,7 @@ while True:
             boss.cooldown+=dt
             if boss.cooldown>=1.8:
                 if boss.skillchoose==0: 
-                    boss.skillchoose=random.randint(1,3)
+                    boss.skillchoose=random.randint(1,4)
                     boss.skillprepare=0
                 if boss.skillchoose==1:
                     for i in range(0,360,int(360/(24+6*bosscount))):
@@ -1198,7 +1198,16 @@ while True:
                             boss.skillchoose=0
                             boss.cooldown=0
                             bossattacks.clear()
-                    boss.skillprepare+=dt                      
+                    boss.skillprepare+=dt
+                if boss.skillchoose==4:
+                    if boss.cooldown>=1.85:
+                        boss.cooldown=1.8
+                        if boss.skillprepare<360:
+                            bullets.append(Bullet(boss.x+boss.w/2,boss.y+boss.h/2-18,boss.x+2000*math.cos(math.radians(boss.skillprepare)),boss.y+2000*math.sin(math.radians(boss.skillprepare)),boss.dmg))
+                            boss.skillprepare+=int(360/(24+6*bosscount))
+                        else:    
+                            boss.skillchoose=0
+                            boss.cooldown=0                      
                         
                     
                     
