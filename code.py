@@ -244,6 +244,39 @@ class Bullet:
     def update(self):
         self.rect=pygame.Rect(self.x,self.y,20,20)
         self.wallrect=pygame.Rect(self.x,self.y-18,20,20+18)        
+class Smallbullet:
+    def __init__(self,x,y,targetx,targety,dmg):
+        self.y=y+18
+        self.x=x
+        self.targetx=targetx
+        self.targety=targety
+        self.speed=200
+        self.img='assets/bullet.png'
+        self.img=pygame.image.load(self.img).convert_alpha()
+        self.img=pygame.transform.scale(self.img,(20,20))
+        self.rect=pygame.Rect(self.x,self.y,20,20)
+        self.wallrect=pygame.Rect(self.x,self.y-18,20,20+18)
+        self.dx=(self.targetx-self.x)*2000
+        self.dy=(self.targety-self.y)*2000
+        self.distance=math.hypot(self.dx,self.dy)
+        self.dmg=dmg
+    def draw(self,screen):
+        screen.blit(self.img,(self.x,self.y))
+    def move(self,dt):
+        self.x+=self.dx/self.distance*self.speed*dt
+        self.y+=self.dy/self.distance*self.speed*dt
+        if self.x<0:
+            self.x=0
+        if self.x>(1400-20):
+            self.x=(1400-20)
+        if self.y<0:
+            self.y=0  
+        if self.y>(700-20):
+            self.y=700-20
+        
+    def update(self):
+        self.rect=pygame.Rect(self.x,self.y,20,20)
+        self.wallrect=pygame.Rect(self.x,self.y-18,20,20+18)   
 class Slash:
     def __init__(self,x,y,direction,dmg):
         self.y=y
@@ -354,7 +387,7 @@ wave=0
 pluses=[]
 creepspeed=50
 enemykilled=0
-bosscount=0
+bosscount=2
 mapcount=0
 player=Player()
 bosses=[]
@@ -400,6 +433,7 @@ while True:
             wall=[]
             creeps=[]
             bullets=[]
+            smallbullets=[]
             slashes=[]
             slashcooldown=0
             mapstay=0
@@ -710,6 +744,7 @@ while True:
             map=[]
             obstacle=[]
             bullets=[]
+            smallbullets=[]
             slashes=[]
             wall=[]
             slashcooldown=0
@@ -1157,7 +1192,7 @@ while True:
                     if boss.hp<=0:
                         bosses.remove(boss)
                         bosscount+=1
-                        player.exp+=90
+                        player.exp+=90*(1+0.02*wave)
                         stage='normal'
                         rendermap=True
             boss.cooldown+=dt
@@ -1225,12 +1260,30 @@ while True:
                 for object in obstacle:
                     if bullet.wallrect.colliderect(object.rect):
                         bullets.remove(bullet)
+                        if bosscount>=2 and stage=='boss':
+                            for i in range(0,360,int(360/(6+1*bosscount))):
+                                smallbullets.append(Smallbullet(bullet.x,bullet.y,boss.x+2000*math.cos(math.radians(i)),boss.y+2000*math.sin(math.radians(i)),boss.dmg/2))        
                         break
+        for bullet in smallbullets:
+            bullet.move(dt)
+            bullet.update()
+            if bullet.rect.colliderect(player.rect):
+                player.hp-=bullet.dmg
+                smallbullets.remove(bullet)
+            elif bullet.x>=(1400-20) or bullet.x<=0 or bullet.y<=0 or bullet.y>=(700-20):
+                bullets.remove(bullet)
+            else:
+                for object in obstacle:
+                    if bullet.wallrect.colliderect(object.rect):
+                        smallbullets.remove(bullet)
+                        break        
         if slashes:
             for bullet in bullets:
                 if bullet.rect.colliderect(slash.rect):
                     bullets.remove(bullet)                    
-            
+            for bullet in smallbullets:
+                if bullet.rect.colliderect(slash.rect):
+                    smallbullets.remove(bullet)               
                 
                 
 
@@ -1296,7 +1349,9 @@ while True:
         player.draw(screen)
         for i in bullets:
             i.draw(screen)
-            pygame.draw.rect(screen,(225,0,0),i.rect,1)
+        for i in smallbullets:
+            i.draw(screen)
+            
         for i in slashes:
             i.draw(screen)
         for i in pluses:
