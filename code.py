@@ -379,7 +379,7 @@ class Bossattack:
         screen.blit(self.img,(self.x,self.y))
         self.rect=pygame.Rect(self.x,self.y,self.w,self.w*87/70) 
 
-stage='boss'
+stage='start'
 #normal and boss
 rendermap=True
 firstdoor=[]  #for save the door for next map
@@ -391,7 +391,7 @@ bosscount=2
 mapcount=0
 player=Player()
 bosses=[]
-#end
+#end and start
 startwrite=0
 writeduration=0
 changeline=1
@@ -408,6 +408,12 @@ while True:
         if event.type==pygame.MOUSEBUTTONDOWN and event.button==1:
             click=True
             mousepos=event.pos
+    if stage=='start' and changeline>6:
+            if keys[pygame.K_p]:
+                stage='normal'
+                startwrite=0
+                writeduration=0
+                changeline=1
     if stage=='normal':
         #random map logic
         if rendermap:
@@ -1357,13 +1363,14 @@ while True:
         for i in pluses:
             i.draw(screen)
     
-    line1='You dead!'
-    line2='level '+str(player.level)
-    line3='wave '+str(wave)
-    line4='map '+str(mapcount)
-    line5='enemy killed: '+str(enemykilled)
-    line6='boss killed: '+str(bosscount)
-    line7='press R to replay >>'
+    if stage=='end':
+        line1='You dead!'
+        line2='level '+str(player.level)
+        line3='wave '+str(wave)
+        line4='map '+str(mapcount)
+        line5='enemy killed: '+str(enemykilled)
+        line6='boss killed: '+str(bosscount)
+        line7='press R to replay >>'
     if stage=='end' and changeline!=8: startwrite+=dt
     if stage=='end' and startwrite>=0.125:
         startwrite=0
@@ -1416,6 +1423,60 @@ while True:
         elif changeline>=7:
             write(line7,codefont,(111,13,181),50,650)
             if changeline==7:
+                changeline+=1
+                writeduration=0
+    if stage=='start':
+        line1='Lost soul'
+        line2='adventure'
+        line3='combat'
+        line4='level up'
+        line5='survive as long as you can'
+        line6='press P to start>>'
+    if stage=='start' and changeline!=7: startwrite+=dt
+    if stage=='start' and startwrite>=0.125:
+        startwrite=0
+        writeduration+=1
+        screen.fill((0,0,0))
+        if writeduration<len(line1) and changeline==1:
+            write(line1[:writeduration]+'_',titlefont,(111,13,181),30,5)
+        elif changeline>=1:
+            write(line1,titlefont,(111,13,181),30,5)
+            if changeline==1:
+                changeline+=1
+                writeduration=0
+        if writeduration<len(line2) and changeline==2:
+            write(line2[:writeduration]+'_',codefont,(111,13,181),50,150)
+        elif changeline>=2:
+            write(line2,codefont,(111,13,181),50,150)
+            if changeline==2:
+                changeline+=1
+                writeduration=0
+        if writeduration<len(line3) and changeline==3:
+            write(line3[:writeduration]+'_',codefont,(111,13,181),50,250)
+        elif changeline>=3:
+            write(line3,codefont,(111,13,181),50,250)
+            if changeline==3:
+                changeline+=1
+                writeduration=0
+        if writeduration<len(line4) and changeline==4:
+            write(line4[:writeduration]+'_',codefont,(111,13,181),50,350)
+        elif changeline>=4:
+            write(line4,codefont,(111,13,181),50,350)
+            if changeline==4:
+                changeline+=1
+                writeduration=0            
+        if writeduration<len(line5) and changeline==5:
+            write(line5[:writeduration]+'_',codefont,(111,13,181),50,450)
+        elif changeline>=5:
+            write(line5,codefont,(111,13,181),50,450)
+            if changeline==5:
+                changeline+=1
+                writeduration=0
+        if writeduration<len(line6) and changeline==6:
+            write(line6[:writeduration]+'_',codefont,(111,13,181),50,550)
+        elif changeline>=6:
+            write(line6,codefont,(111,13,181),50,550)
+            if changeline==6:
                 changeline+=1
                 writeduration=0
         
