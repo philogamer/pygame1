@@ -11,17 +11,16 @@ transparentscreen=pygame.Surface((1500,800), pygame.SRCALPHA)
 pygame.display.set_caption('Lost Soul')
 clock=pygame.time.Clock()
 
-stage='normal'
+stage='boss'
 #normal and boss
 rendermap=True
 firstdoor=[]  #for save the door for next map
 wave=0
 pluses=[]
 creepspeed=50
-enemykilled=0
 bosscount=0
 mapcount=0
-player=fun.Player()
+player=Player()
 bosses=[]
 #end and start
 startwrite=0
@@ -88,7 +87,7 @@ while True:
         
         
         #main character logic
-    dic.playerbehaviour_dic.get(stage, lambda *b: None)(wave,player,obstacle,keys,slashes,creeps,bosses,dt,pluses)      
+    dic.playerbehaviour_dic.get(stage,lambda *b: None)(wave,player,obstacle,keys,slashes,creeps,bosses,dt,pluses)      
     if player.buffstat>0:
         if not pluses:
             pluses.append(Plus('dmg'))
@@ -135,7 +134,7 @@ while True:
                 creeps.append(Creep(random.choice(insidef),'elite',wave))
         for creep in creeps:
             dic.creepmove_dic.get(math.hypot(player.x-creep.x,player.y-creep.y)>creep.range).get(math.hypot(player.x-creep.x,player.y-creep.y)>creep.view or creep.notry)(creep,obstacle,player,bullets,dt)
-        dic.creeptakedame_dic
+        dic.creeptakedame_dic.get(len(slashes),lambda *b: None)(slashes,creeps,player,wave)
 
         for i in goable:
             if i.rect.colliderect(player.rect):
@@ -254,7 +253,6 @@ while True:
             wave=0
             pluses=[]
             creepspeed=50
-            enemykilled=0
             bosscount=0
             player=Player()
             mapcount=0
@@ -275,6 +273,7 @@ while True:
     if stage=='normal' or stage=='boss':
         startwrite=0
         screen.fill((70,70,70))
+        transparentscreen.fill((0,0,0,0))
         for i in map:
             i.draw(screen)
         for i in wall:
@@ -384,7 +383,7 @@ while True:
         line2='level '+str(player.level)
         line3='wave '+str(wave)
         line4='map '+str(mapcount)
-        line5='enemy killed: '+str(enemykilled)
+        line5='enemy killed: '+str(player.enemykilled)
         line6='boss killed: '+str(bosscount)
         line7='press R to replay >>'
     if stage=='end' and changeline!=8: startwrite+=dt

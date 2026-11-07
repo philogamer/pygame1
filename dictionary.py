@@ -19,7 +19,7 @@ creepmove_dic={
     }
 }
 creeptakedame_dic={
-    True: lambda *a: fun.creepgetdame(*a)
+    1: lambda *a: fun.creepgetdame(*a)
 }
 
 

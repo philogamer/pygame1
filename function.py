@@ -99,6 +99,7 @@ class Player:
         self.buffstat=0
         self.takedame=True
         self.slashcooldown=0
+        self.enemykilled=0
     def put(self,xy):
         self.y=xy%10*70
         self.x=(xy-xy%10)/10*70    
@@ -512,6 +513,7 @@ def render1(firstdoor,map,locate,door,player,insidef,w,goable,sr,sl,srt,slt,slr,
                             goable.append(Goable(start+b))
                         if doorlong==5:
                             doorlong-=1
+                            goable.remove(Goable(start+b))
                             break
                         side=1
                     elif (start+b) in list(range(10,190,10)):
@@ -529,6 +531,7 @@ def render1(firstdoor,map,locate,door,player,insidef,w,goable,sr,sl,srt,slt,slr,
                             goable.append(Goable(start+b))
                         if doorlong==5:
                             doorlong-=1
+                            goable.remove(Goable(start+b))
                             break
                         side=1
                     elif (start+b) in list(range(19,199,10)):
@@ -546,6 +549,7 @@ def render1(firstdoor,map,locate,door,player,insidef,w,goable,sr,sl,srt,slt,slr,
                             goable.append(Goable(start+b))
                         if doorlong==5:
                             doorlong-=1
+                            goable.remove(Goable(start+b))
                             break
                         side=1
                     elif (start+b) in list(range(191,199)):
@@ -563,6 +567,7 @@ def render1(firstdoor,map,locate,door,player,insidef,w,goable,sr,sl,srt,slt,slr,
                             goable.append(Goable(start+b))
                         if doorlong==5:
                             doorlong-=1
+                            goable.remove(Goable(start+b))
                             break
                         side=1
                 start+=b
@@ -971,7 +976,7 @@ def creepgetdame(slashes,creeps,player,wave):
             creep.takedame=False
         if creep.hp<=0:
             creeps.remove(creep)
-            enemykilled+=1
+            player.enemykilled+=1
             if creep.type=='normal':
                 player.exp+=12*(1+0.02*wave)
             elif creep.type=='slime':
