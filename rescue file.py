@@ -1,7 +1,6 @@
 import pygame
 import random
 import math
-
 pygame.init()
 pygame.mixer.init()
 pygame.font.init()
@@ -1481,7 +1480,7 @@ while True:
                         changeline+=1
                         writeduration=0
 
-    
+
     if stage=='end':
         line1='You dead!'
         line2='level '+str(player.level)

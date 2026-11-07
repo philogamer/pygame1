@@ -1,0 +1,508 @@
+import pygame
+import random
+import math
+import dictionary as dic
+from function import *
+pygame.init()
+pygame.mixer.init()
+pygame.font.init()
+screen=pygame.display.set_mode((1500,800))
+transparentscreen=pygame.Surface((1500,800), pygame.SRCALPHA)
+pygame.display.set_caption('Lost Soul')
+clock=pygame.time.Clock()
+
+stage='normal'
+#normal and boss
+rendermap=True
+firstdoor=[]  #for save the door for next map
+wave=0
+pluses=[]
+creepspeed=50
+enemykilled=0
+bosscount=0
+mapcount=0
+player=fun.Player()
+bosses=[]
+#end and start
+startwrite=0
+writeduration=0
+changeline=1
+#guide
+guidenumber=1
+
+
+#Game loop
+while True:
+    click=False
+    dt=clock.tick(60)/1000
+    for event in pygame.event.get():
+        if event.type==pygame.QUIT:
+            quit(0)
+        keys=pygame.key.get_pressed()
+        if event.type==pygame.MOUSEBUTTONDOWN and event.button==1:
+            click=True
+            mousepos=event.pos
+    if stage=='start' and changeline>6:
+            if keys[pygame.K_p]:
+                stage='normal'
+                startwrite=0
+                writeduration=0
+                changeline=1
+    if rendermap:
+        player.mana=player.maxmana
+        locate=list(range(200))
+        goable=[]
+        map=[]
+        obstacle=[]
+        door=[]
+        w=[]
+        sr=[]
+        sl=[]
+        v=[]
+        slr=[]
+        slrt=[]
+        slt=[]
+        srt=[]
+        st=[]
+        insidef=[]
+        wall=[]
+        creeps=[]
+        bullets=[]
+        smallbullets=[]
+        slashes=[]
+        player.slashcooldown=0
+        mapstay=0
+        mapcount+=1
+        bossattacks=[]
+        dic.rendermap_dic.get(stage)(firstdoor,map,locate,door,player,insidef,w,goable,sr,sl,srt,slt,slr,slrt,st,wall,v,obstacle,bosses,wave)
+        rendermap=False
+    
+    if stage=='guide':
+        if player.y<=-((107-70)-(107-70)): 
+            player.put(99)
+            player.mana=player.maxmana
+            
+
+            
+        
+        
+        
+        #main character logic
+    dic.playerbehaviour_dic.get(stage, lambda *b: None)(wave,player,obstacle,keys,slashes,creeps,bosses,dt,pluses)      
+    if player.buffstat>0:
+        if not pluses:
+            pluses.append(Plus('dmg'))
+            pluses.append(Plus('maxmana'))
+            pluses.append(Plus('maxhp'))
+            pluses.append(Plus('movespeed'))
+            pluses.append(Plus('manaregen'))
+            pluses.append(Plus('attackspeed'))
+        for plus in pluses:
+            if click:
+                if plus.rect.collidepoint(mousepos):
+                    player.buffstat-=1
+                    if plus.type=='dmg':
+                        player.dmg+=1
+                    elif plus.type=='maxmana':
+                        player.maxmana+=15
+                        player.mana+=15
+                    elif plus.type=='maxhp':
+                        player.maxhp+=35
+                        player.hp+=15
+                    elif plus.type=='movespeed':
+                        player.maxspeed+=1                        
+                    elif plus.type=='manaregen':
+                        player.manaregen+=1
+                    elif plus.type=='attackspeed':
+                        player.attackspeed+=0.03
+    if player.hp<=0:
+        stage='end'                    
+                        
+                    
+                
+        #creep logic
+    if stage=='normal':
+        if not creeps:
+            wave+=1
+            if wave%5==0:
+                stage='boss'
+                rendermap=True
+            else:
+                creepsquare=random.sample(insidef,int(len(insidef)/12*(1+0.5*mapstay)))
+                mapstay+=1
+                for i in creepsquare:
+                    creeps.append(Creep(i,random.choice(['slime','normal']),wave))
+                creeps.append(Creep(random.choice(insidef),'elite',wave))
+        for creep in creeps:
+            dic.creepmove_dic.get(math.hypot(player.x-creep.x,player.y-creep.y)>creep.range).get(math.hypot(player.x-creep.x,player.y-creep.y)>creep.view or creep.notry)(creep,obstacle,player,bullets,dt)
+        dic.creeptakedame_dic
+
+        for i in goable:
+            if i.rect.colliderect(player.rect):
+                if player.x<=0 or player.x>=(1400-61) or player.y<=-((107-70)-(107-70)) or player.y>=((700-107)+(107-70)):
+                    rendermap=True
+    if stage=='boss':
+        for boss in bosses:
+            boss.update()
+            if slashes:
+                    if boss.rect.colliderect(slashes[0].rect) and boss.takedame:
+                        boss.hp-=slashes[0].dmg
+                        boss.takedame=False
+                    if boss.hp<=0:
+                        bosses.remove(boss)
+                        bosscount+=1
+                        player.exp+=90*(1+0.02*wave)
+                        stage='normal'
+                        rendermap=True
+            boss.cooldown+=dt
+            if boss.cooldown>=1.8:
+                if boss.skillchoose==0: 
+                    boss.skillchoose=random.randint(1,4)
+                    boss.skillprepare=0
+                if boss.skillchoose==1:
+                    for i in range(0,360,int(360/(24+6*bosscount))):
+                        bullets.append(Bullet(boss.x+boss.w/2,boss.y+boss.h/2-18,boss.x+2000*math.cos(math.radians(i)),boss.y+2000*math.sin(math.radians(i)),boss.dmg))
+                    boss.cooldown=0
+                    boss.skillchoose=0  
+                if boss.skillchoose==2:
+                    if boss.skillprepare==0:
+                        boss.targetx=player.x
+                        boss.targety=player.y
+                        boss.skillprepare=1
+                        player.takedame=True
+                    else:
+                        boss.move(dt)
+                        boss.update()
+                        if boss.rect.colliderect(player.rect) and player.takedame:
+                            player.hp-=boss.dmg
+                            player.takedame=False
+                        if boss.x==boss.targetx and boss.y==boss.targety:
+                            boss.skillchoose=0
+                            boss.cooldown=0
+                if boss.skillchoose==3:
+                    if boss.skillprepare==0:
+                        for i in range(8+2*bosscount):
+                            bossattacks.append(Bossattack(random.uniform(71,1329),random.uniform(141,629),0.6*boss.dmg,90+10*bosscount))
+                    elif boss.skillprepare>=1:
+                        for bossattack in bossattacks:
+                            if bossattack.rect.colliderect(player.rect):
+                                player.hp-=bossattack.dmg
+                                bossattacks.remove(bossattack)
+                        if boss.skillprepare>=2:
+                            boss.skillchoose=0
+                            boss.cooldown=0
+                            bossattacks.clear()
+                    boss.skillprepare+=dt
+                if boss.skillchoose==4:
+                    if boss.cooldown>=1.85:
+                        boss.cooldown=1.8
+                        if boss.skillprepare<360:
+                            bullets.append(Bullet(boss.x+boss.w/2,boss.y+boss.h/2-18,boss.x+2000*math.cos(math.radians(boss.skillprepare)),boss.y+2000*math.sin(math.radians(boss.skillprepare)),boss.dmg))
+                            boss.skillprepare+=int(360/(24+6*bosscount))
+                        else:    
+                            boss.skillchoose=0
+                            boss.cooldown=0                      
+                        
+                    
+                    
+                              
+    if stage=='normal' or stage=='boss':    
+        for bullet in bullets:
+            bullet.move(dt)
+            bullet.update()
+            if bullet.rect.colliderect(player.rect):
+                player.hp-=bullet.dmg
+                bullets.remove(bullet)
+            elif bullet.x>=(1400-20) or bullet.x<=0 or bullet.y<=0 or bullet.y>=(700-20):
+                bullets.remove(bullet)
+            else:
+                for object in obstacle:
+                    if bullet.wallrect.colliderect(object.rect):
+                        bullets.remove(bullet)
+                        if bosscount>=2 and stage=='boss':
+                            for i in range(0,360,int(360/(6+1*bosscount))):
+                                smallbullets.append(Smallbullet(bullet.x,bullet.y,boss.x+2000*math.cos(math.radians(i)),boss.y+2000*math.sin(math.radians(i)),boss.dmg/2))        
+                        break
+        for bullet in smallbullets:
+            bullet.move(dt)
+            bullet.update()
+            if bullet.rect.colliderect(player.rect):
+                player.hp-=bullet.dmg
+                smallbullets.remove(bullet)
+            elif bullet.x>=(1400-20) or bullet.x<=0 or bullet.y<=0 or bullet.y>=(700-20):
+                bullets.remove(bullet)
+            else:
+                for object in obstacle:
+                    if bullet.wallrect.colliderect(object.rect):
+                        smallbullets.remove(bullet)
+                        break        
+        if slashes:
+            for bullet in bullets:
+                if bullet.rect.colliderect(slashes[0].rect):
+                    bullets.remove(bullet)                    
+            for bullet in smallbullets:
+                if bullet.rect.colliderect(slashes[0].rect):
+                    smallbullets.remove(bullet)               
+                
+                
+
+    if stage=='end' and changeline>7:
+        if keys[pygame.K_r]:
+            stage='normal'
+            rendermap=True
+            firstdoor=[]
+            wave=0
+            pluses=[]
+            creepspeed=50
+            enemykilled=0
+            bosscount=0
+            player=Player()
+            mapcount=0
+            bosses=[]
+            startwrite=0
+            writeduration=0
+            changeline=1
+    
+        
+
+        
+            
+        
+                       
+                
+    #draw on screen
+    
+    if stage=='normal' or stage=='boss':
+        startwrite=0
+        screen.fill((70,70,70))
+        for i in map:
+            i.draw(screen)
+        for i in wall:
+            i.draw(screen)
+        for i in obstacle:
+            i.draw(screen)
+        for i in creeps:
+            i.draw(screen)
+        write('HP',font,(0,0,0),40,699)
+        write('MANA',font,(0,0,0),20,744)
+        write('DAMAGE:'+str(player.dmg),font,(0,0,0),450,699)
+        write('MAX MANA:'+str(player.maxmana),font,(0,0,0),450,744)
+        write('MAX HP:'+str(player.maxhp),font,(0,0,0),700,699)
+        write('MOVE SPEED:'+str(player.maxspeed),font,(0,0,0),700,744)
+        write('MANA REGEN:'+str(player.manaregen),font,(0,0,0),950,699)
+        write('ATTACK SPEED:'+str(player.attackspeed),font,(0,0,0),950,744)
+        write('level',font,(0,0,0),1410,30)
+        write(str(player.level),font,(0,0,0),1430,70)
+        write(str(player.level+1),font,(0,0,0),1430,630)
+        for i in bosses:
+            i.draw(screen)
+        if bossattacks:
+            if boss.skillprepare<1:
+                for bossattack in bossattacks:
+                    bossattack.warn()
+            elif boss.skillprepare>=1:
+                for bossattack in bossattacks:
+                    bossattack.update(screen)
+            
+        player.draw(screen)
+        for i in bullets:
+            i.draw(screen)
+        for i in smallbullets:
+            i.draw(screen)
+            
+        for i in slashes:
+            i.draw(screen)
+        for i in pluses:
+            i.draw(screen)
+        for i in goable:
+            pygame.draw.rect(screen,(225,0,0),i.rect,1)
+    def drawsmallfeatures():
+        screen.fill((70,70,70))
+        for i in map:
+            i.draw(screen)
+        for i in wall:
+            i.draw(screen)
+        for i in obstacle:
+            i.draw(screen)
+        for i in creeps:
+            i.draw(screen)
+        write('HP',font,(0,0,0),40,699)
+        write('MANA',font,(0,0,0),20,744)
+        write('DAMAGE:'+str(player.dmg),font,(0,0,0),450,699)
+        write('MAX MANA:'+str(player.maxmana),font,(0,0,0),450,744)
+        write('MAX HP:'+str(player.maxhp),font,(0,0,0),700,699)
+        write('MOVE SPEED:'+str(player.maxspeed),font,(0,0,0),700,744)
+        write('MANA REGEN:'+str(player.manaregen),font,(0,0,0),950,699)
+        write('ATTACK SPEED:'+str(player.attackspeed),font,(0,0,0),950,744)
+        write('level',font,(0,0,0),1410,30)
+        write(str(player.level),font,(0,0,0),1430,70)
+        write(str(player.level+1),font,(0,0,0),1430,630)
+            
+        player.draw(screen)
+        for i in bullets:
+            i.draw(screen)
+        for i in smallbullets:
+            i.draw(screen)
+            
+        for i in slashes:
+            i.draw(screen)
+        for i in pluses:
+            i.draw(screen)                
+    if stage=='guide': startwrite+=dt
+    if stage=='guide':
+        line1='this is your character, you will'
+        line2='control him by WASD'
+    if stage=='guide':
+        if guidenumber==1:
+            if startwrite>=0.125:
+                startwrite=0
+                writeduration+=1
+                screen.fill((0,0,0))
+                drawsmallfeatures()
+                pygame.draw.rect(screen,(0,0,0),pygame.Rect(420,280,560,140))
+                transparentscreen.fill((0,0,0,170))
+                if changeline==3: pygame.draw.circle(transparentscreen,(225,225,225,0),(662,655),65)
+                screen.blit(transparentscreen)
+                if writeduration<len(line1) and changeline==1:
+                    write(line1[:writeduration]+'_',chatfont,(111,13,181),385,235)
+                elif changeline>=1:
+                    write(line1,chatfont,(111,13,181),385,235)
+                    if changeline==1:
+                        changeline+=1
+                        writeduration=0
+                if writeduration<len(line2) and changeline==2:
+                    write(line2[:writeduration]+'_',chatfont,(111,13,181),385,275)
+                elif changeline>=2:
+                    write(line2,chatfont,(111,13,181),385,275)
+                    if changeline==2:
+                        changeline+=1
+                        writeduration=0
+
+
+    if stage=='end':
+        line1='You dead!'
+        line2='level '+str(player.level)
+        line3='wave '+str(wave)
+        line4='map '+str(mapcount)
+        line5='enemy killed: '+str(enemykilled)
+        line6='boss killed: '+str(bosscount)
+        line7='press R to replay >>'
+    if stage=='end' and changeline!=8: startwrite+=dt
+    if stage=='end' and startwrite>=0.125:
+        startwrite=0
+        writeduration+=1
+        screen.fill((0,0,0))
+        if writeduration<len(line1) and changeline==1:
+            write(line1[:writeduration]+'_',titlefont,(111,13,181),30,5)
+        elif changeline>=1:
+            write(line1,titlefont,(111,13,181),30,5)
+            if changeline==1:
+                changeline+=1
+                writeduration=0
+        if writeduration<len(line2) and changeline==2:
+            write(line2[:writeduration]+'_',codefont,(111,13,181),50,150)
+        elif changeline>=2:
+            write(line2,codefont,(111,13,181),50,150)
+            if changeline==2:
+                changeline+=1
+                writeduration=0
+        if writeduration<len(line3) and changeline==3:
+            write(line3[:writeduration]+'_',codefont,(111,13,181),50,250)
+        elif changeline>=3:
+            write(line3,codefont,(111,13,181),50,250)
+            if changeline==3:
+                changeline+=1
+                writeduration=0
+        if writeduration<len(line4) and changeline==4:
+            write(line4[:writeduration]+'_',codefont,(111,13,181),50,350)
+        elif changeline>=4:
+            write(line4,codefont,(111,13,181),50,350)
+            if changeline==4:
+                changeline+=1
+                writeduration=0            
+        if writeduration<len(line5) and changeline==5:
+            write(line5[:writeduration]+'_',codefont,(111,13,181),50,450)
+        elif changeline>=5:
+            write(line5,codefont,(111,13,181),50,450)
+            if changeline==5:
+                changeline+=1
+                writeduration=0
+        if writeduration<len(line6) and changeline==6:
+            write(line6[:writeduration]+'_',codefont,(111,13,181),50,550)
+        elif changeline>=6:
+            write(line6,codefont,(111,13,181),50,550)
+            if changeline==6:
+                changeline+=1
+                writeduration=0
+        if writeduration<len(line7) and changeline==7:
+            write(line7[:writeduration]+'_',codefont,(111,13,181),50,650)
+        elif changeline>=7:
+            write(line7,codefont,(111,13,181),50,650)
+            if changeline==7:
+                changeline+=1
+                writeduration=0
+    if stage=='start':
+        line1='Lost soul'
+        line2='adventure'
+        line3='combat'
+        line4='level up'
+        line5='survive as long as you can'
+        line6='press P to start>>'
+    if stage=='start' and changeline!=7: startwrite+=dt
+    if stage=='start' and startwrite>=0.125:
+        startwrite=0
+        writeduration+=1
+        screen.fill((0,0,0))
+        if writeduration<len(line1) and changeline==1:
+            write(line1[:writeduration]+'_',titlefont,(111,13,181),30,5)
+        elif changeline>=1:
+            write(line1,titlefont,(111,13,181),30,5)
+            if changeline==1:
+                changeline+=1
+                writeduration=0
+        if writeduration<len(line2) and changeline==2:
+            write(line2[:writeduration]+'_',codefont,(111,13,181),50,150)
+        elif changeline>=2:
+            write(line2,codefont,(111,13,181),50,150)
+            if changeline==2:
+                changeline+=1
+                writeduration=0
+        if writeduration<len(line3) and changeline==3:
+            write(line3[:writeduration]+'_',codefont,(111,13,181),50,250)
+        elif changeline>=3:
+            write(line3,codefont,(111,13,181),50,250)
+            if changeline==3:
+                changeline+=1
+                writeduration=0
+        if writeduration<len(line4) and changeline==4:
+            write(line4[:writeduration]+'_',codefont,(111,13,181),50,350)
+        elif changeline>=4:
+            write(line4,codefont,(111,13,181),50,350)
+            if changeline==4:
+                changeline+=1
+                writeduration=0            
+        if writeduration<len(line5) and changeline==5:
+            write(line5[:writeduration]+'_',codefont,(111,13,181),50,450)
+        elif changeline>=5:
+            write(line5,codefont,(111,13,181),50,450)
+            if changeline==5:
+                changeline+=1
+                writeduration=0
+        if writeduration<len(line6) and changeline==6:
+            write(line6[:writeduration]+'_',codefont,(111,13,181),50,550)
+        elif changeline>=6:
+            write(line6,codefont,(111,13,181),50,550)
+            if changeline==6:
+                changeline+=1
+                writeduration=0
+        
+
+        
+                  
+            
+                
+            
+    
+    
+    pygame.display.update()
+    
