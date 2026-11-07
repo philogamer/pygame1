@@ -11,7 +11,7 @@ transparentscreen=pygame.Surface((1500,800), pygame.SRCALPHA)
 pygame.display.set_caption('Lost Soul')
 clock=pygame.time.Clock()
 
-stage='boss'
+stage='start'
 #normal and boss
 rendermap=True
 firstdoor=[]  #for save the door for next map
@@ -41,12 +41,10 @@ while True:
         if event.type==pygame.MOUSEBUTTONDOWN and event.button==1:
             click=True
             mousepos=event.pos
-    if stage=='start' and changeline>6:
-            if keys[pygame.K_p]:
-                stage='normal'
-                startwrite=0
-                writeduration=0
-                changeline=1
+    stage,startwrite,writeduration,changeline,rendermap,firstdoor,wave,pluses,creepspeed,bosscount,player,mapcount,bosses=dic.buttonchangemap_dic.get(stage,
+    lambda *b:(stage,startwrite,writeduration,changeline,rendermap,firstdoor,wave,pluses,creepspeed,
+    bosscount,player,mapcount,bosses))(keys,changeline,rendermap,firstdoor,wave,pluses,creepspeed,bosscount,player,mapcount,
+    bosses,stage,startwrite,writeduration)
     if rendermap:
         player.mana=player.maxmana
         locate=list(range(200))
@@ -73,7 +71,8 @@ while True:
         mapstay=0
         mapcount+=1
         bossattacks=[]
-        dic.rendermap_dic.get(stage)(firstdoor,map,locate,door,player,insidef,w,goable,sr,sl,srt,slt,slr,slrt,st,wall,v,obstacle,bosses,wave)
+        dic.rendermap_dic.get(stage,lambda*b:None)(firstdoor,map,locate,door,player,insidef,w,goable,
+        sr,sl,srt,slt,slr,slrt,st,wall,v,obstacle,bosses,wave)
         rendermap=False
     
     if stage=='guide':
@@ -86,7 +85,7 @@ while True:
         
         
         
-        #main character logic
+        #main character logic   
     dic.playerbehaviour_dic.get(stage,lambda *b: None)(wave,player,obstacle,keys,slashes,creeps,bosses,dt,pluses)      
     if player.buffstat>0:
         if not pluses:
@@ -114,6 +113,8 @@ while True:
                         player.manaregen+=1
                     elif plus.type=='attackspeed':
                         player.attackspeed+=0.03
+    else:
+        pluses.clear()
     if player.hp<=0:
         stage='end'                    
                         
@@ -121,145 +122,31 @@ while True:
                 
         #creep logic
     if stage=='normal':
-        if not creeps:
-            wave+=1
-            if wave%5==0:
-                stage='boss'
-                rendermap=True
-            else:
-                creepsquare=random.sample(insidef,int(len(insidef)/12*(1+0.5*mapstay)))
-                mapstay+=1
-                for i in creepsquare:
-                    creeps.append(Creep(i,random.choice(['slime','normal']),wave))
-                creeps.append(Creep(random.choice(insidef),'elite',wave))
+        stage,rendermap,wave,mapstay=dic.creepspawn_dic.get(len(creeps),
+        lambda *b: (stage,rendermap,wave,mapstay))(insidef,creeps,stage,rendermap,wave,mapstay)   
         for creep in creeps:
-            dic.creepmove_dic.get(math.hypot(player.x-creep.x,player.y-creep.y)>creep.range).get(math.hypot(player.x-creep.x,player.y-creep.y)>creep.view or creep.notry)(creep,obstacle,player,bullets,dt)
-        dic.creeptakedame_dic.get(len(slashes),lambda *b: None)(slashes,creeps,player,wave)
-
-        for i in goable:
-            if i.rect.colliderect(player.rect):
-                if player.x<=0 or player.x>=(1400-61) or player.y<=-((107-70)-(107-70)) or player.y>=((700-107)+(107-70)):
-                    rendermap=True
+            dic.creepmove_dic.get(math.hypot(player.x-creep.x,player.y-creep.y)>creep.range
+            ).get(math.hypot(player.x-creep.x,player.y-creep.y)>creep.view or creep.notry)(creep,obstacle,player,bullets,dt)
+    stage,rendermap=dic.enemytakedame_dic.get(stage).get(len(slashes),lambda *b: (stage,rendermap))(slashes
+    ,creeps,bosses,player,wave,stage,rendermap)
+    rendermap=dic.changemap_dic.get(stage,lambda *b: (rendermap))(goable,player,rendermap)
     if stage=='boss':
         for boss in bosses:
             boss.update()
-            if slashes:
-                    if boss.rect.colliderect(slashes[0].rect) and boss.takedame:
-                        boss.hp-=slashes[0].dmg
-                        boss.takedame=False
-                    if boss.hp<=0:
-                        bosses.remove(boss)
-                        bosscount+=1
-                        player.exp+=90*(1+0.02*wave)
-                        stage='normal'
-                        rendermap=True
             boss.cooldown+=dt
-            if boss.cooldown>=1.8:
-                if boss.skillchoose==0: 
-                    boss.skillchoose=random.randint(1,4)
-                    boss.skillprepare=0
-                if boss.skillchoose==1:
-                    for i in range(0,360,int(360/(24+6*bosscount))):
-                        bullets.append(Bullet(boss.x+boss.w/2,boss.y+boss.h/2-18,boss.x+2000*math.cos(math.radians(i)),boss.y+2000*math.sin(math.radians(i)),boss.dmg))
-                    boss.cooldown=0
-                    boss.skillchoose=0  
-                if boss.skillchoose==2:
-                    if boss.skillprepare==0:
-                        boss.targetx=player.x
-                        boss.targety=player.y
-                        boss.skillprepare=1
-                        player.takedame=True
-                    else:
-                        boss.move(dt)
-                        boss.update()
-                        if boss.rect.colliderect(player.rect) and player.takedame:
-                            player.hp-=boss.dmg
-                            player.takedame=False
-                        if boss.x==boss.targetx and boss.y==boss.targety:
-                            boss.skillchoose=0
-                            boss.cooldown=0
-                if boss.skillchoose==3:
-                    if boss.skillprepare==0:
-                        for i in range(8+2*bosscount):
-                            bossattacks.append(Bossattack(random.uniform(71,1329),random.uniform(141,629),0.6*boss.dmg,90+10*bosscount))
-                    elif boss.skillprepare>=1:
-                        for bossattack in bossattacks:
-                            if bossattack.rect.colliderect(player.rect):
-                                player.hp-=bossattack.dmg
-                                bossattacks.remove(bossattack)
-                        if boss.skillprepare>=2:
-                            boss.skillchoose=0
-                            boss.cooldown=0
-                            bossattacks.clear()
-                    boss.skillprepare+=dt
-                if boss.skillchoose==4:
-                    if boss.cooldown>=1.85:
-                        boss.cooldown=1.8
-                        if boss.skillprepare<360:
-                            bullets.append(Bullet(boss.x+boss.w/2,boss.y+boss.h/2-18,boss.x+2000*math.cos(math.radians(boss.skillprepare)),boss.y+2000*math.sin(math.radians(boss.skillprepare)),boss.dmg))
-                            boss.skillprepare+=int(360/(24+6*bosscount))
-                        else:    
-                            boss.skillchoose=0
-                            boss.cooldown=0                      
+            dic.skillboss_dic.get(boss.cooldown>=1.8).get(boss.skillchoose, lambda *b: None)(boss
+            ,bullets,player,dt,bossattacks,bosscount)              
                         
                     
                     
                               
     if stage=='normal' or stage=='boss':    
-        for bullet in bullets:
-            bullet.move(dt)
-            bullet.update()
-            if bullet.rect.colliderect(player.rect):
-                player.hp-=bullet.dmg
-                bullets.remove(bullet)
-            elif bullet.x>=(1400-20) or bullet.x<=0 or bullet.y<=0 or bullet.y>=(700-20):
-                bullets.remove(bullet)
-            else:
-                for object in obstacle:
-                    if bullet.wallrect.colliderect(object.rect):
-                        bullets.remove(bullet)
-                        if bosscount>=2 and stage=='boss':
-                            for i in range(0,360,int(360/(6+1*bosscount))):
-                                smallbullets.append(Smallbullet(bullet.x,bullet.y,boss.x+2000*math.cos(math.radians(i)),boss.y+2000*math.sin(math.radians(i)),boss.dmg/2))        
-                        break
-        for bullet in smallbullets:
-            bullet.move(dt)
-            bullet.update()
-            if bullet.rect.colliderect(player.rect):
-                player.hp-=bullet.dmg
-                smallbullets.remove(bullet)
-            elif bullet.x>=(1400-20) or bullet.x<=0 or bullet.y<=0 or bullet.y>=(700-20):
-                bullets.remove(bullet)
-            else:
-                for object in obstacle:
-                    if bullet.wallrect.colliderect(object.rect):
-                        smallbullets.remove(bullet)
-                        break        
-        if slashes:
-            for bullet in bullets:
-                if bullet.rect.colliderect(slashes[0].rect):
-                    bullets.remove(bullet)                    
-            for bullet in smallbullets:
-                if bullet.rect.colliderect(slashes[0].rect):
-                    smallbullets.remove(bullet)               
+        dic.bullets_dic.get('bullet')(bullets,dt,player,obstacle,bosscount,stage,smallbullets,boss,slashes)
+        dic.bullets_dic.get('smallbullet')(bullets,dt,player,obstacle,bosscount,stage,smallbullets,boss,slashes)
+        dic.bullets_dic.get('slashbullet')(bullets,dt,player,obstacle,bosscount,stage,smallbullets,boss,slashes)
+             
                 
                 
-
-    if stage=='end' and changeline>7:
-        if keys[pygame.K_r]:
-            stage='normal'
-            rendermap=True
-            firstdoor=[]
-            wave=0
-            pluses=[]
-            creepspeed=50
-            bosscount=0
-            player=Player()
-            mapcount=0
-            bosses=[]
-            startwrite=0
-            writeduration=0
-            changeline=1
     
         
 

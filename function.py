@@ -15,6 +15,7 @@ codefont=pygame.font.Font('assets/endfont.ttf',50)
 chatfont=pygame.font.Font('assets/endfont.ttf',30)
 
 
+
 def write(text,font,color,x,y):
     screen.blit(font.render(text,True,color),(x,y))
 
@@ -969,7 +970,19 @@ def creepshoot(creep,obstacle,player,bullets,dt,chase):
 def creepmoveandshoot(creep,obstacle,player,bullets,dt,chase):
     creepmove(creep,obstacle,player,bullets,dt,chase)
     creepshoot(creep,obstacle,player,bullets,dt,chase)
-def creepgetdame(slashes,creeps,player,wave):
+def creepspawn(insidef,creeps,stage,rendermap,wave,mapstay):
+    wave+=1
+    if wave%5==0:
+        stage='boss'
+        rendermap=True
+    else:
+        creepsquare=random.sample(insidef,int(len(insidef)/12*(1+0.5*mapstay)))
+        mapstay+=1
+        for i in creepsquare:
+            creeps.append(Creep(i,random.choice(['slime','normal']),wave))
+        creeps.append(Creep(random.choice(insidef),'elite',wave))
+    return stage,rendermap,wave,mapstay
+def creepgetdame(slashes,creeps,bosses,player,wave,stage,rendermap):
     for creep in creeps:
         if creep.rect.colliderect(slashes[0].rect) and creep.takedame:
             creep.hp-=slashes[0].dmg
@@ -984,5 +997,139 @@ def creepgetdame(slashes,creeps,player,wave):
             elif creep.type=='elite':
                 player.exp+=30*(1+0.02*wave)
             if len(creeps)==0:
-                player.exp+=30*(1+0.02*wave)            
+                player.exp+=30*(1+0.02*wave)
+    return stage,rendermap
+def bossgetdame(slashes,creeps,bosses,player,wave,stage,rendermap):
+    boss=bosses[0]
+    if boss.rect.colliderect(slashes[0].rect) and boss.takedame:
+        boss.hp-=slashes[0].dmg
+        boss.takedame=False
+    if boss.hp<=0:
+        bosses.remove(boss)
+        bosscount+=1
+        player.exp+=90*(1+0.02*wave)
+        stage='normal'
+        rendermap=True
+    return stage,rendermap    
+def donothing():
+    pass
+def changemap(goable,player,rendermap):
+    for i in goable:
+        if i.rect.colliderect(player.rect):
+            if player.x<=0 or player.x>=(1400-61) or player.y<=-((107-70)-(107-70)) or player.y>=((700-107)+(107-70)):
+                rendermap=True
+                break
+    return rendermap
+def chooseskillboss(boss,bullets,player,dt,bossattacks,bosscount):
+    boss.skillchoose=random.randint(1,4)
+    boss.skillprepare=0
+def skillboss1(boss,bullets,player,dt,bossattacks,bosscount):
+    for i in range(0,360,int(360/(24+6*bosscount))):
+        bullets.append(Bullet(boss.x+boss.w/2,boss.y+boss.h/2-18,boss.x+2000*math.cos(math.radians(i)),boss.y+2000*math.sin(math.radians(i)),boss.dmg))
+        boss.cooldown=0
+        boss.skillchoose=0  
+def skillboss2(boss,bullets,player,dt,bossattacks,bosscount):
+    if boss.skillprepare==0:
+        boss.targetx=player.x
+        boss.targety=player.y
+        boss.skillprepare=1
+        player.takedame=True
+    else:
+        boss.move(dt)
+        boss.update()
+        if boss.rect.colliderect(player.rect) and player.takedame:
+            player.hp-=boss.dmg
+            player.takedame=False
+        if boss.x==boss.targetx and boss.y==boss.targety:
+            boss.skillchoose=0
+            boss.cooldown=0
+def skillboss3(boss,bullets,player,dt,bossattacks,bosscount):               
+    if boss.skillprepare==0:
+        for i in range(8+2*bosscount):
+            bossattacks.append(Bossattack(random.uniform(71,1329),random.uniform(141,629),0.6*boss.dmg,90+10*bosscount))
+    elif boss.skillprepare>=1:
+        for bossattack in bossattacks:
+            if bossattack.rect.colliderect(player.rect):
+                player.hp-=bossattack.dmg
+                bossattacks.remove(bossattack)
+        if boss.skillprepare>=2:
+            boss.skillchoose=0
+            boss.cooldown=0
+            bossattacks.clear()
+    boss.skillprepare+=dt
+def skillboss4(boss,bullets,player,dt,bossattacks,bosscount):             
+    if boss.cooldown>=1.85:
+        boss.cooldown=1.8
+    if boss.skillprepare<360:
+        bullets.append(Bullet(boss.x+boss.w/2,boss.y+boss.h/2-18,boss.x+2000*math.cos(math.radians(boss.skillprepare)),boss.y+2000*math.sin(math.radians(boss.skillprepare)),boss.dmg))
+        boss.skillprepare+=int(360/(24+6*bosscount))
+    else:    
+        boss.skillchoose=0
+        boss.cooldown=0           
+def bulleteffect(bullets,dt,player,obstacle,bosscount,stage,smallbullets,boss,slashes):
+    for bullet in bullets:
+        bullet.move(dt)
+        bullet.update()
+        if bullet.rect.colliderect(player.rect):
+            player.hp-=bullet.dmg
+            bullets.remove(bullet)
+        elif bullet.x>=(1400-20) or bullet.x<=0 or bullet.y<=0 or bullet.y>=(700-20):
+            bullets.remove(bullet)
+        else:
+            for object in obstacle:
+                if bullet.wallrect.colliderect(object.rect):
+                    bullets.remove(bullet)
+                    if bosscount>=2 and stage=='boss':
+                        for i in range(0,360,int(360/(6+1*bosscount))):
+                            smallbullets.append(Smallbullet(bullet.x,bullet.y,boss.x+2000*math.cos(math.radians(i)),boss.y+2000*math.sin(math.radians(i)),boss.dmg/2))        
+                    break
+def smallbulleteffect(bullets,dt,player,obstacle,smallbullets,slashes):
+    for bullet in smallbullets:
+        bullet.move(dt)
+        bullet.update()
+        if bullet.rect.colliderect(player.rect):
+            player.hp-=bullet.dmg
+            smallbullets.remove(bullet)
+        elif bullet.x>=(1400-20) or bullet.x<=0 or bullet.y<=0 or bullet.y>=(700-20):
+            bullets.remove(bullet)
+        else:
+            for object in obstacle:
+                if bullet.wallrect.colliderect(object.rect):
+                    smallbullets.remove(bullet)
+                    break        
+def slashbullet(bullets,dt,player,obstacle,smallbullets,slashes):
+    if slashes:
+        for bullet in bullets:
+            if bullet.rect.colliderect(slashes[0].rect):
+                bullets.remove(bullet)                    
+        for bullet in smallbullets:
+            if bullet.rect.colliderect(slashes[0].rect):
+                smallbullets.remove(bullet)  
+def startgame(keys,changeline,rendermap,firstdoor,wave,pluses,creepspeed,bosscount,player,mapcount,bosses,stage,startwrite,writeduration):
+    if keys[pygame.K_p] and changeline>6:
+        stage='guide'
+        startwrite=0
+        writeduration=0
+        changeline=1
+        rendermap=True
+    return stage,startwrite,writeduration,changeline,rendermap,firstdoor,wave,pluses,creepspeed,bosscount,player,mapcount,bosses
+def replay(keys,changeline,rendermap,firstdoor,wave,pluses,creepspeed,bosscount,player,mapcount,bosses,stage,startwrite,writeduration):
+    if keys[pygame.K_r] and changeline>7:
+        stage='normal'
+        rendermap=True
+        firstdoor=[]
+        wave=0
+        pluses=[]
+        creepspeed=50
+        bosscount=0
+        player=Player()
+        mapcount=0
+        bosses=[]
+        startwrite=0
+        writeduration=0
+        changeline=1
+    return stage,startwrite,writeduration,changeline,rendermap,firstdoor,wave,pluses,creepspeed,bosscount,player,mapcount,bosses
+
+    
+                
                 
