@@ -1,6 +1,7 @@
 import pygame
 import random
 import math
+import information as info
 
 pygame.init()
 pygame.mixer.init()
@@ -13,6 +14,8 @@ font=pygame.font.Font('assets/font.ttf',30)
 titlefont=pygame.font.Font('assets/endfont.ttf',100)
 codefont=pygame.font.Font('assets/endfont.ttf',50)
 chatfont=pygame.font.Font('assets/endfont.ttf',30)
+
+
 
 
 
@@ -1129,6 +1132,61 @@ def replay(keys,changeline,rendermap,firstdoor,wave,pluses,creepspeed,bosscount,
         writeduration=0
         changeline=1
     return stage,startwrite,writeduration,changeline,rendermap,firstdoor,wave,pluses,creepspeed,bosscount,player,mapcount,bosses
+def drawgame1(wall,obstacle,creeps,player,bosses,bossattacks,bullets,smallbullets,slashes,pluses,goable):
+    screen.fill((70,70,70))
+    transparentscreen.fill((0,0,0,0))
+    for i in map:
+        i.draw(screen)
+    for i in wall:
+        i.draw(screen)
+    for i in obstacle:
+        i.draw(screen)
+    for i in creeps:
+        i.draw(screen)
+    write('HP',font,(0,0,0),40,699)
+    write('MANA',font,(0,0,0),20,744)
+    write('DAMAGE:'+str(player.dmg),font,(0,0,0),450,699)
+    write('MAX MANA:'+str(player.maxmana),font,(0,0,0),450,744)
+    write('MAX HP:'+str(player.maxhp),font,(0,0,0),700,699)
+    write('MOVE SPEED:'+str(player.maxspeed),font,(0,0,0),700,744)
+    write('MANA REGEN:'+str(player.manaregen),font,(0,0,0),950,699)
+    write('ATTACK SPEED:'+str(player.attackspeed),font,(0,0,0),950,744)
+    write('level',font,(0,0,0),1410,30)
+    write(str(player.level),font,(0,0,0),1430,70)
+    write(str(player.level+1),font,(0,0,0),1430,630)
+    for i in bosses:
+        i.draw(screen)
+        if bossattacks:
+            if i.skillprepare<1:
+                for bossattack in bossattacks:
+                    bossattack.warn()
+            elif i.skillprepare>=1:
+                for bossattack in bossattacks:
+                    bossattack.update(screen)    
+    player.draw(screen)
+    for i in bullets:
+        i.draw(screen)
+    for i in smallbullets:
+        i.draw(screen)
+        
+    for i in slashes:
+        i.draw(screen)
+    for i in pluses:
+        i.draw(screen)
+    for i in goable:
+        pygame.draw.rect(screen,(225,0,0),i.rect,1)
+def type():
+    if writeduration<len(line1) and changeline==1:
+        write(line1[:writeduration]+'_',chatfont,(111,13,181),385,235)
+    elif changeline>=1:
+        write(line1,chatfont,(111,13,181),385,235)
+        if changeline==1:
+            changeline+=1
+            writeduration=0
+
+
+
+
 
     
                 

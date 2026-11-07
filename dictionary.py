@@ -62,4 +62,8 @@ buttonchangemap_dic={
     'start': lambda *a: fun.startgame(*a),
     'end': lambda *a: fun.replay(*a)
 }
+render_dic={
+    'normal': lambda *a: fun.drawgame1(*a),
+    'boss': lambda *a: fun.drawgame1(*a),
+}
 
