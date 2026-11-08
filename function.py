@@ -32,28 +32,28 @@ def render1(msto,csto):
             firstexactdoor=random.choice(list(range(19,189+1-doorlong*10,10)))
             csto.firstdoor.append(firstexactdoor)                
             for i in range(0,doorlong):   
-                msto.map.append(msto.map(firstexactdoor+i*10,'F'))
+                msto.map.append(Map(firstexactdoor+i*10,'f'))
                 msto.locate.remove(firstexactdoor+i*10)
                 msto.door.append(firstexactdoor+i*10)
         elif doorside==(1):
             firstexactdoor=random.choice(list(range(10,180+1-doorlong*10,10)))
             csto.firstdoor.append(firstexactdoor)
             for i in range(0,doorlong):
-                msto.map.append(msto.map(firstexactdoor+i*10,'F'))
+                msto.map.append(Map(firstexactdoor+i*10,'f'))
                 msto.locate.remove(firstexactdoor+i*10)
                 msto.door.append(firstexactdoor+i*10)    
         elif doorside==(2):
             firstexactdoor=random.choice(list(range(1,8+1-doorlong)))
             csto.firstdoor.append(firstexactdoor)
             for i in range(0,doorlong):
-                msto.map.append(msto.map(firstexactdoor+i,'F'))
+                msto.map.append(Map(firstexactdoor+i,'f'))
                 msto.locate.remove(firstexactdoor+i)
                 msto.door.append(firstexactdoor+i)                
         elif doorside==(-2):
             firstexactdoor=random.choice(list(range(191,198+1-doorlong)))
             csto.firstdoor.append(firstexactdoor)
             for i in range(0,doorlong):
-                msto.map.append(msto.map(firstexactdoor+i,'F'))
+                msto.map.append(Map(firstexactdoor+i,'f'))
                 msto.locate.remove(firstexactdoor+i)
                 msto.door.append(firstexactdoor+i)
         csto.player.put(random.choice(msto.door))
@@ -63,25 +63,25 @@ def render1(msto,csto):
         if doorside==(-1):
             firstexactdoor=random.choice(list(range(19,189+1-doorlong*10,10)))
             for i in range(0,doorlong):   
-                msto.map.append(msto.map(firstexactdoor+i*10,'F'))
+                msto.map.append(Map(firstexactdoor+i*10,'f'))
                 msto.locate.remove(firstexactdoor+i*10)
                 msto.door.append(firstexactdoor+i*10)
         elif doorside==(1):
             firstexactdoor=random.choice(list(range(10,180+1-doorlong*10,10)))
             for i in range(0,doorlong):
-                msto.map.append(msto.map(firstexactdoor+i*10,'F'))
+                msto.map.append(Map(firstexactdoor+i*10,'f'))
                 msto.locate.remove(firstexactdoor+i*10)
                 msto.door.append(firstexactdoor+i*10)    
         elif doorside==(2):
             firstexactdoor=random.choice(list(range(1,8+1-doorlong)))
             for i in range(0,doorlong):
-                msto.map.append(msto.map(firstexactdoor+i,'F'))
+                msto.map.append(Map(firstexactdoor+i,'f'))
                 msto.locate.remove(firstexactdoor+i)
                 msto.door.append(firstexactdoor+i)                
         elif doorside==(-2):
             firstexactdoor=random.choice(list(range(191,198+1-doorlong)))
             for i in range(0,doorlong):
-                msto.map.append(msto.map(firstexactdoor+i,'F'))
+                msto.map.append(Map(firstexactdoor+i,'f'))
                 msto.locate.remove(firstexactdoor+i)
                 msto.door.append(firstexactdoor+i)
         csto.player.put(random.choice(msto.door))
@@ -102,7 +102,7 @@ def render1(msto,csto):
     else:
         start-=10
         doorban.extend(list(range(191,199)))
-    msto.map.append(msto.map(start,'F'))    
+    msto.map.append(Map(start,'f'))    
     msto.locate.remove(start)
     doorban.extend(msto.door)            
     c=0
@@ -141,7 +141,7 @@ def render1(msto,csto):
                         if doorside==0: 
                             doorside=2
                             msto.door.append(start+b)
-                            msto.goable.append(msto.goable(start+b))
+                            msto.goable.append(Goable(start+b))
                         elif doorside!=2:                            
                             break
                         elif unablemeetagain:
@@ -149,17 +149,17 @@ def render1(msto,csto):
                         else:
                             doorlong+=1
                             msto.door.append(start+b)
-                            msto.goable.append(msto.goable(start+b))
+                            msto.goable.append(Goable(start+b))
                         if doorlong==5:
                             doorlong-=1
-                            msto.goable.remove(msto.goable(start+b))
+                            msto.goable.remove(Goable(start+b))
                             break
                         side=1
                     elif (start+b) in list(range(10,190,10)):
                         if doorside==0: 
                             doorside=1
                             msto.door.append(start+b)
-                            msto.goable.append(msto.goable(start+b))
+                            msto.goable.append(Goable(start+b))
                         elif doorside!=1:                             
                             break
                         elif unablemeetagain:
@@ -167,17 +167,17 @@ def render1(msto,csto):
                         else:
                             doorlong+=1
                             msto.door.append(start+b)
-                            msto.goable.append(msto.goable(start+b))
+                            msto.goable.append(Goable(start+b))
                         if doorlong==5:
                             doorlong-=1
-                            msto.goable.remove(msto.goable(start+b))
+                            msto.goable.remove(Goable(start+b))
                             break
                         side=1
                     elif (start+b) in list(range(19,199,10)):
                         if doorside==0: 
                             doorside=-1
                             msto.door.append(start+b)
-                            msto.goable.append(msto.goable(start+b))
+                            msto.goable.append(Goable(start+b))
                         elif doorside!=(-1):                          
                             break
                         elif unablemeetagain:
@@ -185,17 +185,17 @@ def render1(msto,csto):
                         else:
                             doorlong+=1
                             msto.door.append(start+b)
-                            msto.goable.append(msto.goable(start+b))
+                            msto.goable.append(Goable(start+b))
                         if doorlong==5:
                             doorlong-=1
-                            msto.goable.remove(msto.goable(start+b))
+                            msto.goable.remove(Goable(start+b))
                             break
                         side=1
                     elif (start+b) in list(range(191,199)):
                         if doorside==0: 
                             doorside=-2
                             msto.door.append(start+b)
-                            msto.goable.append(msto.goable(start+b))
+                            msto.goable.append(Goable(start+b))
                         elif doorside!=(-2):
                             break
                         elif unablemeetagain:
@@ -203,14 +203,14 @@ def render1(msto,csto):
                         else:
                             doorlong+=1
                             msto.door.append(start+b)
-                            msto.goable.append(msto.goable(start+b))
+                            msto.goable.append(Goable(start+b))
                         if doorlong==5:
                             doorlong-=1
-                            msto.goable.remove(msto.goable(start+b))
+                            msto.goable.remove(Goable(start+b))
                             break
                         side=1
                 start+=b
-                msto.map.append(msto.map(start,'F'))
+                msto.map.append(Map(start,'f'))
                 msto.locate.remove(start)
                 if side==0: startablefloor.append(start)  
             else:
@@ -238,14 +238,14 @@ def render1(msto,csto):
             if i in msto.locate:
                 msto.locate.remove(i)
                 if i-1 in msto.locate:
-                    msto.wall.append(msto.map(i,'w'))
+                    msto.wall.append(Map(i,'w'))
                     msto.w.append(i)
                 else:
                     if i in d:
-                        msto.wall.append(msto.map(i,'w'))
+                        msto.wall.append(Map(i,'w'))
                         msto.w.append(i)
                     else:                        
-                        msto.map.append(msto.map(i,'F'))
+                        msto.map.append(Map(i,'f'))
                         msto.insidef.append(i)
     for i in msto.insidef:
         if not i in list(range(1,9)):
@@ -295,88 +295,88 @@ def render1(msto,csto):
         msto.v.append(i)
     if msto.v:
         for i in msto.v:
-            msto.obstacle.append(msto.obstacle(i,'v'))
+            msto.obstacle.append(Obstacle(i,'v'))
     if msto.sr:
         for i in msto.sr:
             msto.locate.remove(i)
-            msto.obstacle.append(msto.obstacle(i,'sr'))
+            msto.obstacle.append(Obstacle(i,'sr'))
     if msto.sl:
         for i in msto.sl:
             msto.locate.remove(i)
-            msto.obstacle.append(msto.obstacle(i,'sl'))
+            msto.obstacle.append(Obstacle(i,'sl'))
     if msto.slr:
         for i in msto.slr:
             msto.locate.remove(i)
-            msto.obstacle.append(msto.obstacle(i,'slr'))
+            msto.obstacle.append(Obstacle(i,'slr'))
     if msto.slrt:
         for i in msto.slrt:
             msto.locate.remove(i)
-            msto.obstacle.append(msto.obstacle(i,'slrt'))
+            msto.obstacle.append(Obstacle(i,'slrt'))
     if msto.slt:
         for i in msto.slt:
             msto.locate.remove(i)
-            msto.obstacle.append(msto.obstacle(i,'slt'))
+            msto.obstacle.append(Obstacle(i,'slt'))
     if msto.srt:
         for i in msto.srt:
             msto.locate.remove(i)
-            msto.obstacle.append(msto.obstacle(i,'srt'))
+            msto.obstacle.append(Obstacle(i,'srt'))
     if msto.st:
         for i in msto.st:
             msto.locate.remove(i)
-            msto.obstacle.append(msto.obstacle(i,'st'))
+            msto.obstacle.append(Obstacle(i,'st'))
 def render2(msto,csto):
     csto.bosses.append(Boss(csto.wave))
     for i in range(1,199):
         if i%10==1:
-            msto.wall.append(msto.map(i,'w'))
+            msto.wall.append(Map(i,'w'))
         else:
-            msto.map.append(msto.map(i,'F'))
+            msto.map.append(Map(i,'f'))
     for i in range(1,9):
-        msto.obstacle.append(msto.obstacle(i,'sr'))
+        msto.obstacle.append(Obstacle(i,'sr'))
     for i in range(191,199):
-        msto.obstacle.append(msto.obstacle(i,'sl'))
+        msto.obstacle.append(Obstacle(i,'sl'))
     for i in range(19,199,10):
-        msto.obstacle.append(msto.obstacle(i,'st'))
+        msto.obstacle.append(Obstacle(i,'st'))
     for i in range(0,200,10):
-        msto.obstacle.append(msto.obstacle(i,'v'))
-    msto.obstacle.append(msto.obstacle(9,'v'))
-    msto.obstacle.append(msto.obstacle(199,'v'))
+        msto.obstacle.append(Obstacle(i,'v'))
+    msto.obstacle.append(Obstacle(9,'v'))
+    msto.obstacle.append(Obstacle(199,'v'))
     csto.player.put(12)          
 def render3(msto,csto):
         csto.player.put(99)
         for i in range(1,199):
             if i%10==1 and i!=91 and i!=101:
-                msto.wall.append(msto.map(i,'w'))
+                msto.wall.append(Map(i,'w'))
             else:
-                msto.map.append(msto.map(i,'F'))
+                msto.map.append(Map(i,'f'))
         for i in range(1,9):
-            msto.obstacle.append(msto.obstacle(i,'sr'))
+            msto.obstacle.append(Obstacle(i,'sr'))
         for i in range(191,199):
-            msto.obstacle.append(msto.obstacle(i,'sl'))
+            msto.obstacle.append(Obstacle(i,'sl'))
         for i in range(19,199,10):
             if i!=99 and i!=109 and i!=119 and i!=89:
-                msto.obstacle.append(msto.obstacle(i,'st'))
+                msto.obstacle.append(Obstacle(i,'st'))
         for i in range(0,200,10):
             if i!=90 and i!=100 and i!=80 and i!=110:
-                msto.obstacle.append(msto.obstacle(i,'v'))
-        msto.obstacle.append(msto.obstacle(9,'v'))
-        msto.obstacle.append(msto.obstacle(199,'v'))
-        msto.obstacle.append(msto.obstacle(80,'sr'))
-        msto.obstacle.append(msto.obstacle(110,'sl'))
-        msto.obstacle.append(msto.obstacle(89,'srt'))
-        msto.obstacle.append(msto.obstacle(119,'slt'))
-        msto.obstacle.append(msto.obstacle(143,'srt'))
-        msto.obstacle.append(msto.obstacle(53,'slt'))
+                msto.obstacle.append(Obstacle(i,'v'))
+        msto.obstacle.append(Obstacle(9,'v'))
+        msto.obstacle.append(Obstacle(199,'v'))
+        msto.obstacle.append(Obstacle(80,'sr'))
+        msto.obstacle.append(Obstacle(110,'sl'))
+        msto.obstacle.append(Obstacle(89,'srt'))
+        msto.obstacle.append(Obstacle(119,'slt'))
+        msto.obstacle.append(Obstacle(143,'srt'))
+        msto.obstacle.append(Obstacle(53,'slt'))
         for i in range(63,143,10):
-            msto.obstacle.append(msto.obstacle(i,'st'))
+            msto.obstacle.append(Obstacle(i,'st'))
         for i in range(54,57):
-            msto.obstacle.append(msto.obstacle(i,'sl'))
+            msto.obstacle.append(Obstacle(i,'sl'))
         for i in range(144,147):
-            msto.obstacle.append(msto.obstacle(i,'sr'))
+            msto.obstacle.append(Obstacle(i,'sr'))
         for i in range(66,146,10):
-            msto.obstacle.append(msto.obstacle(i,'v'))
+            msto.obstacle.append(Obstacle(i,'v'))
         for i in range(57,157,10):
-            msto.wall.append(msto.map(i,'w'))
+            msto.wall.append(Map(i,'w'))
 def playerbehave(msto,csto,dt,keys):
     csto.creepspeed=50*(1+0.01*csto.wave)
     csto.player.speed=csto.creepspeed-10+(csto.player.maxspeed-csto.creepspeed)*(csto.player.mana/csto.player.maxmana)
@@ -480,7 +480,7 @@ def creeprandom(creep,msto,csto,dt,chase):
                 creep.checkwall()
                 creep.notry=False
                 break
-    if creep.x<=0 or creep.x>=(1400-creep.msto.w) or creep.y<=(70-creep.h) or creep.y>=700-creep.h:
+    if creep.x<=0 or creep.x>=(1400-creep.w) or creep.y<=(70-creep.h) or creep.y>=700-creep.h:
         creep.touchwall=True
         creep.notry=False
     creep.move(dt)
@@ -524,7 +524,7 @@ def creepmove(creep,msto,csto,dt,chase):
                 creep.checkwall()
                 creep.testx=True
                 break
-        if creep.x<=0 or creep.x>=(1400-creep.msto.w):
+        if creep.x<=0 or creep.x>=(1400-creep.w):
             creep.touchwallx=True
         if creep.y<=(70-creep.h) or creep.y>=700-creep.h:
             creep.touchwally=True
@@ -555,7 +555,7 @@ def creepmove(creep,msto,csto,dt,chase):
                 creep.touchwally=True
                 creep.checkwall()
                 break
-        if creep.x<=0 or creep.x>=(1400-creep.msto.w):
+        if creep.x<=0 or creep.x>=(1400-creep.w):
             creep.touchwallx=True
         if creep.y<=(70-creep.h) or creep.y>=700-creep.h:
             creep.touchwally=True
@@ -588,7 +588,7 @@ def creepmove(creep,msto,csto,dt,chase):
                 creep.touchwally=True
                 creep.checkwall()
                 break
-        if creep.x<=(70-creep.h) or creep.x>=(1400-creep.msto.w):
+        if creep.x<=(70-creep.h) or creep.x>=(1400-creep.w):
             creep.touchwallx=True
         if creep.y<=(70-creep.h) or creep.y>=700-creep.h:
             creep.touchwally=True
@@ -773,17 +773,17 @@ def drawgame1(msto,csto):
         i.draw(screen)
     for i in msto.creeps:
         i.draw(screen)
-    write('HP',font,(0,0,0),40,699)
-    write('MANA',font,(0,0,0),20,744)
-    write('DAMAGE:'+str(csto.player.dmg),font,(0,0,0),450,699)
-    write('MAX MANA:'+str(csto.player.maxmana),font,(0,0,0),450,744)
-    write('MAX HP:'+str(csto.player.maxhp),font,(0,0,0),700,699)
-    write('MOVE SPEED:'+str(csto.player.maxspeed),font,(0,0,0),700,744)
-    write('MANA REGEN:'+str(csto.player.manaregen),font,(0,0,0),950,699)
-    write('ATTACK SPEED:'+str(csto.player.attackspeed),font,(0,0,0),950,744)
-    write('level',font,(0,0,0),1410,30)
-    write(str(csto.player.level),font,(0,0,0),1430,70)
-    write(str(csto.player.level+1),font,(0,0,0),1430,630)
+    write('HP',csto.font,(0,0,0),40,699)
+    write('MANA',csto.font,(0,0,0),20,744)
+    write('DAMAGE:'+str(csto.player.dmg),csto.font,(0,0,0),450,699)
+    write('MAX MANA:'+str(csto.player.maxmana),csto.font,(0,0,0),450,744)
+    write('MAX HP:'+str(csto.player.maxhp),csto.font,(0,0,0),700,699)
+    write('MOVE SPEED:'+str(csto.player.maxspeed),csto.font,(0,0,0),700,744)
+    write('MANA REGEN:'+str(csto.player.manaregen),csto.font,(0,0,0),950,699)
+    write('ATTACK SPEED:'+str(csto.player.attackspeed),csto.font,(0,0,0),950,744)
+    write('level',csto.font,(0,0,0),1410,30)
+    write(str(csto.player.level),csto.font,(0,0,0),1430,70)
+    write(str(csto.player.level+1),csto.font,(0,0,0),1430,630)
     for i in csto.bosses:
         i.draw(screen)
         if msto.bossattacks:
@@ -834,19 +834,29 @@ def buff(csto):
                         csto.player.attackspeed+=0.03
     else:
         csto.pluses.clear()
-def type():
-    if csto.writeduration<len(line1) and csto.changeline==1:
-        write(line1[:csto.writeduration]+'_',chatfont,(111,13,181),385,235)
-    elif csto.changeline>=1:
-        write(line1,chatfont,(111,13,181),385,235)
-        if csto.changeline==1:
+def takeline(csto,number,lstat):
+    lstat.line=chat_dic.get(csto.stage,lambda *b:'none').get('line'+str(number)).get('line')
+    lstat.font=chat_dic.get(csto.stage,lambda *b:'none').get('line'+str(number)).get('font')
+    lstat.color=chat_dic.get(csto.stage,lambda *b:'none').get('line'+str(number)).get('color')
+    lstat.x=chat_dic.get(csto.stage,lambda *b:'none').get('line'+str(number)).get('x')
+    lstat.y=chat_dic.get(csto.stage,lambda *b:'none').get('line'+str(number)).get('y')
+def smalltyping(csto,number,lstat):
+    takeline(csto,number,lstat)
+    if csto.writeduration<len(lstat.line) and csto.changeline==number:
+        write(lstat.line[:csto.writeduration]+'_',lstat.font,lstat.color,lstat.x,lstat.y)
+    elif csto.changeline>=number:
+        write(lstat.line,lstat.font,lstat.color,lstat.x,lstat.y)
+        if csto.changeline==number:
             csto.changeline+=1
             csto.writeduration=0
-
-
-
-
-
+def typingstart(csto,lenofeachstage,dt):
+    if csto.changline>lenofeachstage: csto.startwrite+=dt
+    if csto.startwrite>=0.125:
+        csto.startwrite=0
+        csto.writeduration+=1
+        for i in range(1,lenofeachstage+1):
+            smalltyping(csto,i)    
+    
     
                 
                 

@@ -1,15 +1,18 @@
 import pygame
 import random
 import math
-
+font=pygame.font.Font('assets/font.ttf',30)
+titlefont=pygame.font.Font('assets/endfont.ttf',100)
+codefont=pygame.font.Font('assets/endfont.ttf',50)
+chatfont=pygame.font.Font('assets/endfont.ttf',30)
 class Map:
     def __init__(self,xy,type):
         self.position=xy
         self.y=xy%10*70
         self.x=(xy-xy%10)/10*70
-        if type=='W':
+        if type=='w':
             self.img='assets/wall.png'
-        elif type=='F':
+        elif type=='f':
             gacha=random.randint(1,3)
             if gacha==1:
                 self.img='assets/F1.png'
@@ -34,24 +37,22 @@ class Obstacle:
         self.position=xy
         self.y=xy%10*70
         self.x=(xy-xy%10)/10*70
-        if type=='V':
+        if type=='v':
             self.img='assets/V.png'
-        elif type=='SL':
+        elif type=='sl':
             self.img='assets/SL.png'
-        elif type=='SLR':
+        elif type=='slr':
             self.img='assets/SLR.png'
-        elif type=='SLRT':
+        elif type=='slrt':
             self.img='assets/SLRT.png'
-        elif type=='SLT':
+        elif type=='slt':
             self.img='assets/SLT.png'
-        elif type=='SR':
+        elif type=='sr':
             self.img='assets/SR.png'
-        elif type=='ST':
+        elif type=='st':
             self.img='assets/ST.png'
-        elif type=='SRT':           
+        elif type=='srt':           
             self.img='assets/SRT.png'
-        elif type=='S4':
-            self.img='assets/S4.png'
         self.img=pygame.image.load(self.img).convert_alpha()
         self.img=pygame.transform.scale(self.img,(70,70))
         self.rect=pygame.Rect(self.x,self.y,70,70)
@@ -377,7 +378,7 @@ class Conststore:
         self.creepspeed=50
         self.bosscount=0
         self.mapcount=0
-        self.stage='start'
+        self.stage='normal'
         self.player=Player()
         self.bosses=[]
         self.pluses=[]
@@ -387,6 +388,10 @@ class Conststore:
         self.changeline=1
         #guid
         self.guidenumber=1
+        self.font=pygame.font.Font('assets/font.ttf',30)
+        self.titlefont=pygame.font.Font('assets/endfont.ttf',100)
+        self.codefont=pygame.font.Font('assets/endfont.ttf',50)
+        self.chatfont=pygame.font.Font('assets/endfont.ttf',30)
 
 class Mapstore:
     def __init__(self):
@@ -412,28 +417,61 @@ class Mapstore:
         self.slashes=[]
         self.mapstay=0
         self.bossattacks=[]
-        
 
+class Linestat:
+    def __init__(self):
+        self.line='just for save'
+        self.font=pygame.font.Font('assets/font.ttf',30)
+        self.color=(0,0,0)
+        self.x=0
+        self.y=0
+
+
+def getinfo(x):
+    return str(x)        
+        
+        
 chat_dic={
     'start':{
-        'line1':'Lost soul',
-        'line2':'adventure',
-        'line3':'combat',
+        'line1':{
+            'line':'Lost soul',
+            'font': titlefont,
+            'color':(111,13,181),
+            'x': 30,
+            'y': 5
+                 },
+        'line2':{
+            'line':'adventure',
+            'font': codefont,
+            'color':(111,13,181),
+            'x': 50,
+            'y': 150
+                 },
+        'line3':{
+            'line':'combat',
+            'font': codefont,
+            'color':(111,13,181),
+            'x': 50,
+            'y': 250
+                 },
         'line4':'level up',
         'line5':'survive as long as you can',
         'line6':'press P to start>>'
     },
     'end':{
         'line1':'You dead!',
-        'line2':lambda a: 'level '+ ,
-        'line3':lambda a: 'wave '+ ,
-        'line4':lambda a: 'map '+ ,
-        'line5':lambda a: 'enemy killed: '+,
-        'line6':lambda a: 'boss killed: '+ ,
+        'line2':lambda a:'level '+getinfo(a),
+        'line3':lambda a:'wave '+getinfo(a),
+        'line4':lambda a:'map '+getinfo(a),
+        'line5':lambda a:'enemy killed: '+getinfo(a),
+        'line6':lambda a:'boss killed: '+getinfo(a),
         'line7':'press R to replay >>'        
     },
     'guide':{
         'line1':'this is your character, you will',
         'line2':'control him by WASD'        
+    },
+    'none':{
+        'nothing':'none'
     }
 }
