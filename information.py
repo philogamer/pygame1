@@ -378,6 +378,15 @@ class Conststore:
         self.bosscount=0
         self.mapcount=0
         self.stage='start'
+        self.player=Player()
+        self.bosses=[]
+        self.pluses=[]
+        #end and start
+        self.startwrite=0
+        self.writeduration=0
+        self.changeline=1
+        #guid
+        self.guidenumber=1
 
 class Mapstore:
     def __init__(self):

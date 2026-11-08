@@ -11,24 +11,8 @@ transparentscreen=pygame.Surface((1500,800), pygame.SRCALPHA)
 pygame.display.set_caption('Lost Soul')
 clock=pygame.time.Clock()
 
-csto.stage='start'
-#normal and boss
-csto.rendermap=True
-csto.firstdoor=[]  #for save the door for next map
-csto.wave=0
-pluses=[]
-csto.creepspeed=50
-csto.csto.bosscount=0
-csto.mapcount=0
-player=Player()
+
 csto=Conststore()
-bosses=[]
-#end and start
-startwrite=0
-writeduration=0
-changeline=1
-#guide
-guidenumber=1
 
 
 #Game loop
@@ -42,23 +26,19 @@ while True:
         if event.type==pygame.MOUSEBUTTONDOWN and event.button==1:
             click=True
             mousepos=event.pos
-    csto.stage,startwrite,writeduration,changeline,csto.rendermap,csto.firstdoor,csto.wave,pluses,csto.creepspeed,csto.csto.bosscount,player,csto.mapcount,bosses=dic.buttonchangemap_dic.get(csto.stage,
-    lambda *b:(csto.stage,startwrite,writeduration,changeline,csto.rendermap,csto.firstdoor,csto.wave,pluses,csto.creepspeed,
-    csto.csto.bosscount,player,csto.mapcount,bosses))(keys,changeline,csto.rendermap,csto.firstdoor,csto.wave,pluses,csto.creepspeed,csto.csto.bosscount,player,csto.mapcount,
-    bosses,csto.stage,startwrite,writeduration)
+    dic.buttonchangemap_dic.get(csto.stage,lambda *b:None)(csto,keys)
     if csto.rendermap:
-        player.mana=player.maxmana
-        mst=Mapstore()
-        player.slashcooldown=0
+        csto.player.mana=csto.player.maxmana
+        msto=Mapstore()
+        csto.player.slashcooldown=0
         csto.mapcount+=1
-        dic.gachamap_dic.get(csto.stage,lambda*b:None)(csto.firstdoor,map,locate,door,player,insidef,w,goable,
-        sr,sl,srt,slt,slr,slrt,st,wall,v,obstacle,bosses,csto.wave)
+        dic.gachamap_dic.get(csto.stage,lambda*b:None)(msto,csto)
         csto.rendermap=False
     
     if csto.stage=='guide':
-        if player.y<=-((107-70)-(107-70)): 
-            player.put(99)
-            player.mana=player.maxmana
+        if csto.player.y<=-((107-70)-(107-70)): 
+            csto.player.put(99)
+            csto.player.mana=csto.player.maxmana
             
 
             
@@ -66,64 +46,34 @@ while True:
         
         
         #main character logic   
-    dic.playerbehaviour_dic.get(csto.stage,lambda *b: None)(csto.wave,player,obstacle,keys,slashes,creeps,bosses,dt,pluses)      
-    if player.buffstat>0:
-        if not pluses:
-            pluses.append(Plus('dmg'))
-            pluses.append(Plus('maxmana'))
-            pluses.append(Plus('maxhp'))
-            pluses.append(Plus('movespeed'))
-            pluses.append(Plus('manaregen'))
-            pluses.append(Plus('attackspeed'))
-        for plus in pluses:
-            if click:
-                if plus.rect.collidepoint(mousepos):
-                    player.buffstat-=1
-                    if plus.type=='dmg':
-                        player.dmg+=1
-                    elif plus.type=='maxmana':
-                        player.maxmana+=15
-                        player.mana+=15
-                    elif plus.type=='maxhp':
-                        player.maxhp+=35
-                        player.hp+=15
-                    elif plus.type=='movespeed':
-                        player.maxspeed+=1                        
-                    elif plus.type=='manaregen':
-                        player.manaregen+=1
-                    elif plus.type=='attackspeed':
-                        player.attackspeed+=0.03
-    else:
-        pluses.clear()
-    if player.hp<=0:
+    dic.playerbehaviour_dic.get(csto.stage,lambda *b: None)(msto,csto,dt,keys)
+    dic.playerbuff_dic.get(csto.stage,lambda *b: None)(csto)
+    if csto.player.hp<=0:
         csto.stage='end'                    
                         
                     
                 
         #creep logic
     if csto.stage=='normal':
-        csto.stage,csto.rendermap,csto.wave,mapstay=dic.creepspawn_dic.get(len(creeps),
-        lambda *b: (csto.stage,csto.rendermap,csto.wave,mapstay))(insidef,creeps,csto.stage,csto.rendermap,csto.wave,mapstay)   
-        for creep in creeps:
-            dic.creepmove_dic.get(math.hypot(player.x-creep.x,player.y-creep.y)>creep.range
-            ).get(math.hypot(player.x-creep.x,player.y-creep.y)>creep.view or creep.notry)(creep,obstacle,player,bullets,dt)
-    csto.stage,csto.rendermap=dic.enemytakedame_dic.get(csto.stage).get(len(slashes),lambda *b: (csto.stage,csto.rendermap))(slashes
-    ,creeps,bosses,player,csto.wave,csto.stage,csto.rendermap,csto)
-    csto.rendermap=dic.changemap_dic.get(csto.stage,lambda *b: (csto.rendermap))(goable,player,csto.rendermap)
+        dic.creepspawn_dic.get(len(csto.creeps),lambda *b: None)((msto,csto))   
+        for creep in csto.creeps:
+            dic.creepmove_dic.get(math.hypot(csto.player.x-creep.x,csto.player.y-creep.y)>creep.range
+            ).get(math.hypot(csto.player.x-creep.x,csto.player.y-creep.y)>creep.view or creep.notry)(creep,msto,csto,dt)
+    dic.enemytakedame_dic.get(csto.stage).get(len(msto.slashes),lambda *b: None)(msto,csto)
+    dic.changemap_dic.get(csto.stage,lambda *b: None)(msto,csto)
     if csto.stage=='boss':
-        for boss in bosses:
+        for boss in csto.csto.bosses:
             boss.update()
             boss.cooldown+=dt
-            dic.skillboss_dic.get(boss.cooldown>=1.8).get(boss.skillchoose, lambda *b: None)(boss
-            ,bullets,player,dt,bossattacks,csto)              
+            dic.skillboss_dic.get(boss.cooldown>=1.8).get(boss.skillchoose, lambda *b: None)(boss,msto,csto)       
                         
                     
                     
                               
     if csto.stage=='normal' or csto.stage=='boss':    
-        dic.bullets_dic.get('bullet')(bullets,dt,player,obstacle,csto.csto.bosscount,csto.stage,smallbullets,boss,slashes)
-        dic.bullets_dic.get('smallbullet')(bullets,dt,player,obstacle,csto.csto.bosscount,csto.stage,smallbullets,boss,slashes)
-        dic.bullets_dic.get('slashbullet')(bullets,dt,player,obstacle,csto.csto.bosscount,csto.stage,smallbullets,boss,slashes)
+        dic.bullets_dic.get('bullet')(msto,csto,dt)
+        dic.bullets_dic.get('smallbullet')(msto,csto,dt)
+        dic.bullets_dic.get('slashbullet')(msto,csto,dt)
              
                 
                 
@@ -136,9 +86,9 @@ while True:
                        
                 
     #draw on screen
-    
+    dic.render_dic.get(csto.stage, lambda *b:None)(msto,csto)
     if csto.stage=='normal' or csto.stage=='boss':
-        startwrite=0
+        csto.startwrite=0
     def drawsmallfeatures():
         screen.fill((70,70,70))
         for i in map:
@@ -147,21 +97,21 @@ while True:
             i.draw(screen)
         for i in obstacle:
             i.draw(screen)
-        for i in creeps:
+        for i in csto.creeps:
             i.draw(screen)
         write('HP',font,(0,0,0),40,699)
         write('MANA',font,(0,0,0),20,744)
-        write('DAMAGE:'+str(player.dmg),font,(0,0,0),450,699)
-        write('MAX MANA:'+str(player.maxmana),font,(0,0,0),450,744)
-        write('MAX HP:'+str(player.maxhp),font,(0,0,0),700,699)
-        write('MOVE SPEED:'+str(player.maxspeed),font,(0,0,0),700,744)
-        write('MANA REGEN:'+str(player.manaregen),font,(0,0,0),950,699)
-        write('ATTACK SPEED:'+str(player.attackspeed),font,(0,0,0),950,744)
+        write('DAMAGE:'+str(csto.player.dmg),font,(0,0,0),450,699)
+        write('MAX MANA:'+str(csto.player.maxmana),font,(0,0,0),450,744)
+        write('MAX HP:'+str(csto.player.maxhp),font,(0,0,0),700,699)
+        write('MOVE SPEED:'+str(csto.player.maxspeed),font,(0,0,0),700,744)
+        write('MANA REGEN:'+str(csto.player.manaregen),font,(0,0,0),950,699)
+        write('ATTACK SPEED:'+str(csto.player.attackspeed),font,(0,0,0),950,744)
         write('level',font,(0,0,0),1410,30)
-        write(str(player.level),font,(0,0,0),1430,70)
-        write(str(player.level+1),font,(0,0,0),1430,630)
+        write(str(csto.player.level),font,(0,0,0),1430,70)
+        write(str(csto.player.level+1),font,(0,0,0),1430,630)
             
-        player.draw(screen)
+        csto.player.draw(screen)
         for i in bullets:
             i.draw(screen)
         for i in smallbullets:
@@ -204,7 +154,7 @@ while True:
 
     if csto.stage=='end':
         line1='You dead!'
-        line2='level '+str(player.level)
+        line2='level '+str(csto.player.level)
         line3='csto.wave '+str(csto.wave)
         line4='map '+str(csto.mapcount)
         line5='enemy killed: '+str(csto.enemykilled)

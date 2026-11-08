@@ -68,4 +68,7 @@ render_dic={
     'guide': lambda *a: fun.drawgame1(*a),
     
 }
-
+playerbuff_dic={
+    'normal': lambda x: fun.buff(x),
+    'boss': lambda x: fun.buff(x),
+}
