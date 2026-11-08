@@ -11,16 +11,17 @@ transparentscreen=pygame.Surface((1500,800), pygame.SRCALPHA)
 pygame.display.set_caption('Lost Soul')
 clock=pygame.time.Clock()
 
-stage='start'
+csto.stage='start'
 #normal and boss
-rendermap=True
-firstdoor=[]  #for save the door for next map
-wave=0
+csto.rendermap=True
+csto.firstdoor=[]  #for save the door for next map
+csto.wave=0
 pluses=[]
-creepspeed=50
-bosscount=0
-mapcount=0
+csto.creepspeed=50
+csto.csto.bosscount=0
+csto.mapcount=0
 player=Player()
+csto=Conststore()
 bosses=[]
 #end and start
 startwrite=0
@@ -41,41 +42,20 @@ while True:
         if event.type==pygame.MOUSEBUTTONDOWN and event.button==1:
             click=True
             mousepos=event.pos
-    stage,startwrite,writeduration,changeline,rendermap,firstdoor,wave,pluses,creepspeed,bosscount,player,mapcount,bosses=dic.buttonchangemap_dic.get(stage,
-    lambda *b:(stage,startwrite,writeduration,changeline,rendermap,firstdoor,wave,pluses,creepspeed,
-    bosscount,player,mapcount,bosses))(keys,changeline,rendermap,firstdoor,wave,pluses,creepspeed,bosscount,player,mapcount,
-    bosses,stage,startwrite,writeduration)
-    if rendermap:
+    csto.stage,startwrite,writeduration,changeline,csto.rendermap,csto.firstdoor,csto.wave,pluses,csto.creepspeed,csto.csto.bosscount,player,csto.mapcount,bosses=dic.buttonchangemap_dic.get(csto.stage,
+    lambda *b:(csto.stage,startwrite,writeduration,changeline,csto.rendermap,csto.firstdoor,csto.wave,pluses,csto.creepspeed,
+    csto.csto.bosscount,player,csto.mapcount,bosses))(keys,changeline,csto.rendermap,csto.firstdoor,csto.wave,pluses,csto.creepspeed,csto.csto.bosscount,player,csto.mapcount,
+    bosses,csto.stage,startwrite,writeduration)
+    if csto.rendermap:
         player.mana=player.maxmana
-        locate=list(range(200))
-        goable=[]
-        map=[]
-        obstacle=[]
-        door=[]
-        w=[]
-        sr=[]
-        sl=[]
-        v=[]
-        slr=[]
-        slrt=[]
-        slt=[]
-        srt=[]
-        st=[]
-        insidef=[]
-        wall=[]
-        creeps=[]
-        bullets=[]
-        smallbullets=[]
-        slashes=[]
+        mst=Mapstore()
         player.slashcooldown=0
-        mapstay=0
-        mapcount+=1
-        bossattacks=[]
-        dic.rendermap_dic.get(stage,lambda*b:None)(firstdoor,map,locate,door,player,insidef,w,goable,
-        sr,sl,srt,slt,slr,slrt,st,wall,v,obstacle,bosses,wave)
-        rendermap=False
+        csto.mapcount+=1
+        dic.gachamap_dic.get(csto.stage,lambda*b:None)(csto.firstdoor,map,locate,door,player,insidef,w,goable,
+        sr,sl,srt,slt,slr,slrt,st,wall,v,obstacle,bosses,csto.wave)
+        csto.rendermap=False
     
-    if stage=='guide':
+    if csto.stage=='guide':
         if player.y<=-((107-70)-(107-70)): 
             player.put(99)
             player.mana=player.maxmana
@@ -86,7 +66,7 @@ while True:
         
         
         #main character logic   
-    dic.playerbehaviour_dic.get(stage,lambda *b: None)(wave,player,obstacle,keys,slashes,creeps,bosses,dt,pluses)      
+    dic.playerbehaviour_dic.get(csto.stage,lambda *b: None)(csto.wave,player,obstacle,keys,slashes,creeps,bosses,dt,pluses)      
     if player.buffstat>0:
         if not pluses:
             pluses.append(Plus('dmg'))
@@ -116,34 +96,34 @@ while True:
     else:
         pluses.clear()
     if player.hp<=0:
-        stage='end'                    
+        csto.stage='end'                    
                         
                     
                 
         #creep logic
-    if stage=='normal':
-        stage,rendermap,wave,mapstay=dic.creepspawn_dic.get(len(creeps),
-        lambda *b: (stage,rendermap,wave,mapstay))(insidef,creeps,stage,rendermap,wave,mapstay)   
+    if csto.stage=='normal':
+        csto.stage,csto.rendermap,csto.wave,mapstay=dic.creepspawn_dic.get(len(creeps),
+        lambda *b: (csto.stage,csto.rendermap,csto.wave,mapstay))(insidef,creeps,csto.stage,csto.rendermap,csto.wave,mapstay)   
         for creep in creeps:
             dic.creepmove_dic.get(math.hypot(player.x-creep.x,player.y-creep.y)>creep.range
             ).get(math.hypot(player.x-creep.x,player.y-creep.y)>creep.view or creep.notry)(creep,obstacle,player,bullets,dt)
-    stage,rendermap=dic.enemytakedame_dic.get(stage).get(len(slashes),lambda *b: (stage,rendermap))(slashes
-    ,creeps,bosses,player,wave,stage,rendermap)
-    rendermap=dic.changemap_dic.get(stage,lambda *b: (rendermap))(goable,player,rendermap)
-    if stage=='boss':
+    csto.stage,csto.rendermap=dic.enemytakedame_dic.get(csto.stage).get(len(slashes),lambda *b: (csto.stage,csto.rendermap))(slashes
+    ,creeps,bosses,player,csto.wave,csto.stage,csto.rendermap,csto)
+    csto.rendermap=dic.changemap_dic.get(csto.stage,lambda *b: (csto.rendermap))(goable,player,csto.rendermap)
+    if csto.stage=='boss':
         for boss in bosses:
             boss.update()
             boss.cooldown+=dt
             dic.skillboss_dic.get(boss.cooldown>=1.8).get(boss.skillchoose, lambda *b: None)(boss
-            ,bullets,player,dt,bossattacks,bosscount)              
+            ,bullets,player,dt,bossattacks,csto)              
                         
                     
                     
                               
-    if stage=='normal' or stage=='boss':    
-        dic.bullets_dic.get('bullet')(bullets,dt,player,obstacle,bosscount,stage,smallbullets,boss,slashes)
-        dic.bullets_dic.get('smallbullet')(bullets,dt,player,obstacle,bosscount,stage,smallbullets,boss,slashes)
-        dic.bullets_dic.get('slashbullet')(bullets,dt,player,obstacle,bosscount,stage,smallbullets,boss,slashes)
+    if csto.stage=='normal' or csto.stage=='boss':    
+        dic.bullets_dic.get('bullet')(bullets,dt,player,obstacle,csto.csto.bosscount,csto.stage,smallbullets,boss,slashes)
+        dic.bullets_dic.get('smallbullet')(bullets,dt,player,obstacle,csto.csto.bosscount,csto.stage,smallbullets,boss,slashes)
+        dic.bullets_dic.get('slashbullet')(bullets,dt,player,obstacle,csto.csto.bosscount,csto.stage,smallbullets,boss,slashes)
              
                 
                 
@@ -157,7 +137,7 @@ while True:
                 
     #draw on screen
     
-    if stage=='normal' or stage=='boss':
+    if csto.stage=='normal' or csto.stage=='boss':
         startwrite=0
     def drawsmallfeatures():
         screen.fill((70,70,70))
@@ -191,11 +171,11 @@ while True:
             i.draw(screen)
         for i in pluses:
             i.draw(screen)                
-    if stage=='guide': startwrite+=dt
-    if stage=='guide':
+    if csto.stage=='guide': startwrite+=dt
+    if csto.stage=='guide':
         line1='this is your character, you will'
         line2='control him by WASD'
-    if stage=='guide':
+    if csto.stage=='guide':
         if guidenumber==1:
             if startwrite>=0.125:
                 startwrite=0
@@ -222,16 +202,16 @@ while True:
                         writeduration=0
 
 
-    if stage=='end':
+    if csto.stage=='end':
         line1='You dead!'
         line2='level '+str(player.level)
-        line3='wave '+str(wave)
-        line4='map '+str(mapcount)
-        line5='enemy killed: '+str(player.enemykilled)
-        line6='boss killed: '+str(bosscount)
+        line3='csto.wave '+str(csto.wave)
+        line4='map '+str(csto.mapcount)
+        line5='enemy killed: '+str(csto.enemykilled)
+        line6='boss killed: '+str(csto.csto.bosscount)
         line7='press R to replay >>'
-    if stage=='end' and changeline!=8: startwrite+=dt
-    if stage=='end' and startwrite>=0.125:
+    if csto.stage=='end' and changeline!=8: startwrite+=dt
+    if csto.stage=='end' and startwrite>=0.125:
         startwrite=0
         writeduration+=1
         screen.fill((0,0,0))
@@ -284,15 +264,15 @@ while True:
             if changeline==7:
                 changeline+=1
                 writeduration=0
-    if stage=='start':
+    if csto.stage=='start':
         line1='Lost soul'
         line2='adventure'
         line3='combat'
         line4='level up'
         line5='survive as long as you can'
         line6='press P to start>>'
-    if stage=='start' and changeline!=7: startwrite+=dt
-    if stage=='start' and startwrite>=0.125:
+    if csto.stage=='start' and changeline!=7: startwrite+=dt
+    if csto.stage=='start' and startwrite>=0.125:
         startwrite=0
         writeduration+=1
         screen.fill((0,0,0))

@@ -1,7 +1,7 @@
 import pygame
 import random
 import math
-import information as info
+from information import *
 
 pygame.init()
 pygame.mixer.init()
@@ -22,409 +22,44 @@ chatfont=pygame.font.Font('assets/endfont.ttf',30)
 def write(text,font,color,x,y):
     screen.blit(font.render(text,True,color),(x,y))
 
-class Map:
-    def __init__(self,xy,type):
-        self.position=xy
-        self.y=xy%10*70
-        self.x=(xy-xy%10)/10*70
-        if type=='W':
-            self.img='assets/wall.png'
-        elif type=='F':
-            gacha=random.randint(1,3)
-            if gacha==1:
-                self.img='assets/F1.png'
-            elif gacha==2:
-                self.img='assets/F2.png'    
-            else:
-                self.img='assets/F3.png'
-        self.img=pygame.image.load(self.img).convert_alpha()
-        self.img=pygame.transform.scale(self.img,(70,70))
-    def draw(self,screen):
-        screen.blit(self.img,(self.x,self.y))
-class Goable:
-    def __init__(self,xy):
-        self.position=xy
-        self.y=xy%10*70
-        self.x=(xy-xy%10)/10*70
-        self.rect=pygame.Rect(self.x,self.y,70,70)
-    def update(self):
-        self.rect=pygame.Rect(self.x,self.y,70,70)
-class Obstacle:
-    def __init__(self,xy,type):
-        self.position=xy
-        self.y=xy%10*70
-        self.x=(xy-xy%10)/10*70
-        if type=='V':
-            self.img='assets/V.png'
-        elif type=='SL':
-            self.img='assets/SL.png'
-        elif type=='SLR':
-            self.img='assets/SLR.png'
-        elif type=='SLRT':
-            self.img='assets/SLRT.png'
-        elif type=='SLT':
-            self.img='assets/SLT.png'
-        elif type=='SR':
-            self.img='assets/SR.png'
-        elif type=='ST':
-            self.img='assets/ST.png'
-        elif type=='SRT':           
-            self.img='assets/SRT.png'
-        elif type=='S4':
-            self.img='assets/S4.png'
-        self.img=pygame.image.load(self.img).convert_alpha()
-        self.img=pygame.transform.scale(self.img,(70,70))
-        self.rect=pygame.Rect(self.x,self.y,70,70)
-    def draw(self,screen):
-        screen.blit(self.img,(self.x,self.y))
-class Player:
-    def __init__(self):
-        self.y=0
-        self.x=0
-        self.targetx=self.x
-        self.targety=self.y
-        self.direction='right'
-        self.dmg=10
-        self.speed=200
-        self.maxspeed=200
-        self.hp=500
-        self.maxhp=500
-        self.mana=100
-        self.maxmana=100
-        self.img='assets/main.png'
-        self.img=pygame.image.load(self.img).convert_alpha()
-        self.img=pygame.transform.scale(self.img,(61,107))
-        self.rect=pygame.Rect(self.x,self.y-(107-70),61,107)
-        self.wallrect=pygame.Rect(self.x,self.y+(107-73)-(107-70),61,71)
-        self.manaregen=12
-        self.attackspeed=0.5
-        self.exp=0
-        self.level=1
-        self.buffstat=0
-        self.takedame=True
-        self.slashcooldown=0
-        self.enemykilled=0
-    def put(self,xy):
-        self.y=xy%10*70
-        self.x=(xy-xy%10)/10*70    
-    def draw(self,screen):
-        screen.blit(self.img,(self.x,self.y-(107-70)))
-        pygame.draw.rect(screen,(0,0,0),pygame.Rect(85,705,310,40))
-        pygame.draw.rect(screen,(225,0,0),pygame.Rect(90,710,self.hp*300/self.maxhp,30))
-        pygame.draw.rect(screen,(0,0,0),pygame.Rect(85,750,310,40))
-        pygame.draw.rect(screen,(50,107,250),pygame.Rect(90,755,self.mana*300/self.maxmana,30))
-        pygame.draw.rect(screen,(0,0,0),pygame.Rect(1425,120,50,500))
-        pygame.draw.rect(screen,(52,6,59),pygame.Rect(1425,120,50,self.exp*500/(90+25*(self.level-1)+5*(self.level-1)**2)))
-    def move(self,dt):
-        dx=self.targetx-self.x
-        self.direction='right' if dx>0 else 'left'
-        dy=self.targety-self.y
-        distance=math.hypot(dx,dy)
-        if dx!=0 or dy!=0:    
-            if self.mana>0: self.mana-=9*dt
-            if self.speed*dt>=distance:
-                self.x=self.targetx
-                self.y=self.targety    
-            else:
-                self.x+=dx/distance*self.speed*dt
-                self.y+=dy/distance*self.speed*dt
-            if self.x<0:
-                self.x=0
-            if self.x>(1400-61):
-                self.x=(1400-61)
-            if self.y<-((107-70)-(107-70)):
-                self.y=-((107-70)-(107-70))  
-            if self.y>((700-107)+(107-70)):
-                self.y=700-107+(107-70)
-    def update(self):
-        self.rect=pygame.Rect(self.x,self.y-(107-70),61,107)
-    def checkwall(self):
-        self.wallrect=pygame.Rect(self.targetx,self.targety+(107-73)-(107-70),61,71)
-class Creep:
-    def __init__(self,xy,type,buff):
-        self.position=xy
-        self.y=xy%10*70
-        self.x=(xy-xy%10)/10*70
-        self.targetx=self.x
-        self.targety=self.y
-        self.direction='right'
-        self.speed=50*(1+0.01*buff)
-        self.touchwall=True
-        self.touchwallx=False
-        self.touchwally=False
-        self.type=type
-        self.randomx=0
-        self.randomy=0
-        self.shoot=0
-        self.notry=False
-        self.testx=False
-        self.testy=False
-        self.takedame=False
-        if self.type=='normal':
-            self.img='assets/ghost.png'
-            self.h=30*2
-            self.w=24*2
-            self.hp=70*(1+0.08*buff)
-            self.maxhp=70*(1+0.08*buff)
-            self.range=130
-            self.view=400
-            self.dmg=10*(1+0.05*buff)
-        elif self.type=='elite':
-            self.img='assets/ghost1.png'
-            self.h=30*2
-            self.w=24*2
-            self.hp=150*(1+0.06*buff)
-            self.maxhp=150*(1+0.06*buff)
-            self.range=130
-            self.view=400
-            self.dmg=15*(1+0.05*buff)
-        elif self.type=='slime':
-            self.img='assets/slime.png'
-            self.h=14*2
-            self.w=19*2
-            self.hp=50*(1+0.07*buff)
-            self.maxhp=50*(1+0.07*buff)
-            self.range=100
-            self.view=400
-            self.dmg=5*(1+0.05*buff)
-        
-        self.img=pygame.image.load(self.img).convert_alpha()
-        self.img=pygame.transform.scale(self.img,(self.w,self.h))
-        self.wallrect=pygame.Rect(self.targetx,self.targety+(self.h-70),self.w,70)
-        self.rect=pygame.Rect(self.x,self.y,self.w,self.h)
-    def draw(self,screen):
-        screen.blit(self.img,(self.x,self.y))
-        pygame.draw.rect(screen,(112,112,112),pygame.Rect(self.x,self.y-4,self.w,4))
-        pygame.draw.rect(screen,(225,0,0),pygame.Rect(self.x,self.y-4,self.hp*self.w/self.maxhp,4))
-    def move(self,dt):
-        dx=self.targetx-self.x
-        self.direction='right' if dx>0 else 'left'
-        dy=self.targety-self.y
-        distance=math.hypot(dx,dy)
-        if self.speed*dt>=distance:
-            self.x=self.targetx
-            self.y=self.targety
-        else:
-            self.x+=dx/distance*self.speed*dt
-            self.y+=dy/distance*self.speed*dt
-        if self.x<0:
-            self.x=0
-        if self.x>(1400-self.w):
-            self.x=(1400-self.w)
-        if self.y<(70-self.h):
-            self.y=70-self.h 
-        if self.y>700-self.h:
-            self.y=700-self.h
-    def update(self):
-        self.rect=pygame.Rect(self.x,self.y,self.w,self.h)
-    def checkwall(self):
-        self.wallrect=pygame.Rect(self.targetx,self.targety+(self.h-70),self.w,70)
-class Bullet:
-    def __init__(self,x,y,targetx,targety,dmg):
-        self.y=y+18
-        self.x=x
-        self.targetx=targetx
-        self.targety=targety
-        self.speed=200
-        self.img='assets/bullet.png'
-        self.img=pygame.image.load(self.img).convert_alpha()
-        self.img=pygame.transform.scale(self.img,(20,20))
-        self.rect=pygame.Rect(self.x,self.y,20,20)
-        self.wallrect=pygame.Rect(self.x,self.y-18,20,20+18)
-        self.dx=(self.targetx-self.x)*2000
-        self.dy=(self.targety-self.y)*2000
-        self.distance=math.hypot(self.dx,self.dy)
-        self.dmg=dmg
-    def draw(self,screen):
-        screen.blit(self.img,(self.x,self.y))
-    def move(self,dt):
-        self.x+=self.dx/self.distance*self.speed*dt
-        self.y+=self.dy/self.distance*self.speed*dt
-        if self.x<0:
-            self.x=0
-        if self.x>(1400-20):
-            self.x=(1400-20)
-        if self.y<0:
-            self.y=0  
-        if self.y>(700-20):
-            self.y=700-20
-        
-    def update(self):
-        self.rect=pygame.Rect(self.x,self.y,20,20)
-        self.wallrect=pygame.Rect(self.x,self.y-18,20,20+18)        
-class Smallbullet:
-    def __init__(self,x,y,targetx,targety,dmg):
-        self.y=y+18
-        self.x=x
-        self.targetx=targetx
-        self.targety=targety
-        self.speed=200
-        self.img='assets/bullet.png'
-        self.img=pygame.image.load(self.img).convert_alpha()
-        self.img=pygame.transform.scale(self.img,(20,20))
-        self.rect=pygame.Rect(self.x,self.y,20,20)
-        self.wallrect=pygame.Rect(self.x,self.y-18,20,20+18)
-        self.dx=(self.targetx-self.x)*2000
-        self.dy=(self.targety-self.y)*2000
-        self.distance=math.hypot(self.dx,self.dy)
-        self.dmg=dmg
-    def draw(self,screen):
-        screen.blit(self.img,(self.x,self.y))
-    def move(self,dt):
-        self.x+=self.dx/self.distance*self.speed*dt
-        self.y+=self.dy/self.distance*self.speed*dt
-        if self.x<0:
-            self.x=0
-        if self.x>(1400-20):
-            self.x=(1400-20)
-        if self.y<0:
-            self.y=0  
-        if self.y>(700-20):
-            self.y=700-20
-        
-    def update(self):
-        self.rect=pygame.Rect(self.x,self.y,20,20)
-        self.wallrect=pygame.Rect(self.x,self.y-18,20,20+18)   
-class Slash:
-    def __init__(self,x,y,direction,dmg):
-        self.y=y
-        self.present=0
-        self.img='assets/slash.png'
-        if direction=='right':
-            self.x=x+63
-        if direction=='left':
-            self.x=x-51
-        self.img=pygame.image.load(self.img).convert_alpha()
-        self.img=pygame.transform.scale(self.img,(48,107))
-        self.rect=pygame.Rect(self.x,self.y,48,107)
-        self.dmg=dmg
-    def draw(self,screen):
-        screen.blit(self.img,(self.x,self.y))
-class Plus:
-    def __init__(self,type):
-        self.type=type
-        self.img='assets/plus.png'
-        if type=='dmg':
-            self.x=600
-            self.y=705
-        elif type=='maxmana':
-            self.x=640
-            self.y=750
-        elif type=='maxhp':
-            self.x=860
-            self.y=705
-        elif type=='movespeed':
-            self.x=914
-            self.y=750
-        elif type=='manaregen':
-            self.x=1150
-            self.y=705
-        elif type=='attackspeed':
-            self.x=1200
-            self.y=750
-        self.img=pygame.image.load(self.img).convert_alpha()
-        self.img=pygame.transform.scale(self.img,(30,30))
-        self.rect=pygame.Rect(self.x,self.y,30,30)
-    def draw(self,screen):
-        screen.blit(self.img,(self.x,self.y))   
-class Boss:
-    def __init__(self,buff):
-        self.x=750
-        self.y=400
-        self.hp=280*(1+0.09*buff)
-        self.maxhp=280*(1+0.09*buff)
-        self.speed=182*(1+0.15*buff)
-        self.cooldown=0
-        self.dmg=20**(1+0.09*buff)
-        self.img='assets/skull.png'
-        self.w=150
-        self.h=150
-        self.img=pygame.image.load(self.img).convert_alpha()
-        self.img=pygame.transform.scale(self.img,(self.w,self.h))
-        self.rect=pygame.Rect(self.x,self.y,self.w,self.h)
-        self.targetx=self.x
-        self.targety=self.y
-        self.takedame=False
-        self.skillchoose=0
-        self.skillprepare=0
-    def draw(self,screen):
-        screen.blit(self.img,(self.x,self.y))
-        pygame.draw.rect(screen,(112,112,112),pygame.Rect(200,10,1000,30))
-        pygame.draw.rect(screen,(225,0,0),pygame.Rect(200,10,self.hp*1000/self.maxhp,30))
-    def move(self,dt):
-        dx=self.targetx-self.x
-        dy=self.targety-self.y
-        distance=math.hypot(dx,dy)
-        if self.speed*dt>=distance:
-            self.x=self.targetx
-            self.y=self.targety
-        else:
-            self.x+=dx/distance*self.speed*dt
-            self.y+=dy/distance*self.speed*dt
-        if self.x<70:
-            self.x=70
-        if self.x>(1400-70-self.w):
-            self.x=(1400-70-self.w)
-        if self.y<70:
-            self.y=70 
-        if self.y>(700-70-self.h):
-            self.y=700-70-self.h
-    def update(self):
-        self.rect=pygame.Rect(self.x,self.y,self.w,self.h)
-class Bossattack:
-    def __init__(self,x,y,dmg,width):
-        self.y=y
-        self.x=x
-        self.w=width
-        self.img='assets/bossattack.png'
-        self.img=pygame.image.load(self.img).convert_alpha()
-        self.img=pygame.transform.scale(self.img,(width,width*87/70))
-        self.dmg=dmg
-    def warn(self):
-        pygame.draw.rect(transparentscreen,(225,0,0,20),(self.x,self.y,self.w,self.w*87/70))
-        screen.blit(transparentscreen,(0,0))
-    def update(self,screen):
-        screen.blit(self.img,(self.x,self.y))
-        self.rect=pygame.Rect(self.x,self.y,self.w,self.w*87/70)
-
-def render1(firstdoor,map,locate,door,player,insidef,w,goable,sr,sl,srt,slt,slr,slrt,st,wall,v,obstacle,bosses,wave):
-    if not firstdoor:
+def render1(map,locate,door,player,insidef,w,goable,sr,sl,srt,slt,slr,slrt,st,wall,v,obstacle,bosses,csto):
+    if not csto.csto.firstdoor:
         doorlong=random.randint(1,5)
         doorside=random.choice([-1,1,-2,2])
-        firstdoor.append(doorside)
-        firstdoor.append(doorlong)
+        csto.csto.firstdoor.append(doorside)
+        csto.csto.firstdoor.append(doorlong)
         if doorside==(-1):
             firstexactdoor=random.choice(list(range(19,189+1-doorlong*10,10)))
-            firstdoor.append(firstexactdoor)                
+            csto.csto.firstdoor.append(firstexactdoor)                
             for i in range(0,doorlong):   
                 map.append(Map(firstexactdoor+i*10,'F'))
                 locate.remove(firstexactdoor+i*10)
                 door.append(firstexactdoor+i*10)
         elif doorside==(1):
             firstexactdoor=random.choice(list(range(10,180+1-doorlong*10,10)))
-            firstdoor.append(firstexactdoor)
+            csto.csto.firstdoor.append(firstexactdoor)
             for i in range(0,doorlong):
                 map.append(Map(firstexactdoor+i*10,'F'))
                 locate.remove(firstexactdoor+i*10)
                 door.append(firstexactdoor+i*10)    
         elif doorside==(2):
             firstexactdoor=random.choice(list(range(1,8+1-doorlong)))
-            firstdoor.append(firstexactdoor)
+            csto.csto.firstdoor.append(firstexactdoor)
             for i in range(0,doorlong):
                 map.append(Map(firstexactdoor+i,'F'))
                 locate.remove(firstexactdoor+i)
                 door.append(firstexactdoor+i)                
         elif doorside==(-2):
             firstexactdoor=random.choice(list(range(191,198+1-doorlong)))
-            firstdoor.append(firstexactdoor)
+            csto.csto.firstdoor.append(firstexactdoor)
             for i in range(0,doorlong):
                 map.append(Map(firstexactdoor+i,'F'))
                 locate.remove(firstexactdoor+i)
                 door.append(firstexactdoor+i)
         player.put(random.choice(door))
     else:
-        doorlong=firstdoor[1]
-        doorside=firstdoor[0]*(-1)
+        doorlong=csto.csto.firstdoor[1]
+        doorside=csto.csto.firstdoor[0]*(-1)
         if doorside==(-1):
             firstexactdoor=random.choice(list(range(19,189+1-doorlong*10,10)))
             for i in range(0,doorlong):   
@@ -474,7 +109,7 @@ def render1(firstdoor,map,locate,door,player,insidef,w,goable,sr,sl,srt,slt,slr,
     doorside=0
     doorlong=0
     startablefloor=[]
-    firstdoor.clear()
+    csto.csto.firstdoor.clear()
     goable.clear()
     while True:    
         while True:
@@ -592,9 +227,9 @@ def render1(firstdoor,map,locate,door,player,insidef,w,goable,sr,sl,srt,slt,slr,
                 break
             else:
                 startablefloor.remove(start)
-    firstdoor.append(doorside)
-    firstdoor.append(doorlong+1)   
-    rendermap=False
+    csto.csto.firstdoor.append(doorside)
+    csto.csto.firstdoor.append(doorlong+1)   
+    csto.rendermap=False
     for i in map:
         insidef.append(i.position)
     for i in insidef:
@@ -689,8 +324,8 @@ def render1(firstdoor,map,locate,door,player,insidef,w,goable,sr,sl,srt,slt,slr,
         for i in st:
             locate.remove(i)
             obstacle.append(Obstacle(i,'ST'))
-def render2(firstdoor,map,locate,door,player,insidef,w,goable,sr,sl,srt,slt,slr,slrt,st,wall,v,obstacle,bosses,wave):
-    bosses.append(Boss(wave))
+def render2(map,locate,door,player,insidef,w,goable,sr,sl,srt,slt,slr,slrt,st,wall,v,obstacle,bosses,csto):
+    bosses.append(Boss(csto.csto.wave))
     for i in range(1,199):
         if i%10==1:
             wall.append(Map(i,'W'))
@@ -707,7 +342,7 @@ def render2(firstdoor,map,locate,door,player,insidef,w,goable,sr,sl,srt,slt,slr,
     obstacle.append(Obstacle(9,'V'))
     obstacle.append(Obstacle(199,'V'))
     player.put(12)          
-def render3(firstdoor,map,locate,door,player,insidef,w,goable,sr,sl,srt,slt,slr,slrt,st,wall,v,obstacle,bosses,wave):
+def render3(map,locate,door,player,insidef,w,goable,sr,sl,srt,slt,slr,slrt,st,wall,v,obstacle,bosses,csto):
         player.put(99)
         for i in range(1,199):
             if i%10==1 and i!=91 and i!=101:
@@ -742,9 +377,9 @@ def render3(firstdoor,map,locate,door,player,insidef,w,goable,sr,sl,srt,slt,slr,
             obstacle.append(Obstacle(i,'V'))
         for i in range(57,157,10):
             wall.append(Map(i,'W'))
-def playerbehave(wave,player,obstacle,keys,slashes,creeps,bosses,dt,pluses):
-    creepspeed=50*(1+0.01*wave)
-    player.speed=creepspeed-10+(player.maxspeed-creepspeed)*(player.mana/player.maxmana)
+def playerbehave(csto.wave,player,obstacle,keys,slashes,creeps,bosses,dt,pluses):
+    csto.creepspeed=50*(1+0.01*csto.wave)
+    player.speed=csto.creepspeed-10+(player.maxspeed-csto.creepspeed)*(player.mana/player.maxmana)
     player.targetx=player.x
     player.targety=player.y
     if keys[pygame.K_a]:
@@ -973,65 +608,64 @@ def creepshoot(creep,obstacle,player,bullets,dt,chase):
 def creepmoveandshoot(creep,obstacle,player,bullets,dt,chase):
     creepmove(creep,obstacle,player,bullets,dt,chase)
     creepshoot(creep,obstacle,player,bullets,dt,chase)
-def creepspawn(insidef,creeps,stage,rendermap,wave,mapstay):
-    wave+=1
-    if wave%5==0:
-        stage='boss'
-        rendermap=True
+def creepspawn(insidef,creeps,csto.stage,csto.rendermap,csto.wave,mapstay):
+    csto.wave+=1
+    if csto.wave%5==0:
+        csto.stage='boss'
+        csto.rendermap=True
     else:
         creepsquare=random.sample(insidef,int(len(insidef)/12*(1+0.5*mapstay)))
         mapstay+=1
         for i in creepsquare:
-            creeps.append(Creep(i,random.choice(['slime','normal']),wave))
-        creeps.append(Creep(random.choice(insidef),'elite',wave))
-    return stage,rendermap,wave,mapstay
-def creepgetdame(slashes,creeps,bosses,player,wave,stage,rendermap):
+            creeps.append(Creep(i,random.choice(['slime','normal']),csto.wave))
+        creeps.append(Creep(random.choice(insidef),'elite',csto.wave))
+    return csto.stage,csto.rendermap,csto.wave,mapstay
+def creepgetdame(slashes,creeps,bosses,player,csto.wave,csto):
     for creep in creeps:
         if creep.rect.colliderect(slashes[0].rect) and creep.takedame:
             creep.hp-=slashes[0].dmg
             creep.takedame=False
         if creep.hp<=0:
             creeps.remove(creep)
-            player.enemykilled+=1
+            csto.enemykilled+=1
             if creep.type=='normal':
-                player.exp+=12*(1+0.02*wave)
+                player.exp+=12*(1+0.02*csto.wave)
             elif creep.type=='slime':
-                player.exp+=8*(1+0.02*wave)
+                player.exp+=8*(1+0.02*csto.wave)
             elif creep.type=='elite':
-                player.exp+=30*(1+0.02*wave)
+                player.exp+=30*(1+0.02*csto.wave)
             if len(creeps)==0:
-                player.exp+=30*(1+0.02*wave)
-    return stage,rendermap
-def bossgetdame(slashes,creeps,bosses,player,wave,stage,rendermap):
+                player.exp+=30*(1+0.02*csto.wave)
+def bossgetdame(slashes,creeps,bosses,player,csto.wave,csto):
     boss=bosses[0]
     if boss.rect.colliderect(slashes[0].rect) and boss.takedame:
         boss.hp-=slashes[0].dmg
         boss.takedame=False
     if boss.hp<=0:
         bosses.remove(boss)
-        bosscount+=1
-        player.exp+=90*(1+0.02*wave)
-        stage='normal'
-        rendermap=True
-    return stage,rendermap    
+        csto.csto.bosscount+=1
+        player.exp+=90*(1+0.02*csto.wave)
+        csto.csto.stage='normal'
+        import pygame
+        csto.csto.rendermap=True 
 def donothing():
     pass
-def changemap(goable,player,rendermap):
+def changemap(goable,player,csto.rendermap):
     for i in goable:
         if i.rect.colliderect(player.rect):
             if player.x<=0 or player.x>=(1400-61) or player.y<=-((107-70)-(107-70)) or player.y>=((700-107)+(107-70)):
-                rendermap=True
+                csto.rendermap=True
                 break
-    return rendermap
-def chooseskillboss(boss,bullets,player,dt,bossattacks,bosscount):
+    return csto.rendermap
+def chooseskillboss(boss,bullets,player,dt,bossattacks,csto):
     boss.skillchoose=random.randint(1,4)
     boss.skillprepare=0
-def skillboss1(boss,bullets,player,dt,bossattacks,bosscount):
-    for i in range(0,360,int(360/(24+6*bosscount))):
+def skillboss1(boss,bullets,player,dt,bossattacks,csto):
+    for i in range(0,360,int(360/(24+6*csto.csto.bosscount))):
         bullets.append(Bullet(boss.x+boss.w/2,boss.y+boss.h/2-18,boss.x+2000*math.cos(math.radians(i)),boss.y+2000*math.sin(math.radians(i)),boss.dmg))
         boss.cooldown=0
         boss.skillchoose=0  
-def skillboss2(boss,bullets,player,dt,bossattacks,bosscount):
+def skillboss2(boss,bullets,player,dt,bossattacks,csto):
     if boss.skillprepare==0:
         boss.targetx=player.x
         boss.targety=player.y
@@ -1046,10 +680,10 @@ def skillboss2(boss,bullets,player,dt,bossattacks,bosscount):
         if boss.x==boss.targetx and boss.y==boss.targety:
             boss.skillchoose=0
             boss.cooldown=0
-def skillboss3(boss,bullets,player,dt,bossattacks,bosscount):               
+def skillboss3(boss,bullets,player,dt,bossattacks,csto):               
     if boss.skillprepare==0:
-        for i in range(8+2*bosscount):
-            bossattacks.append(Bossattack(random.uniform(71,1329),random.uniform(141,629),0.6*boss.dmg,90+10*bosscount))
+        for i in range(8+2*csto.csto.bosscount):
+            bossattacks.append(Bossattack(random.uniform(71,1329),random.uniform(141,629),0.6*boss.dmg,90+10*csto.csto.bosscount))
     elif boss.skillprepare>=1:
         for bossattack in bossattacks:
             if bossattack.rect.colliderect(player.rect):
@@ -1060,16 +694,16 @@ def skillboss3(boss,bullets,player,dt,bossattacks,bosscount):
             boss.cooldown=0
             bossattacks.clear()
     boss.skillprepare+=dt
-def skillboss4(boss,bullets,player,dt,bossattacks,bosscount):             
+def skillboss4(boss,bullets,player,dt,bossattacks,csto):             
     if boss.cooldown>=1.85:
         boss.cooldown=1.8
     if boss.skillprepare<360:
         bullets.append(Bullet(boss.x+boss.w/2,boss.y+boss.h/2-18,boss.x+2000*math.cos(math.radians(boss.skillprepare)),boss.y+2000*math.sin(math.radians(boss.skillprepare)),boss.dmg))
-        boss.skillprepare+=int(360/(24+6*bosscount))
+        boss.skillprepare+=int(360/(24+6*csto.bosscount))
     else:    
         boss.skillchoose=0
         boss.cooldown=0           
-def bulleteffect(bullets,dt,player,obstacle,bosscount,stage,smallbullets,boss,slashes):
+def bulleteffect(bullets,dt,player,obstacle,csto.bosscount,csto.stage,smallbullets,boss,slashes):
     for bullet in bullets:
         bullet.move(dt)
         bullet.update()
@@ -1082,8 +716,8 @@ def bulleteffect(bullets,dt,player,obstacle,bosscount,stage,smallbullets,boss,sl
             for object in obstacle:
                 if bullet.wallrect.colliderect(object.rect):
                     bullets.remove(bullet)
-                    if bosscount>=2 and stage=='boss':
-                        for i in range(0,360,int(360/(6+1*bosscount))):
+                    if csto.bosscount>=2 and csto.stage=='boss':
+                        for i in range(0,360,int(360/(6+1*csto.bosscount))):
                             smallbullets.append(Smallbullet(bullet.x,bullet.y,boss.x+2000*math.cos(math.radians(i)),boss.y+2000*math.sin(math.radians(i)),boss.dmg/2))        
                     break
 def smallbulleteffect(bullets,dt,player,obstacle,smallbullets,slashes):
@@ -1108,30 +742,30 @@ def slashbullet(bullets,dt,player,obstacle,smallbullets,slashes):
         for bullet in smallbullets:
             if bullet.rect.colliderect(slashes[0].rect):
                 smallbullets.remove(bullet)  
-def startgame(keys,changeline,rendermap,firstdoor,wave,pluses,creepspeed,bosscount,player,mapcount,bosses,stage,startwrite,writeduration):
+def startgame(keys,changeline,csto.rendermap,csto.firstdoor,csto.wave,pluses,csto.creepspeed,csto.bosscount,player,csto.csto.mapcount,bosses,csto.stage,startwrite,writeduration):
     if keys[pygame.K_p] and changeline>6:
-        stage='guide'
+        csto.stage='guide'
         startwrite=0
         writeduration=0
         changeline=1
-        rendermap=True
-    return stage,startwrite,writeduration,changeline,rendermap,firstdoor,wave,pluses,creepspeed,bosscount,player,mapcount,bosses
-def replay(keys,changeline,rendermap,firstdoor,wave,pluses,creepspeed,bosscount,player,mapcount,bosses,stage,startwrite,writeduration):
+        csto.rendermap=True
+    return csto.stage,startwrite,writeduration,changeline,csto.rendermap,csto.firstdoor,csto.wave,pluses,csto.creepspeed,csto.bosscount,player,csto.csto.mapcount,bosses
+def replay(keys,changeline,csto.rendermap,csto.firstdoor,csto.wave,pluses,csto.creepspeed,csto.bosscount,player,csto.csto.mapcount,bosses,csto.stage,startwrite,writeduration):
     if keys[pygame.K_r] and changeline>7:
-        stage='normal'
-        rendermap=True
-        firstdoor=[]
-        wave=0
+        csto.stage='normal'
+        csto.rendermap=True
+        csto.csto.firstdoor=[]
+        csto.wave=0
         pluses=[]
-        creepspeed=50
-        bosscount=0
+        csto.creepspeed=50
+        csto.bosscount=0
         player=Player()
-        mapcount=0
+        csto.csto.mapcount=0
         bosses=[]
         startwrite=0
         writeduration=0
         changeline=1
-    return stage,startwrite,writeduration,changeline,rendermap,firstdoor,wave,pluses,creepspeed,bosscount,player,mapcount,bosses
+    return csto.stage,startwrite,writeduration,changeline,csto.rendermap,csto.firstdoor,csto.wave,pluses,csto.creepspeed,csto.bosscount,player,csto.csto.mapcount,bosses
 def drawgame1(wall,obstacle,creeps,player,bosses,bossattacks,bullets,smallbullets,slashes,pluses,goable):
     screen.fill((70,70,70))
     transparentscreen.fill((0,0,0,0))

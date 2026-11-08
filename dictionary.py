@@ -1,5 +1,5 @@
 import function as fun
-rendermap_dic={
+gachamap_dic={
     'normal': lambda *a: fun.render1(*a),
     'boss': lambda *a: fun.render2(*a),
     'guide': lambda *a: fun.render3(*a),
@@ -65,5 +65,7 @@ buttonchangemap_dic={
 render_dic={
     'normal': lambda *a: fun.drawgame1(*a),
     'boss': lambda *a: fun.drawgame1(*a),
+    'guide': lambda *a: fun.drawgame1(*a),
+    
 }
 
