@@ -14,6 +14,7 @@ font=pygame.font.Font('assets/font.ttf',30)
 titlefont=pygame.font.Font('assets/endfont.ttf',100)
 codefont=pygame.font.Font('assets/endfont.ttf',50)
 chatfont=pygame.font.Font('assets/endfont.ttf',30)
+smallfont=pygame.font.Font('assets/endfont.ttf',10)
 
 
 
@@ -374,6 +375,10 @@ def render3(msto,csto):
         for i in range(144,147):
             msto.obstacle.append(Obstacle(i,'sr'))
         for i in range(66,146,10):
+            msto.obstacle.append(Obstacle(i,'v'))
+        for i in range(64,144,10):
+            msto.obstacle.append(Obstacle(i,'v'))
+        for i in range(65,145,10):
             msto.obstacle.append(Obstacle(i,'v'))
         for i in range(57,157,10):
             msto.wall.append(Map(i,'w'))
@@ -837,11 +842,11 @@ def buff(csto):
     else:
         csto.pluses.clear()
 def takeline(csto,number,lstat):
-    lstat.line=chat_dic.get(csto.stage,lambda *b:'none').get('line'+str(number)).get('line')
-    lstat.font=chat_dic.get(csto.stage,lambda *b:'none').get('line'+str(number)).get('font')
-    lstat.color=chat_dic.get(csto.stage,lambda *b:'none').get('line'+str(number)).get('color')
-    lstat.x=chat_dic.get(csto.stage,lambda *b:'none').get('line'+str(number)).get('x')
-    lstat.y=chat_dic.get(csto.stage,lambda *b:'none').get('line'+str(number)).get('y')
+    lstat.line=chat_info.get(csto.stage).get('line'+str(number)).get('line')
+    lstat.font=chat_info.get(csto.stage).get('line'+str(number)).get('font')
+    lstat.color=chat_info.get(csto.stage).get('line'+str(number)).get('color')
+    lstat.x=chat_info.get(csto.stage).get('line'+str(number)).get('x')
+    lstat.y=chat_info.get(csto.stage).get('line'+str(number)).get('y')
 def takelinevariables(csto,number,lstat):
     if number==1 or number==7:
         lstat.line=chat_dic.get(csto.stage,lambda *b:'none').get('line'+str(number)).get('line')
@@ -859,9 +864,17 @@ def takelinevariables(csto,number,lstat):
     lstat.color=chat_dic.get(csto.stage,lambda *b:'none').get('line'+str(number)).get('color')
     lstat.x=chat_dic.get(csto.stage,lambda *b:'none').get('line'+str(number)).get('x')
     lstat.y=chat_dic.get(csto.stage,lambda *b:'none').get('line'+str(number)).get('y')
+def takeguide(csto,number,lstat):
+    lstat.line=chat_info.get(csto.stage).get(csto.guidenumber).get('line'+str(number)).get('line')
+    lstat.font=chat_info.get(csto.stage).get(csto.guidenumber).get('line'+str(number)).get('font')
+    lstat.color=chat_info.get(csto.stage).get(csto.guidenumber).get('line'+str(number)).get('color')
+    lstat.x=chat_info.get(csto.stage).get(csto.guidenumber).get('line'+str(number)).get('x')
+    lstat.y=chat_info.get(csto.stage).get(csto.guidenumber).get('line'+str(number)).get('y')
 def smalltyping(csto,number,lstat):
     if csto.stage=='end': 
         takelinevariables(csto,number,lstat)
+    elif csto.stage=='guide':
+        takeguide(csto,number,lstat)
     else:    
         takeline(csto,number,lstat)
     if csto.writeduration<len(lstat.line) and csto.changeline==number:
@@ -882,19 +895,18 @@ def typingstart(msto,csto,lstat,dt,lenofeachstage):
         csto.writeduration+=1
         for i in range(1,lenofeachstage+1):
             smalltyping(csto,i,lstat)
-def returntype(csto,lstat,dt):
+def returntype(msto,csto,lstat,dt):
     csto.startwrite=0
-    csto.changeline=0
+    csto.changeline=1
 def darken(msto,csto):
     drawgame1(msto,csto)
-    pygame.draw.rect(screen,(0,0,0),pygame.Rect(420,280,560,140))
     transparentscreen.fill((0,0,0,170))
     if csto.endchat==1: 
         if csto.guidenumber==1: pygame.draw.circle(transparentscreen,(225,225,225,0),(662,655),65)
     screen.blit(transparentscreen)     
 def guidetyping(msto,csto,lstat,dt,lenofeachstage):    
-    if csto.changeline<=lenofeachstage: 
-        csto.startwrite+=dt
+    csto.startwrite+=dt
+    if csto.changeline<=lenofeachstage:
         csto.endchat=0
     else:
         csto.endchat=1
@@ -904,5 +916,22 @@ def guidetyping(msto,csto,lstat,dt,lenofeachstage):
         darken(msto,csto)
         for i in range(1,lenofeachstage+1):
             smalltyping(csto,i,lstat)    
-                
+def gainconstline(csto,number,lstat):
+    lstat.line=stayline_info.get(csto.stage).get('line'+str(number)).get('line')
+    lstat.font=stayline_info.get(csto.stage).get('line'+str(number)).get('font')
+    lstat.color=stayline_info.get(csto.stage).get('line'+str(number)).get('color')
+    lstat.x=stayline_info.get(csto.stage).get('line'+str(number)).get('x')
+    lstat.y=stayline_info.get(csto.stage).get('line'+str(number)).get('y')
+def stayline(msto,csto,lstat,dt):
+    for i in range(1,3):
+        gainconstline(csto,i,lstat)
+        write(lstat.line,lstat.font,lstat.color,lstat.x,lstat.y)
+def guidetotest(csto):
+    csto.stage='test'
+    csto.guidenumber+=1
+def testtoguide(csto):
+    csto.stage='guide'        
+        
+    
+    
                 

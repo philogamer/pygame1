@@ -25,15 +25,9 @@ enemytakedame_dic={
     'boss':{
         1:lambda *a: fun.bossgetdame(*a)
     },
-    'guide':{
+    'none':{
         10:lambda: fun.donothing()
-    },
-    'start':{
-        10:lambda: fun.donothing()
-    },
-    'end':{
-        10:lambda: fun.donothing()
-    },
+    }
 }
 creepspawn_dic={
     0: lambda *a: fun.creepspawn(*a)
@@ -67,6 +61,7 @@ render_dic={
     'normal': lambda *a: fun.drawgame1(*a),
     'boss': lambda *a: fun.drawgame1(*a),
     'end': lambda *a: fun.renewscreen(*a),
+    'test': lambda *a: fun.drawgame1(*a)
     
 }
 playerbuff_dic={
@@ -76,15 +71,11 @@ playerbuff_dic={
 typechat_dic={
     'start': lambda *a: fun.typingstart(*a,6),
     'end': lambda *a: fun.typingstart(*a,7),
-    'guide': lambda *a: fun.guidetyping(*a,2),
+    'guide': lambda *a: (fun.guidetyping(*a,2), fun.stayline(*a)),
+    'test': lambda *a: (fun.returntype(*a), fun.stayline(*a)),
     'none': lambda *a: fun.returntype(*a)
 }
-guide_dic={
-    'guide':{
-        0: lambda *a: fun.drawgame1(*a),
-        1: lambda *a: fun.darken(*a)
-    },
-    'none':{
-        10: lambda: fun.donothing()
-    }
+guideortest_dic={
+    'guide':lambda a: fun.guidetotest(a),
+    'test':lambda a: fun.testtoguide(a)
 }

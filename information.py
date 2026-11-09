@@ -8,6 +8,7 @@ font=pygame.font.Font('assets/font.ttf',30)
 titlefont=pygame.font.Font('assets/endfont.ttf',100)
 codefont=pygame.font.Font('assets/endfont.ttf',50)
 chatfont=pygame.font.Font('assets/endfont.ttf',30)
+smallfont=pygame.font.Font('assets/endfont.ttf',10)
 class Map:
     def __init__(self,xy,type):
         self.position=xy
@@ -432,7 +433,7 @@ def getinfo(x):
     return str(x)        
         
         
-chat_dic={
+chat_info={
     'start':{
         'line1':{
             'line':'Lost soul',
@@ -529,19 +530,81 @@ chat_dic={
                  },                
     },
     'guide':{
-        'line1':{
-            'line':'this is your character, you will',
-            'font': chatfont,
-            'color':(111,13,181),
-            'x': 385,
-            'y': 235
-                 },
-        'line2':{
-            'line':'control him by WASD',
-            'font': chatfont,
-            'color':(111,13,181),
-            'x': 385,
-            'y': 275
-                 },        
+        1:{
+            'line1':{
+                'line':'this is your character, you will',
+                'font': chatfont,
+                'color':(111,13,181),
+                'x': 385,
+                'y': 235
+                    },
+            'line2':{
+                'line':'control him by WASD',
+                'font': chatfont,
+                'color':(111,13,181),
+                'x': 385,
+                'y': 275
+                    },        
+        },
+        2:{
+            'line1':{
+                'line':'You can use left arrow and right',
+                'font': chatfont,
+                'color':(111,13,181),
+                'x': 385,
+                'y': 235
+                    },
+            'line2':{
+                'line':'arrow to attack',
+                'font': chatfont,
+                'color':(111,13,181),
+                'x': 385,
+                'y': 275
+                    },        
+        },     
     },
 }
+
+stayline_info={
+    'guide':{
+            'line1':{
+                'line':'K to skip',
+                'font': smallfont,
+                'color':(227,206,14),
+                'x': 385,
+                'y': 375
+                     },
+            'line2':{
+                'line':'C to continue',
+                'font': smallfont,
+                'color':(227,206,14),
+                'x': 585,
+                'y': 375
+                     },        
+        },
+    'test':{
+            'line1':{
+                'line':'K to skip',
+                'font': smallfont,
+                'color':(227,206,14),
+                'x': 385,
+                'y': 375
+                     },
+            'line2':{
+                'line':'C to continue',
+                'font': smallfont,
+                'color':(227,206,14),
+                'x': 585,
+                'y': 375
+                     },        
+        },
+}
+
+
+
+
+
+
+
+
+

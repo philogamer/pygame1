@@ -2,7 +2,7 @@ import pygame
 import random
 import math
 import dictionary as dic
-from function import *
+import information as info
 pygame.init()
 pygame.mixer.init()
 pygame.font.init()
@@ -12,8 +12,8 @@ pygame.display.set_caption('Lost Soul')
 clock=pygame.time.Clock()
 
 
-csto=Conststore()
-lstat=Linestat()
+csto=info.Conststore()
+lstat=info.Linestat()
 
 
 #Game loop
@@ -24,13 +24,16 @@ while True:
         if event.type==pygame.QUIT:
             quit(0)
         keys=pygame.key.get_pressed()
+        #change in guide:
+        if keys[pygame.K_c]:
+            dic.guideortest_dic.get(csto.stage,lambda *b:None)(csto)
         if event.type==pygame.MOUSEBUTTONDOWN and event.button==1:
             click=True
             mousepos=event.pos
     dic.buttonchangemap_dic.get(csto.stage,lambda *b:None)(csto,keys)
     if csto.rendermap:
         csto.player.mana=csto.player.maxmana
-        msto=Mapstore()
+        msto=info.Mapstore()
         csto.player.slashcooldown=0
         csto.mapcount+=1
         dic.gachamap_dic.get(csto.stage,lambda*b:None)(msto,csto)
@@ -55,36 +58,24 @@ while True:
         for creep in msto.creeps:
             dic.creepmove_dic.get(math.hypot(csto.player.x-creep.x,csto.player.y-creep.y)>creep.range
             ).get(math.hypot(csto.player.x-creep.x,csto.player.y-creep.y)>creep.view or creep.notry)(creep,msto,csto,dt)
-    dic.enemytakedame_dic.get(csto.stage).get(len(msto.slashes),lambda *b: None)(msto,csto)
+    dic.enemytakedame_dic.get(csto.stage,dic.enemytakedame_dic['none']).get(len(msto.slashes),lambda *b: None)(msto,csto)
     dic.changemap_dic.get(csto.stage,lambda *b: None)(msto,csto)
     if csto.stage=='boss':
         for boss in csto.bosses:
             boss.update()
             boss.cooldown+=dt
             dic.skillboss_dic.get(boss.cooldown>=1.8).get(boss.skillchoose, lambda *b: None)(boss,msto,csto)       
-                        
-                    
-                    
-                              
+                                        
     if csto.stage=='normal' or csto.stage=='boss':    
         dic.bullets_dic.get('bullet')(msto,csto,dt)
         dic.bullets_dic.get('smallbullet')(msto,csto,dt)
         dic.bullets_dic.get('slashbullet')(msto,csto,dt)
-             
                 
-                
+         
     
-        
-
-        
-            
-        
-                       
-                
     #draw on screen
     dic.render_dic.get(csto.stage, lambda *b:None)(msto,csto)
-    #dic.guide_dic.get(csto.stage,lambda *b:'none').get(csto.guiding,lambda *b:None)(msto,csto)
-    dic.typechat_dic.get(csto.stage,lambda *b:'none')(msto,csto,lstat,dt)
+    dic.typechat_dic.get(csto.stage,dic.typechat_dic['none'])(msto,csto,lstat,dt)
         
 
         
