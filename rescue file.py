@@ -380,7 +380,7 @@ class Bossattack:
         screen.blit(self.img,(self.x,self.y))
         self.rect=pygame.Rect(self.x,self.y,self.w,self.w*87/70) 
 
-stage='guide'
+stage='normal'
 #normal and boss
 rendermap=True
 firstdoor=[]  #for save the door for next map

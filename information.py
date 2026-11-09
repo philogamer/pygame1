@@ -1,6 +1,9 @@
 import pygame
 import random
 import math
+pygame.init()
+pygame.mixer.init()
+pygame.font.init()
 font=pygame.font.Font('assets/font.ttf',30)
 titlefont=pygame.font.Font('assets/endfont.ttf',100)
 codefont=pygame.font.Font('assets/endfont.ttf',50)
@@ -378,7 +381,7 @@ class Conststore:
         self.creepspeed=50
         self.bosscount=0
         self.mapcount=0
-        self.stage='normal'
+        self.stage='guide'
         self.player=Player()
         self.bosses=[]
         self.pluses=[]
@@ -388,10 +391,8 @@ class Conststore:
         self.changeline=1
         #guid
         self.guidenumber=1
-        self.font=pygame.font.Font('assets/font.ttf',30)
-        self.titlefont=pygame.font.Font('assets/endfont.ttf',100)
-        self.codefont=pygame.font.Font('assets/endfont.ttf',50)
-        self.chatfont=pygame.font.Font('assets/endfont.ttf',30)
+        self.guiding=1 #is guiding
+        self.endchat=0 #chat not end
 
 class Mapstore:
     def __init__(self):
@@ -454,24 +455,93 @@ chat_dic={
             'x': 50,
             'y': 250
                  },
-        'line4':'level up',
-        'line5':'survive as long as you can',
-        'line6':'press P to start>>'
+        'line4':{
+            'line':'level up',
+            'font': codefont,
+            'color':(111,13,181),
+            'x': 50,
+            'y': 350
+                 },
+        'line5':{
+            'line':'survive as long as you can',
+            'font': codefont,
+            'color':(111,13,181),
+            'x': 50,
+            'y': 450
+                 },
+        'line6':{
+            'line':'press P to start>>',
+            'font': codefont,
+            'color':(111,13,181),
+            'x': 50,
+            'y': 550
+                 },
     },
     'end':{
-        'line1':'You dead!',
-        'line2':lambda a:'level '+getinfo(a),
-        'line3':lambda a:'wave '+getinfo(a),
-        'line4':lambda a:'map '+getinfo(a),
-        'line5':lambda a:'enemy killed: '+getinfo(a),
-        'line6':lambda a:'boss killed: '+getinfo(a),
-        'line7':'press R to replay >>'        
+        'line1':{
+            'line':'You dead!',
+            'font': titlefont,
+            'color':(111,13,181),
+            'x': 30,
+            'y': 5
+                 },
+        'line2':{
+            'line':lambda a:'level '+getinfo(a),
+            'font': codefont,
+            'color':(111,13,181),
+            'x': 50,
+            'y': 150
+                 },
+        'line3':{
+            'line':lambda a:'wave '+getinfo(a),
+            'font': codefont,
+            'color':(111,13,181),
+            'x': 50,
+            'y': 250
+                 },
+        'line4':{
+            'line':lambda a:'map '+getinfo(a),
+            'font': codefont,
+            'color':(111,13,181),
+            'x': 50,
+            'y': 350
+                 },
+        'line5':{
+            'line':lambda a:'enemy killed: '+getinfo(a),
+            'font': codefont,
+            'color':(111,13,181),
+            'x': 50,
+            'y': 450
+                 },
+        'line6':{
+            'line':lambda a:'boss killed: '+getinfo(a),
+            'font': codefont,
+            'color':(111,13,181),
+            'x': 50,
+            'y': 550
+                 },
+        'line7':{
+            'line':'press R to replay >>',
+            'font': codefont,
+            'color':(111,13,181),
+            'x': 50,
+            'y': 650
+                 },                
     },
     'guide':{
-        'line1':'this is your character, you will',
-        'line2':'control him by WASD'        
+        'line1':{
+            'line':'this is your character, you will',
+            'font': chatfont,
+            'color':(111,13,181),
+            'x': 385,
+            'y': 235
+                 },
+        'line2':{
+            'line':'control him by WASD',
+            'font': chatfont,
+            'color':(111,13,181),
+            'x': 385,
+            'y': 275
+                 },        
     },
-    'none':{
-        'nothing':'none'
-    }
 }

@@ -63,12 +63,28 @@ buttonchangemap_dic={
     'end': lambda *a: fun.replay(*a)
 }
 render_dic={
+    'start': lambda *a: fun.renewscreen(*a),
     'normal': lambda *a: fun.drawgame1(*a),
     'boss': lambda *a: fun.drawgame1(*a),
-    'guide': lambda *a: fun.drawgame1(*a),
+    'end': lambda *a: fun.renewscreen(*a),
     
 }
 playerbuff_dic={
     'normal': lambda x: fun.buff(x),
     'boss': lambda x: fun.buff(x),
+}
+typechat_dic={
+    'start': lambda *a: fun.typingstart(*a,6),
+    'end': lambda *a: fun.typingstart(*a,7),
+    'guide': lambda *a: fun.guidetyping(*a,2),
+    'none': lambda *a: fun.returntype(*a)
+}
+guide_dic={
+    'guide':{
+        0: lambda *a: fun.drawgame1(*a),
+        1: lambda *a: fun.darken(*a)
+    },
+    'none':{
+        10: lambda: fun.donothing()
+    }
 }

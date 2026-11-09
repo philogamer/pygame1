@@ -773,17 +773,17 @@ def drawgame1(msto,csto):
         i.draw(screen)
     for i in msto.creeps:
         i.draw(screen)
-    write('HP',csto.font,(0,0,0),40,699)
-    write('MANA',csto.font,(0,0,0),20,744)
-    write('DAMAGE:'+str(csto.player.dmg),csto.font,(0,0,0),450,699)
-    write('MAX MANA:'+str(csto.player.maxmana),csto.font,(0,0,0),450,744)
-    write('MAX HP:'+str(csto.player.maxhp),csto.font,(0,0,0),700,699)
-    write('MOVE SPEED:'+str(csto.player.maxspeed),csto.font,(0,0,0),700,744)
-    write('MANA REGEN:'+str(csto.player.manaregen),csto.font,(0,0,0),950,699)
-    write('ATTACK SPEED:'+str(csto.player.attackspeed),csto.font,(0,0,0),950,744)
-    write('level',csto.font,(0,0,0),1410,30)
-    write(str(csto.player.level),csto.font,(0,0,0),1430,70)
-    write(str(csto.player.level+1),csto.font,(0,0,0),1430,630)
+    write('HP',font,(0,0,0),40,699)
+    write('MANA',font,(0,0,0),20,744)
+    write('DAMAGE:'+str(csto.player.dmg),font,(0,0,0),450,699)
+    write('MAX MANA:'+str(csto.player.maxmana),font,(0,0,0),450,744)
+    write('MAX HP:'+str(csto.player.maxhp),font,(0,0,0),700,699)
+    write('MOVE SPEED:'+str(csto.player.maxspeed),font,(0,0,0),700,744)
+    write('MANA REGEN:'+str(csto.player.manaregen),font,(0,0,0),950,699)
+    write('ATTACK SPEED:'+str(csto.player.attackspeed),font,(0,0,0),950,744)
+    write('level',font,(0,0,0),1410,30)
+    write(str(csto.player.level),font,(0,0,0),1430,70)
+    write(str(csto.player.level+1),font,(0,0,0),1430,630)
     for i in csto.bosses:
         i.draw(screen)
         if msto.bossattacks:
@@ -805,6 +805,8 @@ def drawgame1(msto,csto):
         i.draw(screen)
     for i in msto.goable:
         pygame.draw.rect(screen,(225,0,0),i.rect,1)
+def renewscreen(msto,csto):
+    screen.fill((0,0,0))
 def buff(csto):
     if csto.player.buffstat>0:
         if not csto.pluses:
@@ -840,8 +842,28 @@ def takeline(csto,number,lstat):
     lstat.color=chat_dic.get(csto.stage,lambda *b:'none').get('line'+str(number)).get('color')
     lstat.x=chat_dic.get(csto.stage,lambda *b:'none').get('line'+str(number)).get('x')
     lstat.y=chat_dic.get(csto.stage,lambda *b:'none').get('line'+str(number)).get('y')
+def takelinevariables(csto,number,lstat):
+    if number==1 or number==7:
+        lstat.line=chat_dic.get(csto.stage,lambda *b:'none').get('line'+str(number)).get('line')
+    elif number==2:
+        lstat.line=chat_dic.get(csto.stage,lambda *b:'none').get('line'+str(number)).get('line')(csto.player.level)
+    elif number==3:
+        lstat.line=chat_dic.get(csto.stage,lambda *b:'none').get('line'+str(number)).get('line')(csto.wave)
+    elif number==4:
+        lstat.line=chat_dic.get(csto.stage,lambda *b:'none').get('line'+str(number)).get('line')(csto.mapcount)
+    elif number==5:
+        lstat.line=chat_dic.get(csto.stage,lambda *b:'none').get('line'+str(number)).get('line')(csto.enemykilled)
+    elif number==6:
+        lstat.line=chat_dic.get(csto.stage,lambda *b:'none').get('line'+str(number)).get('line')(csto.bosscount)
+    lstat.font=chat_dic.get(csto.stage,lambda *b:'none').get('line'+str(number)).get('font')
+    lstat.color=chat_dic.get(csto.stage,lambda *b:'none').get('line'+str(number)).get('color')
+    lstat.x=chat_dic.get(csto.stage,lambda *b:'none').get('line'+str(number)).get('x')
+    lstat.y=chat_dic.get(csto.stage,lambda *b:'none').get('line'+str(number)).get('y')
 def smalltyping(csto,number,lstat):
-    takeline(csto,number,lstat)
+    if csto.stage=='end': 
+        takelinevariables(csto,number,lstat)
+    else:    
+        takeline(csto,number,lstat)
     if csto.writeduration<len(lstat.line) and csto.changeline==number:
         write(lstat.line[:csto.writeduration]+'_',lstat.font,lstat.color,lstat.x,lstat.y)
     elif csto.changeline>=number:
@@ -849,14 +871,38 @@ def smalltyping(csto,number,lstat):
         if csto.changeline==number:
             csto.changeline+=1
             csto.writeduration=0
-def typingstart(csto,lenofeachstage,dt):
-    if csto.changline>lenofeachstage: csto.startwrite+=dt
+def typingstart(msto,csto,lstat,dt,lenofeachstage):
+    if csto.changeline<=lenofeachstage: 
+        csto.startwrite+=dt
+        csto.endchat=0
+    else:
+        csto.endchat=1
     if csto.startwrite>=0.125:
         csto.startwrite=0
         csto.writeduration+=1
         for i in range(1,lenofeachstage+1):
-            smalltyping(csto,i)    
-    
-    
+            smalltyping(csto,i,lstat)
+def returntype(csto,lstat,dt):
+    csto.startwrite=0
+    csto.changeline=0
+def darken(msto,csto):
+    drawgame1(msto,csto)
+    pygame.draw.rect(screen,(0,0,0),pygame.Rect(420,280,560,140))
+    transparentscreen.fill((0,0,0,170))
+    if csto.endchat==1: 
+        if csto.guidenumber==1: pygame.draw.circle(transparentscreen,(225,225,225,0),(662,655),65)
+    screen.blit(transparentscreen)     
+def guidetyping(msto,csto,lstat,dt,lenofeachstage):    
+    if csto.changeline<=lenofeachstage: 
+        csto.startwrite+=dt
+        csto.endchat=0
+    else:
+        csto.endchat=1
+    if csto.startwrite>=0.125:
+        csto.startwrite=0
+        csto.writeduration+=1
+        darken(msto,csto)
+        for i in range(1,lenofeachstage+1):
+            smalltyping(csto,i,lstat)    
                 
                 
