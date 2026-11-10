@@ -8,7 +8,7 @@ font=pygame.font.Font('assets/font.ttf',30)
 titlefont=pygame.font.Font('assets/endfont.ttf',100)
 codefont=pygame.font.Font('assets/endfont.ttf',50)
 chatfont=pygame.font.Font('assets/endfont.ttf',30)
-smallfont=pygame.font.Font('assets/endfont.ttf',10)
+smallfont=pygame.font.Font('assets/endfont.ttf',15)
 class Map:
     def __init__(self,xy,type):
         self.position=xy
@@ -364,7 +364,7 @@ class Bossattack:
         self.img=pygame.image.load(self.img).convert_alpha()
         self.img=pygame.transform.scale(self.img,(width,width*87/70))
         self.dmg=dmg
-    def warn(self):
+    def warn(self,transparentscreen,screen):
         pygame.draw.rect(transparentscreen,(225,0,0,20),(self.x,self.y,self.w,self.w*87/70))
         screen.blit(transparentscreen,(0,0))
     def update(self,screen):
@@ -382,7 +382,7 @@ class Conststore:
         self.creepspeed=50
         self.bosscount=0
         self.mapcount=0
-        self.stage='guide'
+        self.stage='end'
         self.player=Player()
         self.bosses=[]
         self.pluses=[]
@@ -392,7 +392,7 @@ class Conststore:
         self.changeline=1
         #guid
         self.guidenumber=1
-        self.guiding=1 #is guiding
+        #self.guiding=1 #is guiding
         self.endchat=0 #chat not end
 
 class Mapstore:
@@ -548,20 +548,196 @@ chat_info={
         },
         2:{
             'line1':{
-                'line':'You can use left arrow and right',
+                'line':'This is your mana and your health',
                 'font': chatfont,
                 'color':(111,13,181),
                 'x': 385,
                 'y': 235
                     },
             'line2':{
-                'line':'arrow to attack',
+                'line':'point',
                 'font': chatfont,
                 'color':(111,13,181),
                 'x': 385,
                 'y': 275
                     },        
-        },     
+        },
+        3:{
+            'line1':{
+                'line':'left arrow and right arrow to attack',
+                'font': chatfont,
+                'color':(111,13,181),
+                'x': 385,
+                'y': 235
+                    },
+            'line2':{
+                'line':'each time cost an amount of mana',
+                'font': chatfont,
+                'color':(111,13,181),
+                'x': 385,
+                'y': 275
+                    },        
+        },
+        4:{
+            'line1':{
+                'line':'slower mana slower moving, moving',
+                'font': chatfont,
+                'color':(111,13,181),
+                'x': 385,
+                'y': 235
+                    },
+            'line2':{
+                'line':'make the mana regen more slowly',
+                'font': chatfont,
+                'color':(111,13,181),
+                'x': 385,
+                'y': 275
+                    },        
+        },
+        5:{
+            'line1':{
+                'line':'you can go to next map through path',
+                'font': chatfont,
+                'color':(111,13,181),
+                'x': 385,
+                'y': 235
+                    },
+            'line2':{
+                'line':'other than the one you entered',
+                'font': chatfont,
+                'color':(111,13,181),
+                'x': 385,
+                'y': 275
+                    },     
+        },
+        6:{
+            'line1':{
+                'line':'each time you get into a new map',
+                'font': chatfont,
+                'color':(111,13,181),
+                'x': 385,
+                'y': 235
+                    },
+            'line2':{
+                'line':'your player mana regen all',
+                'font': chatfont,
+                'color':(111,13,181),
+                'x': 385,
+                'y': 275
+                    },     
+        },
+        7:{
+            'line1':{
+                'line':'each group of enemy borned, call',
+                'font': chatfont,
+                'color':(111,13,181),
+                'x': 385,
+                'y': 235
+                    },
+            'line2':{
+                'line':'a wave',
+                'font': chatfont,
+                'color':(111,13,181),
+                'x': 385,
+                'y': 275
+                    },     
+        },
+        8:{
+            'line1':{
+                'line':'after 4 waves of normal enemy, you',
+                'font': chatfont,
+                'color':(111,13,181),
+                'x': 385,
+                'y': 235
+                    },
+            'line2':{
+                'line':'will meet a boss',
+                'font': chatfont,
+                'color':(111,13,181),
+                'x': 385,
+                'y': 275
+                    },     
+        },
+        9:{
+            'line1':{
+                'line':'this is your experience bar, present',
+                'font': chatfont,
+                'color':(111,13,181),
+                'x': 385,
+                'y': 235
+                    },
+            'line2':{
+                'line':'level and target level',
+                'font': chatfont,
+                'color':(111,13,181),
+                'x': 385,
+                'y': 275
+                    },     
+        },
+        10:{
+            'line1':{
+                'line':'kill enemy will give you experience',
+                'font': chatfont,
+                'color':(111,13,181),
+                'x': 385,
+                'y': 235
+                    },
+            'line2':{
+                'line':'point rely on which type of enemy',
+                'font': chatfont,
+                'color':(111,13,181),
+                'x': 385,
+                'y': 275
+                    },     
+        },
+        11:{
+            'line1':{
+                'line':'clear stage also give you a big',
+                'font': chatfont,
+                'color':(111,13,181),
+                'x': 385,
+                'y': 235
+                    },
+            'line2':{
+                'line':'amount of experience point',
+                'font': chatfont,
+                'color':(111,13,181),
+                'x': 385,
+                'y': 275
+                    },     
+        },
+        12:{
+            'line1':{
+                'line':'after each level up, you have 2',
+                'font': chatfont,
+                'color':(111,13,181),
+                'x': 385,
+                'y': 235
+                    },
+            'line2':{
+                'line':'points to upgrade your player stats',
+                'font': chatfont,
+                'color':(111,13,181),
+                'x': 385,
+                'y': 275
+                    },     
+        },
+        13:{
+            'line1':{
+                'line':'ready to start?, press T to play',
+                'font': chatfont,
+                'color':(111,13,181),
+                'x': 385,
+                'y': 235
+                    },
+            'line2':{
+                'line':'',
+                'font': chatfont,
+                'color':(111,13,181),
+                'x': 385,
+                'y': 275
+                    },     
+        },
     },
 }
 
@@ -572,14 +748,14 @@ stayline_info={
                 'font': smallfont,
                 'color':(227,206,14),
                 'x': 385,
-                'y': 375
+                'y': 460
                      },
             'line2':{
-                'line':'C to continue',
+                'line':'T to test',
                 'font': smallfont,
                 'color':(227,206,14),
-                'x': 585,
-                'y': 375
+                'x': 925,
+                'y': 460
                      },        
         },
     'test':{
@@ -588,14 +764,14 @@ stayline_info={
                 'font': smallfont,
                 'color':(227,206,14),
                 'x': 385,
-                'y': 375
+                'y': 460
                      },
             'line2':{
-                'line':'C to continue',
+                'line':'G to next guide',
                 'font': smallfont,
                 'color':(227,206,14),
-                'x': 585,
-                'y': 375
+                'x': 875,
+                'y': 460
                      },        
         },
 }

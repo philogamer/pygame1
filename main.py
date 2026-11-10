@@ -14,7 +14,9 @@ clock=pygame.time.Clock()
 
 csto=info.Conststore()
 lstat=info.Linestat()
-
+click=False
+mousepos=(0,0)
+msto=info.Mapstore()
 
 #Game loop
 while True:
@@ -25,12 +27,14 @@ while True:
             quit(0)
         keys=pygame.key.get_pressed()
         #change in guide:
-        if keys[pygame.K_c]:
-            dic.guideortest_dic.get(csto.stage,lambda *b:None)(csto)
+        if keys[pygame.K_t]:
+            dic.guidetotest_dic.get(csto.stage,lambda *b:None)(csto)
+        if keys[pygame.K_g]:
+            dic.testtoguide_dic.get(csto.stage,lambda *b:None)(csto)
         if event.type==pygame.MOUSEBUTTONDOWN and event.button==1:
             click=True
             mousepos=event.pos
-    dic.buttonchangemap_dic.get(csto.stage,lambda *b:None)(csto,keys)
+    csto=dic.buttonchangemap_dic.get(csto.stage,lambda *b:csto)(csto,keys,msto,lstat,dt)
     if csto.rendermap:
         csto.player.mana=csto.player.maxmana
         msto=info.Mapstore()
@@ -47,7 +51,7 @@ while True:
              
         #main character logic   
     dic.playerbehaviour_dic.get(csto.stage,lambda *b: None)(msto,csto,dt,keys)
-    dic.playerbuff_dic.get(csto.stage,lambda *b: None)(csto)
+    dic.playerbuff_dic.get(csto.stage,lambda *b: None)(csto,click,mousepos)
     if csto.player.hp<=0:
         csto.stage='end'                    
                         
@@ -64,7 +68,7 @@ while True:
         for boss in csto.bosses:
             boss.update()
             boss.cooldown+=dt
-            dic.skillboss_dic.get(boss.cooldown>=1.8).get(boss.skillchoose, lambda *b: None)(boss,msto,csto)       
+            dic.skillboss_dic.get(boss.cooldown>=1.8).get(boss.skillchoose, lambda *b: None)(boss,msto,csto,dt)       
                                         
     if csto.stage=='normal' or csto.stage=='boss':    
         dic.bullets_dic.get('bullet')(msto,csto,dt)

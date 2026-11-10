@@ -7,6 +7,7 @@ gachamap_dic={
 playerbehaviour_dic={
     'normal': lambda *a: fun.playerbehave(*a),
     'boss': lambda *a: fun.playerbehave(*a),
+    'test': lambda *a: fun.playerbehave(*a),
 }
 creepmove_dic={
     True:{
@@ -33,7 +34,8 @@ creepspawn_dic={
     0: lambda *a: fun.creepspawn(*a)
 }
 changemap_dic={
-    'normal': lambda *a: fun.changemap(*a) 
+    'normal': lambda *a: fun.changemap(*a),
+    'test': lambda *a: fun.changetestmap(*a) 
 }
 skillboss_dic={
     True:{
@@ -54,28 +56,32 @@ bullets_dic={
 }
 buttonchangemap_dic={
     'start': lambda *a: fun.startgame(*a),
-    'end': lambda *a: fun.replay(*a)
+    'end': lambda *a: fun.replay(*a),
+    'guide': lambda *a: fun.skip(*a),
+    'test': lambda *a: fun.skip(*a),
 }
 render_dic={
-    'start': lambda *a: fun.renewscreen(*a),
     'normal': lambda *a: fun.drawgame1(*a),
     'boss': lambda *a: fun.drawgame1(*a),
-    'end': lambda *a: fun.renewscreen(*a),
     'test': lambda *a: fun.drawgame1(*a)
     
 }
 playerbuff_dic={
-    'normal': lambda x: fun.buff(x),
-    'boss': lambda x: fun.buff(x),
+    'normal': lambda *a: fun.buff(*a),
+    'boss': lambda *a: fun.buff(*a),
+    'guide': lambda *a: fun.buff(*a),
+    'test': lambda *a: fun.buff(*a),
 }
 typechat_dic={
     'start': lambda *a: fun.typingstart(*a,6),
     'end': lambda *a: fun.typingstart(*a,7),
-    'guide': lambda *a: (fun.guidetyping(*a,2), fun.stayline(*a)),
+    'guide': lambda *a: fun.guidetyping(*a,2),
     'test': lambda *a: (fun.returntype(*a), fun.stayline(*a)),
     'none': lambda *a: fun.returntype(*a)
 }
-guideortest_dic={
-    'guide':lambda a: fun.guidetotest(a),
+guidetotest_dic={
+    'guide':lambda a: fun.guidetotest(a)
+}
+testtoguide_dic={
     'test':lambda a: fun.testtoguide(a)
 }
