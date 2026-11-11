@@ -525,7 +525,7 @@ def creeprandom(creep,msto,csto,dt,chase):
                 creep.checkwall()
                 creep.notry=False
                 break
-    if creep.x<=0 or creep.x>=(1400-creep.w) or creep.y<=(70-creep.h) or creep.y>=700-creep.h:
+    if creep.x<=0+5 or creep.x>=(1400-creep.w)-5 or creep.y<=(70-creep.h)+5 or creep.y>=700-creep.h-5:
         creep.touchwall=True
         creep.notry=False
     creep.move(dt)
@@ -587,9 +587,9 @@ def creepmove(creep,msto,csto,dt,chase):
                 creep.checkwall()
                 creep.testx=True
                 break
-        if creep.x<=0 or creep.x>=(1400-creep.w):
+        if creep.x<=0+5 or creep.x>=(1400-creep.w)-5:
             creep.touchwallx=True
-        if creep.y<=(70-creep.h) or creep.y>=700-creep.h:
+        if creep.y<=(70-creep.h)+5 or creep.y>=700-creep.h-5:
             creep.touchwally=True
     elif creep.testy:
         if creep.tested=='none':
@@ -620,9 +620,9 @@ def creepmove(creep,msto,csto,dt,chase):
                 creep.touchwally=True
                 creep.checkwall()
                 break
-        if creep.x<=0 or creep.x>=(1400-creep.w):
+        if creep.x<=0+5 or creep.x>=(1400-creep.w)-5:
             creep.touchwallx=True
-        if creep.y<=(70-creep.h) or creep.y>=700-creep.h:
+        if creep.y<=(70-creep.h)+5 or creep.y>=700-creep.h-5:
             creep.touchwally=True
     else:
         creep.tested='none'
@@ -639,7 +639,7 @@ def creepmove(creep,msto,csto,dt,chase):
         for i in msto.obstacle:
             if i.rect.colliderect(creep.wallrect):
                 creep.targetx=creep.x
-                creep.touchwallx=True     #hết đi được x
+                creep.touchwallx=True     
                 creep.checkwall()
                 break
         if csto.player.y-creep.y>0:
@@ -654,9 +654,9 @@ def creepmove(creep,msto,csto,dt,chase):
                 creep.touchwally=True
                 creep.checkwall()
                 break
-        if creep.x<=(70-creep.h) or creep.x>=(1400-creep.w):
+        if creep.x<=0+5 or creep.x>=(1400-creep.w)-5:
             creep.touchwallx=True
-        if creep.y<=(70-creep.h) or creep.y>=700-creep.h:
+        if creep.y<=(70-creep.h)+5 or creep.y>=700-creep.h-5:
             creep.touchwally=True
         if creep.touchwally and int(creep.x)==int(csto.player.x) and not creep.touchwallx:
             creep.testx=True
