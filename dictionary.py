@@ -15,8 +15,8 @@ creepmove_dic={
         False: lambda *a: fun.creepmove(*a,1)
     },
     False:{
-        True: lambda *a: fun.creepmoveandshoot(*a,-1),
-        False: lambda *a: fun.creepmoveandshoot(*a,-1) 
+        True: lambda *a: (fun.creepmove(*a,-1),fun.creepshoot(*a)),
+        False: lambda *a: (fun.creepmove(*a,-1),fun.creepshoot(*a)) 
     }
 }
 enemytakedame_dic={
@@ -84,4 +84,17 @@ guidetotest_dic={
 }
 testtoguide_dic={
     'test':lambda a: fun.testtoguide(a)
+}
+clearslimepath_dic={
+    'normal': lambda *a:fun.slimepathclear(*a)
+}
+slimemove_dic={
+    True:{
+        True: lambda *a: fun.creeprandom(*a,0),
+        False: lambda *a: fun.creepmove(*a,1)
+    },
+    False:{
+        True: lambda *a: (fun.creepmove(*a,-1),fun.slimepath(*a)),
+        False: lambda *a: (fun.creepmove(*a,-1),fun.slimepath(*a))
+    }
 }

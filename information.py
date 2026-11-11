@@ -269,6 +269,20 @@ class Smallbullet:
     def update(self):
         self.rect=pygame.Rect(self.x,self.y,20,20)
         self.wallrect=pygame.Rect(self.x,self.y-18,20,20+18)   
+class Slimepath:
+    def __init__(self,x,y):
+        self.x=x
+        self.y=y
+        self.h=14*2
+        self.w=19*2
+        self.img='assets/slimepath.png'
+        self.img=pygame.image.load(self.img).convert_alpha()
+        self.img=pygame.transform.scale(self.img,(self.w,self.h))
+        self.rect=pygame.Rect(self.x,self.y,self.w,self.h)
+        self.duration=0
+    def draw(self,screen):
+        screen.blit(self.img,(self.x,self.y))
+        
 class Slash:
     def __init__(self,x,y,direction,dmg):
         self.y=y
@@ -382,7 +396,7 @@ class Conststore:
         self.creepspeed=50
         self.bosscount=0
         self.mapcount=0
-        self.stage='end'
+        self.stage='normal'
         self.player=Player()
         self.bosses=[]
         self.pluses=[]
@@ -414,8 +428,10 @@ class Mapstore:
         self.insidef=[]
         self.wall=[]
         self.creeps=[]
+        self.slimes=[]
         self.bullets=[]
         self.smallbullets=[]
+        self.slimepaths=[]
         self.slashes=[]
         self.mapstay=0
         self.bossattacks=[]

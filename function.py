@@ -387,7 +387,7 @@ def render3(msto,csto):
 
 def playerbehave(msto,csto,dt,keys):
     csto.creepspeed=50*(1+0.01*csto.wave)
-    csto.player.speed=csto.creepspeed-10+(csto.player.maxspeed-csto.creepspeed)*(csto.player.mana/csto.player.maxmana)
+    csto.player.speed=csto.creepspeed-10+(csto.player.maxspeed-csto.creepspeed)*(csto.player.mana/(csto.player.maxmana))
     csto.player.targetx=csto.player.x
     csto.player.targety=csto.player.y
     if keys[pygame.K_a]:
@@ -423,7 +423,7 @@ def playerbehave(msto,csto,dt,keys):
         csto.player.mana-=6
         msto.slashes.append(Slash(csto.player.x,csto.player.y-(107-70),'left',csto.player.dmg))
         csto.player.slashcooldown=1-csto.player.attackspeed
-        for creep in msto.creeps:
+        for creep in msto.creeps+msto.slimes:
             creep.takedame=True
         if csto.bosses:
             for boss in csto.bosses:
@@ -433,7 +433,7 @@ def playerbehave(msto,csto,dt,keys):
         csto.player.mana-=6
         msto.slashes.append(Slash(csto.player.x,csto.player.y-(107-70),'right',csto.player.dmg))
         csto.player.slashcooldown=1-csto.player.attackspeed
-        for creep in msto.creeps:
+        for creep in msto.creeps+msto.slimes:
             creep.takedame=True
         if csto.bosses:
             for boss in csto.bosses:
@@ -638,14 +638,13 @@ def creepmove(creep,msto,csto,dt,chase):
             creep.randomy=1 if csto.player.y-creep.y>=0 else -1
     creep.move(dt)
     creep.update()            
-def creepshoot(creep,msto,csto,dt,chase):
+def slimepath(creep,msto,csto,dt):
+    msto.slimepaths.append(Slimepath(creep.x,creep.y))
+def creepshoot(creep,msto,csto,dt):
     creep.shoot+=dt
     if creep.shoot>=2.5:
         msto.bullets.append(Bullet(creep.x,creep.y,csto.player.x,csto.player.y,creep.dmg))
         creep.shoot=0
-def creepmoveandshoot(creep,msto,csto,dt,chase):
-    creepmove(creep,msto,csto,dt,chase)
-    creepshoot(creep,msto,csto,dt,chase)
 def creepspawn(msto,csto):
     csto.wave+=1
     if csto.wave%5==0:
@@ -655,15 +654,19 @@ def creepspawn(msto,csto):
         creepsquare=random.sample(msto.insidef,int(len(msto.insidef)/12*(1+0.5*msto.mapstay)))
         msto.mapstay+=1
         for i in creepsquare:
-            msto.creeps.append(Creep(i,random.choice(['slime','normal']),csto.wave))
+            if i%2==0:
+                msto.creeps.append(Creep(i,'normal',csto.wave))
+            else:
+                msto.slimes.append(Creep(i,'slime',csto.wave))
         msto.creeps.append(Creep(random.choice(msto.insidef),'elite',csto.wave))
 def creepgetdame(msto,csto):
-    for creep in msto.creeps:
+    for creep in msto.creeps + msto.slimes:
         if creep.rect.colliderect(msto.slashes[0].rect) and creep.takedame:
             creep.hp-=msto.slashes[0].dmg
             creep.takedame=False
         if creep.hp<=0:
-            msto.creeps.remove(creep)
+            if creep in msto.creeps: msto.creeps.remove(creep)
+            if creep in msto.slimes: msto.slimes.remove(creep)
             csto.enemykilled+=1
             if creep.type=='normal':
                 csto.player.exp+=12*(1+0.02*csto.wave)
@@ -673,6 +676,12 @@ def creepgetdame(msto,csto):
                 csto.player.exp+=30*(1+0.02*csto.wave)
             if len(msto.creeps)==0:
                 csto.player.exp+=30*(1+0.02*csto.wave)
+
+def slimepathclear(msto,dt):
+    for block in msto.slimepaths:
+        block.duration+=dt
+        if block.duration>=4.5:
+            msto.slimepaths.remove(block)
 
 def bossgetdame(msto,csto):
     if csto.bosses:
@@ -796,7 +805,6 @@ def startgame(csto,keys,msto,lstat,dt):
 def replay(csto,keys,msto,lstat,dt):
     if keys[pygame.K_r] and csto.changeline>7:
         csto=Conststore()
-        csto.rendermap=True
         csto.stage='guide'
     return csto
 def skip(csto,keys,msto,lstat,dt):
@@ -815,7 +823,11 @@ def drawgame1(msto,csto):
         i.draw(screen)
     for i in msto.obstacle:
         i.draw(screen)
+    for i in msto.slimepaths:
+        i.draw(screen)
     for i in msto.creeps:
+        i.draw(screen)
+    for i in msto.slimes:
         i.draw(screen)
     write('HP',font,(0,0,0),40,699)
     write('MANA',font,(0,0,0),20,744)
@@ -842,7 +854,6 @@ def drawgame1(msto,csto):
         i.draw(screen)
     for i in msto.smallbullets:
         i.draw(screen)
-        
     for i in msto.slashes:
         i.draw(screen)
     for i in csto.pluses:
