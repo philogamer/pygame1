@@ -15,9 +15,12 @@ creepmove_dic={
         False: lambda *a: fun.creepmove(*a,1)
     },
     False:{
-        True: lambda *a: (fun.creepmove(*a,-1),fun.creepshoot(*a)),
-        False: lambda *a: (fun.creepmove(*a,-1),fun.creepshoot(*a)) 
+        True: lambda *a: fun.creepmove(*a,-1),
+        False: lambda *a: fun.creepmove(*a,-1)
     }
+}
+creepshoot_dic={
+    True:lambda*a:fun.creepshoot(*a)
 }
 enemytakedame_dic={
     'normal': {

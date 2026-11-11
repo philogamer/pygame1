@@ -88,6 +88,7 @@ class Player:
         self.buffstat=0
         self.takedame=True
         self.slashcooldown=0
+        self.sloweffect=0
     def put(self,xy):
         self.y=xy%10*70
         self.x=(xy-xy%10)/10*70    
@@ -150,7 +151,7 @@ class Creep:
             self.w=24*2
             self.hp=70*(1+0.08*buff)
             self.maxhp=70*(1+0.08*buff)
-            self.range=130
+            self.range=125
             self.view=400
             self.dmg=10*(1+0.05*buff)
         elif self.type=='elite':
@@ -159,7 +160,7 @@ class Creep:
             self.w=24*2
             self.hp=150*(1+0.06*buff)
             self.maxhp=150*(1+0.06*buff)
-            self.range=130
+            self.range=125
             self.view=400
             self.dmg=15*(1+0.05*buff)
         elif self.type=='slime':
@@ -270,7 +271,7 @@ class Smallbullet:
         self.rect=pygame.Rect(self.x,self.y,20,20)
         self.wallrect=pygame.Rect(self.x,self.y-18,20,20+18)   
 class Slimepath:
-    def __init__(self,x,y):
+    def __init__(self,x,y,type):
         self.x=x
         self.y=y
         self.h=14*2
@@ -282,7 +283,6 @@ class Slimepath:
         self.duration=0
     def draw(self,screen):
         screen.blit(self.img,(self.x,self.y))
-        
 class Slash:
     def __init__(self,x,y,direction,dmg):
         self.y=y

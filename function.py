@@ -388,6 +388,12 @@ def render3(msto,csto):
 def playerbehave(msto,csto,dt,keys):
     csto.creepspeed=50*(1+0.01*csto.wave)
     csto.player.speed=csto.creepspeed-10+(csto.player.maxspeed-csto.creepspeed)*(csto.player.mana/(csto.player.maxmana))
+    csto.player.sloweffect=0
+    for i in msto.slimepaths:
+        if i.rect.colliderect(csto.player.rect):
+            csto.player.sloweffect=1
+            break
+    csto.player.speed-=csto.player.sloweffect*0.3*csto.player.speed
     csto.player.targetx=csto.player.x
     csto.player.targety=csto.player.y
     if keys[pygame.K_a]:
@@ -639,7 +645,7 @@ def creepmove(creep,msto,csto,dt,chase):
     creep.move(dt)
     creep.update()            
 def slimepath(creep,msto,csto,dt):
-    msto.slimepaths.append(Slimepath(creep.x,creep.y))
+    msto.slimepaths.append(Slimepath(creep.x,creep.y,1))
 def creepshoot(creep,msto,csto,dt):
     creep.shoot+=dt
     if creep.shoot>=2.5:
