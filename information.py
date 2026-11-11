@@ -145,6 +145,7 @@ class Creep:
         self.testx=False
         self.testy=False
         self.takedame=False
+        self.tested='none'
         if self.type=='normal':
             self.img='assets/ghost.png'
             self.h=30*2

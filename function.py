@@ -498,6 +498,7 @@ def buff(csto,click,mousepos):
         csto.pluses.clear()
 
 def creeprandom(creep,msto,csto,dt,chase):
+    creep.tested='none'
     creep.targetx=creep.x
     creep.targety=creep.y
     if creep.touchwall:
@@ -531,17 +532,35 @@ def creeprandom(creep,msto,csto,dt,chase):
     creep.update()
 def creepmove(creep,msto,csto,dt,chase):
     if creep.touchwally and creep.touchwallx:
-        if creep.testx:
-            creep.randomx*=(-1)
-            creep.touchwallx=False
-        elif creep.testy:
-            creep.randomy*=(-1)
-            creep.touchwally=False                        
+        if creep.testx and not creep.tested=='x2':
+            if creep.tested=='none':
+                creep.tested='x1'
+                creep.randomx*=(-1)
+                creep.touchwallx=False                
+            elif creep.tested=='x1':
+                creep.tested='x2'            
+        elif creep.testy and not creep.tested=='y2':
+            if creep.tested=='none':
+                creep.tested='y1'
+                creep.randomy*=(-1)
+                creep.touchwally=False
+            elif creep.tested=='y1':
+                creep.tested='y2'                        
         else:
-            creep.notry=True
-            creep.touchwallx=False
-            creep.touchwally=False                                    
+            if chase==1:
+                creep.notry=True
+                creep.touchwallx=False
+                creep.touchwally=False
+            else:
+                if creep.tested=='none':
+                    creep.testy=True
+                elif creep.tested=='x2':
+                    creep.testy=True
+                elif creep.tested=='y2':
+                    creep.testx=True                               
     elif creep.testx:
+        if creep.tested=='none':
+            creep.tested='x1'
         creep.targetx=creep.x
         creep.targety=creep.y
         creep.testx=False
@@ -573,6 +592,8 @@ def creepmove(creep,msto,csto,dt,chase):
         if creep.y<=(70-creep.h) or creep.y>=700-creep.h:
             creep.touchwally=True
     elif creep.testy:
+        if creep.tested=='none':
+            creep.tested='x1'
         creep.targetx=creep.x
         creep.targety=creep.y                    
         creep.testy=False
@@ -604,6 +625,7 @@ def creepmove(creep,msto,csto,dt,chase):
         if creep.y<=(70-creep.h) or creep.y>=700-creep.h:
             creep.touchwally=True
     else:
+        creep.tested='none'
         creep.targetx=creep.x
         creep.targety=creep.y                    
         creep.touchwallx=False
@@ -644,8 +666,6 @@ def creepmove(creep,msto,csto,dt,chase):
             creep.randomy=1 if csto.player.y-creep.y>=0 else -1
     creep.move(dt)
     creep.update()            
-def slimepath(creep,msto,csto,dt):
-    msto.slimepaths.append(Slimepath(creep.x,creep.y,1))
 def creepshoot(creep,msto,csto,dt):
     creep.shoot+=dt
     if creep.shoot>=2.5:
@@ -683,6 +703,9 @@ def creepgetdame(msto,csto):
             if len(msto.creeps)==0:
                 csto.player.exp+=30*(1+0.02*csto.wave)
 
+
+def slimepath(creep,msto,csto,dt):
+    msto.slimepaths.append(Slimepath(creep.x,creep.y,1))
 def slimepathclear(msto,dt):
     for block in msto.slimepaths:
         block.duration+=dt
