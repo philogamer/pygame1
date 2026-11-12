@@ -393,7 +393,7 @@ def playerbehave(msto,csto,dt,keys):
         if i.rect.colliderect(csto.player.rect):
             csto.player.sloweffect=1
             break
-    csto.player.speed-=csto.player.sloweffect*0.3*csto.player.speed
+    csto.player.speed-=csto.player.sloweffect*0.7*csto.player.speed
     csto.player.targetx=csto.player.x
     csto.player.targety=csto.player.y
     if keys[pygame.K_a]:
@@ -530,6 +530,8 @@ def creeprandom(creep,msto,csto,dt,chase):
         creep.notry=False
     creep.move(dt)
     creep.update()
+    creep.faketargetx=creep.x
+    creep.faketargety=creep.y
 def creepmove(creep,msto,csto,dt,chase):
     if creep.touchwally and creep.touchwallx:
         if creep.testx and not creep.tested=='x2':
@@ -703,7 +705,166 @@ def creepgetdame(msto,csto):
             if len(msto.creeps)==0:
                 csto.player.exp+=30*(1+0.02*csto.wave)
 
-
+def slimemove(creep,msto,csto,dt,chase):
+    if (int(creep.faketargetx)==int(creep.x) and int(creep.faketargety)==int(creep.y)) or creep.notry:
+        testlist=list(range(-(creep.range-10),creep.range-10))
+        while True:
+            a=random.choice(testlist)
+            creep.touchwallx=False
+            creep.targetx=csto.player.x+a
+            creep.checkwall()
+            for i in msto.obstacle:
+                if i.rect.colliderect(creep.wallrect):
+                    if a in testlist: testlist.remove(a)
+                    creep.touchwallx=True
+                    break
+            if not creep.touchwallx or not testlist: break
+        testlist=list(range(-(creep.range-10),creep.range-10))
+        while True:
+            a=random.choice(testlist)
+            creep.touchwally=False
+            creep.targety=csto.player.y+a
+            creep.checkwall()
+            for i in msto.obstacle:
+                if i.rect.colliderect(creep.wallrect):
+                    if a in testlist: testlist.remove(a)
+                    creep.touchwally=True
+                    break
+            if not creep.touchwally or not testlist: break
+        creep.faketargetx=creep.targetx
+        creep.faketargety=creep.targety
+        creep.tested='none'
+        creep.notry=False
+    else:
+        if creep.touchwally and creep.touchwallx:
+            if creep.testx and not creep.tested=='x2':
+                if creep.tested=='none':
+                    creep.tested='x1'
+                    creep.randomx*=(-1)
+                    creep.touchwallx=False                
+                elif creep.tested=='x1':
+                    creep.tested='x2'
+                    creep.notry=True            
+            elif creep.testy and not creep.tested=='y2':
+                if creep.tested=='none':
+                    creep.tested='y1'
+                    creep.randomy*=(-1)
+                    creep.touchwally=False
+                elif creep.tested=='y1':
+                    creep.tested='y2'
+                    creep.notry=True                        
+            else:
+                    creep.notry=True
+                    creep.touchwallx=False
+                    creep.touchwally=False                        
+        elif creep.testx:
+            if creep.tested=='none':
+                creep.tested='x1'
+            creep.targetx=creep.x
+            creep.targety=creep.y
+            creep.testx=False
+            creep.touchwallx=False
+            creep.touchwally=False
+            creep.targetx=creep.x+creep.randomx*chase
+            creep.checkwall()
+            for i in msto.obstacle:
+                if i.rect.colliderect(creep.wallrect):
+                    creep.targetx=creep.x
+                    creep.touchwallx=True     
+                    creep.checkwall()
+                    break
+            if creep.faketargety-creep.y>0:
+                creep.randomy=1
+            elif creep.faketargety-creep.y<0:
+                creep.randomy=-1
+            creep.targety=creep.y+creep.randomy*chase
+            creep.checkwall()
+            for i in msto.obstacle:
+                if i.rect.colliderect(creep.wallrect):
+                    creep.targety=creep.y
+                    creep.touchwally=True
+                    creep.checkwall()
+                    creep.testx=True
+                    break
+            if creep.x<=0+5 or creep.x>=(1400-creep.w)-5:
+                creep.touchwallx=True
+            if creep.y<=(70-creep.h)+5 or creep.y>=700-creep.h-5:
+                creep.touchwally=True
+        elif creep.testy:
+            if creep.tested=='none':
+                creep.tested='x1'
+            creep.targetx=creep.x
+            creep.targety=creep.y                    
+            creep.testy=False
+            creep.touchwallx=False
+            creep.touchwally=False
+            if creep.faketargetx-creep.x>0:
+                creep.randomx=1
+            elif creep.faketargetx-creep.x<0:
+                creep.randomx=-1                    
+            creep.targetx=creep.x+creep.randomx*chase
+            creep.checkwall()
+            for i in msto.obstacle:
+                if i.rect.colliderect(creep.wallrect):
+                    creep.targetx=creep.x
+                    creep.touchwallx=True     
+                    creep.checkwall()
+                    creep.testy=True
+                    break
+            creep.targety=creep.y+creep.randomy*chase
+            creep.checkwall()
+            for i in msto.obstacle:
+                if i.rect.colliderect(creep.wallrect):
+                    creep.targety=creep.y
+                    creep.touchwally=True
+                    creep.checkwall()
+                    break
+            if creep.x<=0+5 or creep.x>=(1400-creep.w)-5:
+                creep.touchwallx=True
+            if creep.y<=(70-creep.h)+5 or creep.y>=700-creep.h-5:
+                creep.touchwally=True
+        else:
+            creep.tested='none'
+            creep.targetx=creep.x
+            creep.targety=creep.y                    
+            creep.touchwallx=False
+            creep.touchwally=False
+            if creep.faketargetx-creep.x>0:
+                creep.randomx=1
+            elif creep.faketargetx-creep.x<0:
+                creep.randomx=-1
+            creep.targetx=creep.x+creep.randomx*chase
+            creep.checkwall()
+            for i in msto.obstacle:
+                if i.rect.colliderect(creep.wallrect):
+                    creep.targetx=creep.x
+                    creep.touchwallx=True     
+                    creep.checkwall()
+                    break
+            if creep.faketargety-creep.y>0:
+                creep.randomy=1
+            elif creep.faketargety-creep.y<0:
+                creep.randomy=-1
+            creep.targety=creep.y+creep.randomy*chase
+            creep.checkwall()
+            for i in msto.obstacle:
+                if i.rect.colliderect(creep.wallrect):
+                    creep.targety=creep.y
+                    creep.touchwally=True
+                    creep.checkwall()
+                    break
+            if creep.x<=0+5 or creep.x>=(1400-creep.w)-5:
+                creep.touchwallx=True
+            if creep.y<=(70-creep.h)+5 or creep.y>=700-creep.h-5:
+                creep.touchwally=True
+            if creep.touchwally and int(creep.x)==int(csto.player.x) and not creep.touchwallx:
+                creep.testx=True
+                creep.randomx=1 if csto.player.x-creep.x>=0 else -1
+            if creep.touchwallx and int(creep.y)==int(csto.player.y) and not creep.touchwally:
+                creep.testy=True
+                creep.randomy=1 if csto.player.y-creep.y>=0 else -1
+    creep.move(dt)
+    creep.update()   
 def slimepath(creep,msto,csto,dt):
     msto.slimepaths.append(Slimepath(creep.x,creep.y,1))
 def slimepathclear(msto,dt):

@@ -170,10 +170,12 @@ class Creep:
             self.w=19*2
             self.hp=50*(1+0.07*buff)
             self.maxhp=50*(1+0.07*buff)
-            self.range=100
+            self.range=130
             self.view=400
             self.dmg=5*(1+0.05*buff)
         
+        self.faketargetx=self.x
+        self.faketargety=self.y
         self.img=pygame.image.load(self.img).convert_alpha()
         self.img=pygame.transform.scale(self.img,(self.w,self.h))
         self.wallrect=pygame.Rect(self.targetx,self.targety+(self.h-70),self.w,70)

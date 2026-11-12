@@ -65,8 +65,9 @@ while True:
             dic.creepshoot_dic.get(math.hypot(csto.player.x-creep.x,csto.player.y-creep.y)<=(creep.range+5),lambda *b: None
             )(creep,msto,csto,dt)
         for creep in msto.slimes:
-            dic.slimemove_dic.get(math.hypot(csto.player.x-creep.x,csto.player.y-creep.y)>creep.range
-            ).get(math.hypot(csto.player.x-creep.x,csto.player.y-creep.y)>creep.view or creep.notry)(creep,msto,csto,dt)            
+            dic.slimemove_dic.get(math.hypot(csto.player.x-creep.x,csto.player.y-creep.y)>creep.view)(creep,msto,csto,dt)            
+            dic.slimepath_dic.get(math.hypot(csto.player.x-creep.x,csto.player.y-creep.y)<=(creep.range+5),lambda *b: None
+            )(creep,msto,csto,dt)  
     dic.enemytakedame_dic.get(csto.stage,dic.enemytakedame_dic['none']).get(len(msto.slashes),lambda *b: None)(msto,csto)
     dic.clearslimepath_dic.get(csto.stage,lambda *b: None)(msto,dt)
     dic.changemap_dic.get(csto.stage,lambda *b: None)(msto,csto)

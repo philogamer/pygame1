@@ -92,12 +92,9 @@ clearslimepath_dic={
     'normal': lambda *a:fun.slimepathclear(*a)
 }
 slimemove_dic={
-    True:{
-        True: lambda *a: fun.creeprandom(*a,0),
-        False: lambda *a: fun.creepmove(*a,1)
-    },
-    False:{
-        True: lambda *a: (fun.creepmove(*a,-1),fun.slimepath(*a)),
-        False: lambda *a: (fun.creepmove(*a,-1),fun.slimepath(*a))
-    }
+    True: lambda *a: fun.creeprandom(*a,0),
+    False: lambda *a: fun.slimemove(*a,1)
+}
+slimepath_dic={
+    True: lambda *a:fun.slimepath(*a)
 }
