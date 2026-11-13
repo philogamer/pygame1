@@ -326,6 +326,7 @@ def render1(msto,csto):
         for i in msto.st:
             msto.locate.remove(i)
             msto.obstacle.append(Obstacle(i,'st'))
+    sideblock(msto)
 def render2(msto,csto):
     csto.bosses.append(Boss(csto.wave))
     for i in range(1,199):
@@ -344,47 +345,54 @@ def render2(msto,csto):
     msto.obstacle.append(Obstacle(9,'v'))
     msto.obstacle.append(Obstacle(199,'v'))
     csto.player.put(12)
-    manaregeneffect(msto,csto)          
+    manaregeneffect(msto,csto)
+    sideblock(msto)          
 def render3(msto,csto):
-        csto.player.put(99)
-        manaregeneffect(msto,csto)
-        for i in range(1,199):
-            if i%10==1 and i!=91 and i!=101:
-                msto.wall.append(Map(i,'w'))
-            else:
-                msto.map.append(Map(i,'f'))
-        for i in range(1,9):
-            msto.obstacle.append(Obstacle(i,'sr'))
-        for i in range(191,199):
-            msto.obstacle.append(Obstacle(i,'sl'))
-        for i in range(19,199,10):
-            if i!=99 and i!=109 and i!=119 and i!=89:
-                msto.obstacle.append(Obstacle(i,'st'))
-        for i in range(0,200,10):
-            if i!=90 and i!=100 and i!=80 and i!=110:
-                msto.obstacle.append(Obstacle(i,'v'))
-        msto.obstacle.append(Obstacle(9,'v'))
-        msto.obstacle.append(Obstacle(199,'v'))
-        msto.obstacle.append(Obstacle(80,'sr'))
-        msto.obstacle.append(Obstacle(110,'sl'))
-        msto.obstacle.append(Obstacle(89,'srt'))
-        msto.obstacle.append(Obstacle(119,'slt'))
-        msto.obstacle.append(Obstacle(143,'srt'))
-        msto.obstacle.append(Obstacle(53,'slt'))
-        for i in range(63,143,10):
-            msto.obstacle.append(Obstacle(i,'st'))
-        for i in range(54,57):
-            msto.obstacle.append(Obstacle(i,'sl'))
-        for i in range(144,147):
-            msto.obstacle.append(Obstacle(i,'sr'))
-        for i in range(66,146,10):
-            msto.obstacle.append(Obstacle(i,'v'))
-        for i in range(64,144,10):
-            msto.obstacle.append(Obstacle(i,'v'))
-        for i in range(65,145,10):
-            msto.obstacle.append(Obstacle(i,'v'))
-        for i in range(57,157,10):
+    csto.player.put(99)
+    manaregeneffect(msto,csto)
+    for i in range(1,199):
+        if i%10==1 and i!=91 and i!=101:
             msto.wall.append(Map(i,'w'))
+        else:
+            msto.map.append(Map(i,'f'))
+    for i in range(1,9):
+        msto.obstacle.append(Obstacle(i,'sr'))
+    for i in range(191,199):
+        msto.obstacle.append(Obstacle(i,'sl'))
+    for i in range(19,199,10):
+        if i!=99 and i!=109 and i!=119 and i!=89:
+            msto.obstacle.append(Obstacle(i,'st'))
+    for i in range(0,200,10):
+        if i!=90 and i!=100 and i!=80 and i!=110:
+            msto.obstacle.append(Obstacle(i,'v'))
+    msto.obstacle.append(Obstacle(9,'v'))
+    msto.obstacle.append(Obstacle(199,'v'))
+    msto.obstacle.append(Obstacle(80,'sr'))
+    msto.obstacle.append(Obstacle(110,'sl'))
+    msto.obstacle.append(Obstacle(89,'srt'))
+    msto.obstacle.append(Obstacle(119,'slt'))
+    msto.obstacle.append(Obstacle(143,'srt'))
+    msto.obstacle.append(Obstacle(53,'slt'))
+    for i in range(63,143,10):
+        msto.obstacle.append(Obstacle(i,'st'))
+    for i in range(54,57):
+        msto.obstacle.append(Obstacle(i,'sl'))
+    for i in range(144,147):
+        msto.obstacle.append(Obstacle(i,'sr'))
+    for i in range(66,146,10):
+        msto.obstacle.append(Obstacle(i,'v'))
+    for i in range(64,144,10):
+        msto.obstacle.append(Obstacle(i,'v'))
+    for i in range(65,145,10):
+        msto.obstacle.append(Obstacle(i,'v'))
+    for i in range(57,157,10):
+        msto.wall.append(Map(i,'w'))
+    sideblock(msto)
+def sideblock(msto):
+    msto.obstacle.append(Obstacle(-70,'nothingx'))
+    msto.obstacle.append(Obstacle(700,'nothingx'))
+    msto.obstacle.append(Obstacle(-70,'nothingy'))
+    msto.obstacle.append(Obstacle(1400,'nothingy'))
 
 def playerbehave(msto,csto,dt,keys):
     csto.creepspeed=50*(1+0.01*csto.wave)
@@ -402,28 +410,28 @@ def playerbehave(msto,csto,dt,keys):
             csto.player.targetx=csto.player.x-1
             csto.player.checkwall()
             for i in msto.obstacle:
-                if i.rect.colliderect(csto.player.wallrect):
+                if i.rect.colliderect(csto.player.wallrect) and i.type!='nothingx' and i.type!='nothingy':
                     csto.player.targetx=csto.player.x
                     csto.player.checkwall()
         if keys[pygame.K_d]:
             csto.player.targetx=csto.player.x+1
             csto.player.checkwall()
             for i in msto.obstacle:
-                if i.rect.colliderect(csto.player.wallrect):
+                if i.rect.colliderect(csto.player.wallrect) and i.type!='nothingx' and i.type!='nothingy':
                     csto.player.targetx=csto.player.x
                     csto.player.checkwall() 
         if keys[pygame.K_w]:
             csto.player.targety=csto.player.y-1
             csto.player.checkwall()
             for i in msto.obstacle:
-                if i.rect.colliderect(csto.player.wallrect):
+                if i.rect.colliderect(csto.player.wallrect) and i.type!='nothingx' and i.type!='nothingy':
                     csto.player.targety=csto.player.y
                     csto.player.checkwall()
         if keys[pygame.K_s]:
             csto.player.targety=csto.player.y+1
             csto.player.checkwall()
             for i in msto.obstacle:
-                if i.rect.colliderect(csto.player.wallrect):
+                if i.rect.colliderect(csto.player.wallrect) and i.type!='nothingx' and i.type!='nothingy':
                     csto.player.targety=csto.player.y
                     csto.player.checkwall()
                 
@@ -526,13 +534,7 @@ def creeprandom(creep,msto,csto,dt,chase):
                 creep.touchwall=True
                 creep.checkwall()
                 creep.notry=False
-                break
-    if creep.x<=0+5 or creep.x>=(1400-creep.w)-5: 
-        creep.randomx*=-1
-        creep.notry=False
-    if creep.y<=(70-creep.h)+5 or creep.y>=700-creep.h-5:
-        creep.randomy*=-1
-        creep.notry=False        
+                break     
     creep.move(dt)
     creep.update()
     creep.faketargetx=creep.x
@@ -594,10 +596,6 @@ def creepmove(creep,msto,csto,dt,chase):
                 creep.checkwall()
                 creep.testx=True
                 break
-        if creep.x<=0+5 or creep.x>=(1400-creep.w)-5:
-            creep.randomx*=-1
-        if creep.y<=(70-creep.h)+5 or creep.y>=700-creep.h-5:
-            creep.randomy*=-1
     elif creep.testy:
         if creep.tested=='none':
             creep.tested='x1'
@@ -627,10 +625,6 @@ def creepmove(creep,msto,csto,dt,chase):
                 creep.touchwally=True
                 creep.checkwall()
                 break
-        if creep.x<=0+5 or creep.x>=(1400-creep.w)-5:
-            creep.randomx*=-1
-        if creep.y<=(70-creep.h)+5 or creep.y>=700-creep.h-5:
-            creep.randomy*=-1
     else:
         creep.tested='none'
         creep.targetx=creep.x
@@ -661,10 +655,6 @@ def creepmove(creep,msto,csto,dt,chase):
                 creep.touchwally=True
                 creep.checkwall()
                 break
-        if creep.x<=0+5 or creep.x>=(1400-creep.w)-5:
-            creep.randomx*=-1
-        if creep.y<=(70-creep.h)+5 or creep.y>=700-creep.h-5:
-            creep.randomy*=-1
         if creep.touchwally and int(creep.x)==int(csto.player.x) and not creep.touchwallx:
             creep.testx=True
             creep.randomx=1 if csto.player.x-creep.x>=0 else -1

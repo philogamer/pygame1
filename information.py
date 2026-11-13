@@ -39,8 +39,16 @@ class Goable:
 class Obstacle:
     def __init__(self,xy,type):
         self.position=xy
-        self.y=xy%10*70
-        self.x=(xy-xy%10)/10*70
+        if type=='nothingx':
+            self.x=0
+            self.y=xy
+        elif type=='nothingy':
+            self.x=xy
+            self.y=0
+        else:
+            self.y=xy%10*70
+            self.x=(xy-xy%10)/10*70
+        self.type=type
         if type=='v':
             self.img='assets/V.png'
         elif type=='sl':
@@ -57,9 +65,16 @@ class Obstacle:
             self.img='assets/ST.png'
         elif type=='srt':           
             self.img='assets/SRT.png'
+        elif type=='nothingx' or type=='nothingy':
+            self.img='assets/nothing.png'
         self.img=pygame.image.load(self.img).convert_alpha()
         self.img=pygame.transform.scale(self.img,(70,70))
-        self.rect=pygame.Rect(self.x,self.y,70,70)
+        if type=='nothingx':
+            self.rect=pygame.Rect(self.x,self.y,1400,70)
+        elif type=='nothingy':
+            self.rect=pygame.Rect(self.x,self.y,70,700)
+        else:
+            self.rect=pygame.Rect(self.x,self.y,70,70)
     def draw(self,screen):
         screen.blit(self.img,(self.x,self.y))
 class Player:
@@ -197,14 +212,6 @@ class Creep:
         else:
             self.x+=dx/distance*self.speed*dt
             self.y+=dy/distance*self.speed*dt
-        if self.x<0+5:
-            self.x=0+5
-        if self.x>(1400-self.w)-5:
-            self.x=(1400-self.w)-5
-        if self.y<(70-self.h)+5:
-            self.y=70-self.h+5 
-        if self.y>700-self.h-5:
-            self.y=700-self.h-5
     def update(self):
         self.rect=pygame.Rect(self.x,self.y,self.w,self.h)
     def checkwall(self):
