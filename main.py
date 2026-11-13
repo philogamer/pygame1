@@ -22,6 +22,7 @@ msto=info.Mapstore()
 while True:
     click=False
     dt=clock.tick(60)/1000
+    mousetouch=pygame.mouse.get_pos()
     for event in pygame.event.get():
         if event.type==pygame.QUIT:
             quit(0)
@@ -76,6 +77,7 @@ while True:
             boss.update()
             boss.cooldown+=dt
             dic.skillboss_dic.get(boss.cooldown>=1.8).get(boss.skillchoose, lambda *b: None)(boss,msto,csto,dt)       
+    dic.chooseafterboss_dic.get(click,lambda *b:None)(msto,csto,mousepos)
                                         
     if csto.stage=='normal' or csto.stage=='boss':    
         dic.bullets_dic.get('bullet')(msto,csto,dt)
@@ -85,7 +87,7 @@ while True:
          
     
     #draw on screen
-    dic.render_dic.get(csto.stage, lambda *b:None)(msto,csto,dt)
+    dic.render_dic.get(csto.stage, lambda *b:None)(msto,csto,dt,mousetouch)
     dic.typechat_dic.get(csto.stage,dic.typechat_dic['none'])(msto,csto,lstat,dt)
         
 

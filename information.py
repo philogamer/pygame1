@@ -404,6 +404,25 @@ class Regen:
     def draw(self,screen,dt):
         self.duration+=dt
         screen.blit(self.img,(self.x,self.y-self.duration*50))
+class Chooseafterboss:
+    def __init__(self,x,y,type):
+        self.x=x
+        self.y=y
+        self.type=type
+        if type=='health':
+            self.img1='assets/healframe.png'
+            self.img1=pygame.image.load(self.img1).convert_alpha()
+            self.img1=pygame.transform.scale(self.img1,(210,210))
+            self.img2='assets/chooseheal.png'
+            self.img2=pygame.image.load(self.img2).convert_alpha()
+            self.img2=pygame.transform.scale(self.img2,(210,210))
+        self.rect=pygame.Rect(self.x,self.y,210,210)
+    def draw(self,screen,mousetouch):
+        if self.rect.collidepoint(mousetouch):
+            screen.blit(self.img2,(self.x,self.y))
+        else:
+            screen.blit(self.img1,(self.x,self.y))
+
         
 
 class Conststore:
@@ -416,7 +435,7 @@ class Conststore:
         self.creepspeed=50
         self.bosscount=0
         self.mapcount=0
-        self.stage='normal'
+        self.stage='boss'
         self.player=Player()
         self.bosses=[]
         self.pluses=[]
@@ -426,7 +445,6 @@ class Conststore:
         self.changeline=1
         #guid
         self.guidenumber=1
-        #self.guiding=1 #is guiding
         self.endchat=0 #chat not end
 
 class Mapstore:
@@ -456,6 +474,7 @@ class Mapstore:
         self.mapstay=0
         self.bossattacks=[]
         self.regens=[]
+        self.chooseafterbosses=[]
 
 class Linestat:
     def __init__(self):

@@ -940,9 +940,9 @@ def bossgetdame(msto,csto):
             csto.bosses.remove(boss)
             csto.bosscount+=1
             csto.player.exp+=90*(1+0.02*csto.wave)
-            csto.stage='normal'
-            import pygame
-            csto.rendermap=True 
+            if not msto.chooseafterbosses: msto.chooseafterbosses.append(Chooseafterboss(595,245,'health'))
+            #csto.stage='normal'
+            #csto.rendermap=True 
 def chooseskillboss(boss,msto,csto,dt):
     boss.skillchoose=random.randint(1,4)
     boss.skillprepare=0
@@ -953,8 +953,14 @@ def skillboss1(boss,msto,csto,dt):
         boss.skillchoose=0  
 def skillboss2(boss,msto,csto,dt):
     if boss.skillprepare==0:
-        boss.targetx=csto.player.x
-        boss.targety=csto.player.y
+        if csto.player.x<=(1400-70-boss.w):
+            boss.targetx=csto.player.x
+        else:
+            boss.targetx=(1400-70-boss.w)
+        if csto.player.y<=(700-70-boss.h):
+            boss.targety=csto.player.y
+        else:
+            boss.targety=(700-70-boss.h)
         boss.skillprepare=1
         csto.player.takedame=True
     else:
@@ -1062,7 +1068,7 @@ def skip(csto,keys,msto,lstat,dt):
         returntype(msto,csto,lstat,dt)   
     return csto
 
-def drawgame1(msto,csto,dt):
+def drawgame1(msto,csto,dt,mousetouch):
     screen.fill((70,70,70))
     transparentscreen.fill((0,0,0,0))
     for i in msto.map:
@@ -1112,7 +1118,9 @@ def drawgame1(msto,csto,dt):
         i.draw(screen)
     for i in msto.goable:
         pygame.draw.rect(screen,(225,0,0),i.rect,1)
-def renewscreen(msto,csto,dt):
+    for i in msto.chooseafterbosses:
+        i.draw(screen,mousetouch)
+def renewscreen(msto,csto,dt,mousetouch):
     screen.fill((0,0,0))
 
 def takeline(csto,number,lstat):
@@ -1225,6 +1233,15 @@ def testtoguide(csto):
 
 def manaregeneffect(msto,csto):
     msto.regens.append(Regen(csto.player.x,csto.player.y,'mana')) 
-    
+
+def healthregen(msto,csto,mousepos):
+    if msto.chooseafterbosses:
+        for i in msto.chooseafterbosses:
+            if i.rect.collidepoint(mousepos):
+                csto.player.hp+=csto.player.maxhp*0.5
+                if csto.player.hp>csto.player.maxhp:
+                    csto.player.hp=csto.player.maxhp
+                msto.chooseafterbosses.remove(i)
+                msto.regens.append(Regen(csto.player.x,csto.player.y,'health'))       
     
                 

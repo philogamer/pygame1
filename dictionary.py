@@ -98,3 +98,6 @@ slimemove_dic={
 slimepath_dic={
     True: lambda *a:fun.slimepath(*a)
 }
+chooseafterboss_dic={
+    True: lambda *a: fun.healthregen(*a)
+}
