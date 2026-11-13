@@ -563,10 +563,13 @@ def creepmove(creep,msto,csto,dt,chase):
             else:
                 if creep.tested=='none':
                     creep.testy=True
+                    creep.testx=False
                 elif creep.tested=='x2':
                     creep.testy=True
+                    creep.testx=False
                 elif creep.tested=='y2':
-                    creep.testx=True                               
+                    creep.testx=True
+                    creep.testy=False                               
     elif creep.testx:
         if creep.tested=='none':
             creep.tested='x1'
