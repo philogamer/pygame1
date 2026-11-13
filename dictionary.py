@@ -101,3 +101,12 @@ slimepath_dic={
 chooseafterboss_dic={
     True: lambda *a: fun.healthregen(*a)
 }
+slimetrap_dic={
+    'normal': lambda *a: fun.slimedeath(*a)
+}
+
+
+
+
+
+

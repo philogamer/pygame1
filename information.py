@@ -197,14 +197,14 @@ class Creep:
         else:
             self.x+=dx/distance*self.speed*dt
             self.y+=dy/distance*self.speed*dt
-        if self.x<0:
-            self.x=0
-        if self.x>(1400-self.w):
-            self.x=(1400-self.w)
-        if self.y<(70-self.h):
-            self.y=70-self.h 
-        if self.y>700-self.h:
-            self.y=700-self.h
+        if self.x<0+5:
+            self.x=0+5
+        if self.x>(1400-self.w)-5:
+            self.x=(1400-self.w)-5
+        if self.y<(70-self.h)+5:
+            self.y=70-self.h+5 
+        if self.y>700-self.h-5:
+            self.y=700-self.h-5
     def update(self):
         self.rect=pygame.Rect(self.x,self.y,self.w,self.h)
     def checkwall(self):
@@ -422,6 +422,18 @@ class Chooseafterboss:
             screen.blit(self.img2,(self.x,self.y))
         else:
             screen.blit(self.img1,(self.x,self.y))
+class Slimestuck:
+    def __init__(self,x,y):
+        self.x=x
+        self.y=y
+        self.img='assets/slimetrap.png'
+        self.img=pygame.image.load(self.img).convert_alpha()
+        self.img=pygame.transform.scale(self.img,(61,107))
+        self.duration=0
+    def draw(self,screen,dt):
+        self.duration+=dt
+        screen.blit(self.img,(self.x,self.y-(107-70)))
+        
 
         
 
@@ -435,7 +447,7 @@ class Conststore:
         self.creepspeed=50
         self.bosscount=0
         self.mapcount=0
-        self.stage='boss'
+        self.stage='normal'
         self.player=Player()
         self.bosses=[]
         self.pluses=[]
@@ -475,6 +487,7 @@ class Mapstore:
         self.bossattacks=[]
         self.regens=[]
         self.chooseafterbosses=[]
+        self.slimestucks=[]
 
 class Linestat:
     def __init__(self):
