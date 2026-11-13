@@ -59,7 +59,6 @@ def render1(msto,csto):
                 msto.map.append(Map(firstexactdoor+i,'f'))
                 msto.locate.remove(firstexactdoor+i)
                 msto.door.append(firstexactdoor+i)
-        csto.player.put(random.choice(msto.door))
     else:
         doorlong=csto.firstdoor[1]
         doorside=csto.firstdoor[0]*(-1)
@@ -87,8 +86,8 @@ def render1(msto,csto):
                 msto.map.append(Map(firstexactdoor+i,'f'))
                 msto.locate.remove(firstexactdoor+i)
                 msto.door.append(firstexactdoor+i)
-        csto.player.put(random.choice(msto.door))
-
+    csto.player.put(random.choice(msto.door))
+    manaregeneffect(msto,csto)
     start=random.choice(msto.door)
     doorban=[]
     c=0
@@ -344,9 +343,11 @@ def render2(msto,csto):
         msto.obstacle.append(Obstacle(i,'v'))
     msto.obstacle.append(Obstacle(9,'v'))
     msto.obstacle.append(Obstacle(199,'v'))
-    csto.player.put(12)          
+    csto.player.put(12)
+    manaregeneffect(msto,csto)          
 def render3(msto,csto):
         csto.player.put(99)
+        manaregeneffect(msto,csto)
         for i in range(1,199):
             if i%10==1 and i!=91 and i!=101:
                 msto.wall.append(Map(i,'w'))
@@ -526,6 +527,8 @@ def creeprandom(creep,msto,csto,dt,chase):
                 creep.notry=False
                 break
     if creep.x<=0+5 or creep.x>=(1400-creep.w)-5 or creep.y<=(70-creep.h)+5 or creep.y>=700-creep.h-5:
+        creep.targetx=creep.x
+        creep.targety=creep.y
         creep.touchwall=True
         creep.notry=False
     creep.move(dt)
@@ -624,8 +627,10 @@ def creepmove(creep,msto,csto,dt,chase):
                 break
         if creep.x<=0+5 or creep.x>=(1400-creep.w)-5:
             creep.touchwallx=True
+            creep.targetx=creep.x
         if creep.y<=(70-creep.h)+5 or creep.y>=700-creep.h-5:
             creep.touchwally=True
+            creep.targety=creep.y
     else:
         creep.tested='none'
         creep.targetx=creep.x
@@ -658,8 +663,10 @@ def creepmove(creep,msto,csto,dt,chase):
                 break
         if creep.x<=0+5 or creep.x>=(1400-creep.w)-5:
             creep.touchwallx=True
+            creep.targetx=creep.x
         if creep.y<=(70-creep.h)+5 or creep.y>=700-creep.h-5:
             creep.touchwally=True
+            creep.targetx=creep.x
         if creep.touchwally and int(creep.x)==int(csto.player.x) and not creep.touchwallx:
             creep.testx=True
             creep.randomx=1 if csto.player.x-creep.x>=0 else -1
@@ -706,7 +713,10 @@ def creepgetdame(msto,csto):
                 csto.player.exp+=30*(1+0.02*csto.wave)
 
 def slimemove(creep,msto,csto,dt,chase):
-    if (int(creep.faketargetx)==int(creep.x) and int(creep.faketargety)==int(creep.y)) or creep.notry:
+    creep.tested='none'
+    creep.testx=False
+    creep.testy=False
+    if creep.touchwallx or creep.touchwally or (int(creep.x)==int(creep.faketargetx) and int(creep.y)==int(creep.faketargety)):
         testlist=list(range(-(creep.range-10),creep.range-10))
         while True:
             a=random.choice(testlist)
@@ -731,6 +741,53 @@ def slimemove(creep,msto,csto,dt,chase):
                     creep.touchwally=True
                     break
             if not creep.touchwally or not testlist: break
+        creep.faketargetx=creep.targetx
+        creep.faketargety=creep.targety
+        creep.touchwallx=False
+        creep.touchwally=False
+        creep.tested='none'
+        creep.notry=False
+    else:
+        creep.tested='none'
+        creep.targetx=creep.x
+        creep.targety=creep.y                    
+        creep.touchwallx=False
+        creep.touchwally=False
+        if creep.faketargetx-creep.x>0:
+            creep.randomx=1
+        elif creep.faketargetx-creep.x<0:
+            creep.randomx=-1
+        creep.targetx=creep.x+creep.randomx*chase
+        creep.checkwall()
+        for i in msto.obstacle:
+            if i.rect.colliderect(creep.wallrect):
+                creep.targetx=creep.x
+                creep.touchwallx=True     
+                creep.checkwall()
+                break
+        if creep.faketargety-creep.y>0:
+            creep.randomy=1
+        elif creep.faketargety-creep.y<0:
+            creep.randomy=-1
+        creep.targety=creep.y+creep.randomy*chase
+        creep.checkwall()
+        for i in msto.obstacle:
+            if i.rect.colliderect(creep.wallrect):
+                creep.targety=creep.y
+                creep.touchwally=True
+                creep.checkwall()
+                break
+        if creep.x<=0+5 or creep.x>=(1400-creep.w)-5:
+            creep.touchwallx=True
+            creep.targetx=creep.x
+        if creep.y<=(70-creep.h)+5 or creep.y>=700-creep.h-5:
+            creep.touchwally=True
+            creep.targety=creep.y
+        creep.move(dt)
+        creep.update()   
+def slimedash(creep,msto,csto,dt,chase):
+    if not creep.skill:
+        
         creep.faketargetx=creep.targetx
         creep.faketargety=creep.targety
         creep.tested='none'
@@ -864,7 +921,7 @@ def slimemove(creep,msto,csto,dt,chase):
                 creep.testy=True
                 creep.randomy=1 if csto.player.y-creep.y>=0 else -1
     creep.move(dt)
-    creep.update()   
+    creep.update()  
 def slimepath(creep,msto,csto,dt):
     msto.slimepaths.append(Slimepath(creep.x,creep.y,1))
 def slimepathclear(msto,dt):
@@ -943,6 +1000,7 @@ def changemap(msto,csto):
 def changetestmap(msto,csto):
     if csto.player.y<=-((107-70)-(107-70)):
         csto.player.put(99)
+        manaregeneffect(msto,csto)
         csto.player.mana=csto.player.maxmana
 
 
@@ -1004,7 +1062,7 @@ def skip(csto,keys,msto,lstat,dt):
         returntype(msto,csto,lstat,dt)   
     return csto
 
-def drawgame1(msto,csto):
+def drawgame1(msto,csto,dt):
     screen.fill((70,70,70))
     transparentscreen.fill((0,0,0,0))
     for i in msto.map:
@@ -1040,6 +1098,10 @@ def drawgame1(msto,csto):
                 for bossattack in msto.bossattacks:
                     bossattack.update(screen)    
     csto.player.draw(screen)
+    for i in msto.regens:
+        i.draw(screen,dt)
+        if i.duration>=0.5:
+            msto.regens.remove(i)
     for i in msto.bullets:
         i.draw(screen)
     for i in msto.smallbullets:
@@ -1050,7 +1112,7 @@ def drawgame1(msto,csto):
         i.draw(screen)
     for i in msto.goable:
         pygame.draw.rect(screen,(225,0,0),i.rect,1)
-def renewscreen(msto,csto):
+def renewscreen(msto,csto,dt):
     screen.fill((0,0,0))
 
 def takeline(csto,number,lstat):
@@ -1103,7 +1165,7 @@ def typingstart(msto,csto,lstat,dt,lenofeachstage):
     else:
         csto.endchat=1
     if csto.startwrite>=0.125:
-        renewscreen(msto,csto)
+        renewscreen(msto,csto,dt)
         csto.startwrite=0
         csto.writeduration+=1
         for i in range(1,lenofeachstage+1):
@@ -1160,7 +1222,9 @@ def guidetotest(csto):
         csto.rendermap=True
 def testtoguide(csto):
     csto.stage='guide'        
-        
+
+def manaregeneffect(msto,csto):
+    msto.regens.append(Regen(csto.player.x,csto.player.y,'mana')) 
     
     
                 

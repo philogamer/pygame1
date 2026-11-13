@@ -176,6 +176,8 @@ class Creep:
         
         self.faketargetx=self.x
         self.faketargety=self.y
+        self.skill=False
+        self.skillduration=0
         self.img=pygame.image.load(self.img).convert_alpha()
         self.img=pygame.transform.scale(self.img,(self.w,self.h))
         self.wallrect=pygame.Rect(self.targetx,self.targety+(self.h-70),self.w,70)
@@ -387,7 +389,22 @@ class Bossattack:
     def update(self,screen):
         screen.blit(self.img,(self.x,self.y))
         self.rect=pygame.Rect(self.x,self.y,self.w,self.w*87/70)
-
+class Regen:
+    def __init__(self,x,y,type):
+        self.x=x
+        self.y=y
+        self.duration=0
+        self.type=type
+        if type=='health':
+            self.img='assets/healthregen.png'
+        elif type=='mana':
+            self.img='assets/manaregen.png'
+        self.img=pygame.image.load(self.img).convert_alpha()
+        self.img=pygame.transform.scale(self.img,(61,107))
+    def draw(self,screen,dt):
+        self.duration+=dt
+        screen.blit(self.img,(self.x,self.y-self.duration*50))
+        
 
 class Conststore:
     def __init__(self):
@@ -438,6 +455,7 @@ class Mapstore:
         self.slashes=[]
         self.mapstay=0
         self.bossattacks=[]
+        self.regens=[]
 
 class Linestat:
     def __init__(self):

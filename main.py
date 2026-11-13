@@ -34,7 +34,7 @@ while True:
         if event.type==pygame.MOUSEBUTTONDOWN and event.button==1:
             click=True
             mousepos=event.pos
-    csto=dic.buttonchangemap_dic.get(csto.stage,lambda *b:csto)(csto,keys,msto,lstat,dt)
+    
     if csto.rendermap:
         csto.player.mana=csto.player.maxmana
         msto=info.Mapstore()
@@ -42,7 +42,7 @@ while True:
         csto.mapcount+=1
         dic.gachamap_dic.get(csto.stage,lambda*b:None)(msto,csto)
         csto.rendermap=False
-    
+    csto=dic.buttonchangemap_dic.get(csto.stage,lambda *b:csto)(csto,keys,msto,lstat,dt)
     if csto.stage=='guide':
         if csto.player.y<=-((107-70)-(107-70)): 
             csto.player.put(99)
@@ -85,7 +85,7 @@ while True:
          
     
     #draw on screen
-    dic.render_dic.get(csto.stage, lambda *b:None)(msto,csto)
+    dic.render_dic.get(csto.stage, lambda *b:None)(msto,csto,dt)
     dic.typechat_dic.get(csto.stage,dic.typechat_dic['none'])(msto,csto,lstat,dt)
         
 
