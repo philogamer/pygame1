@@ -74,11 +74,14 @@ while True:
     dic.enemytakedame_dic.get(csto.stage,dic.enemytakedame_dic['none']).get(len(msto.slashes),lambda *b: None)(msto,csto)
     dic.clearslimepath_dic.get(csto.stage,lambda *b: None)(msto,dt)
     dic.changemap_dic.get(csto.stage,lambda *b: None)(msto,csto)
+    
     if csto.stage=='boss':
         for boss in csto.bosses:
             boss.update()
             boss.cooldown+=dt
-            dic.skillboss_dic.get(boss.cooldown>=1.8).get(boss.skillchoose, lambda *b: None)(boss,msto,csto,dt)       
+            dic.skillboss_dic.get(boss.cooldown>=1.8).get(boss.skillchoose, lambda *b: None)(boss,msto,csto,dt)
+        if csto.pluses:
+            dic.resultchooseafterboss_dic.get(csto.pluses[0].button, lambda*b:None)(msto,csto,click,mousepos)
     dic.chooseafterboss_dic.get(click,lambda *b:None)(msto,csto,mousepos)
                                         
     if csto.stage=='normal' or csto.stage=='boss':    
@@ -91,8 +94,7 @@ while True:
     #draw on screen
     dic.render_dic.get(csto.stage, lambda *b:None)(msto,csto,dt,mousetouch)
     dic.typechat_dic.get(csto.stage,dic.typechat_dic['none'])(msto,csto,lstat,dt)
-        
-
+    dic.skillscript_dic.get(msto.afterbosschoice,lambda*b:None)(msto,mousetouch,lstat)
         
                   
             

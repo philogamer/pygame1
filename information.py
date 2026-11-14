@@ -84,7 +84,7 @@ class Player:
         self.targetx=self.x
         self.targety=self.y
         self.direction='right'
-        self.dmg=10
+        self.dmg=500
         self.speed=200
         self.maxspeed=200
         self.hp=500
@@ -310,10 +310,13 @@ class Slash:
         self.dmg=dmg
     def draw(self,screen):
         screen.blit(self.img,(self.x,self.y))
-class Plus:
-    def __init__(self,type):
+class Button:
+    def __init__(self,type,button):
         self.type=type
-        self.img='assets/plus.png'
+        self.button=button
+        if button=='plus':self.img='assets/plus.png'
+        elif button=='develop': self.img='assets/exchange.png'
+        elif button=='gamble': self.img='assets/minus.png'
         if type=='dmg':
             self.x=600
             self.y=705
@@ -420,12 +423,43 @@ class Chooseafterboss:
             self.img1='assets/healframe.png'
             self.img1=pygame.image.load(self.img1).convert_alpha()
             self.img1=pygame.transform.scale(self.img1,(210,210))
-            self.img2='assets/chooseheal.png'
+        elif type=='develop':
+            self.img1='assets/developframe.png'
+            self.img1=pygame.image.load(self.img1).convert_alpha()
+            self.img1=pygame.transform.scale(self.img1,(210,210))
+        elif type=='gamble':
+            self.img1='assets/gambleframe.png'
+            self.img1=pygame.image.load(self.img1).convert_alpha()
+            self.img1=pygame.transform.scale(self.img1,(210,210))
+        elif type=='blank':
+            self.img1='assets/blankframe.png'
+            self.img1=pygame.image.load(self.img1).convert_alpha()
+            self.img1=pygame.transform.scale(self.img1,(210,210))
+        elif type=='active':
+            self.img2='assets/active.png'
+            self.img2=pygame.image.load(self.img2).convert_alpha()
+            self.img2=pygame.transform.scale(self.img2,(170,30))
+        elif type=='passive':
+            self.img2='assets/passive.png'
+            self.img2=pygame.image.load(self.img2).convert_alpha()
+            self.img2=pygame.transform.scale(self.img2,(170,30))
+        elif type=='return':
+            self.img2='assets/return.png'
+            self.img2=pygame.image.load(self.img2).convert_alpha()
+            self.img2=pygame.transform.scale(self.img2,(170,30))
+        if type=='active' or type=='passive' or type=='return':
+            self.img1='assets/shade.png'
+            self.img1=pygame.image.load(self.img1).convert_alpha()
+            self.img1=pygame.transform.scale(self.img1,(173,32))
+            self.rect=pygame.Rect(self.x,self.y,170,30)            
+        else:
+            self.img2='assets/choose.png'
             self.img2=pygame.image.load(self.img2).convert_alpha()
             self.img2=pygame.transform.scale(self.img2,(210,210))
-        self.rect=pygame.Rect(self.x,self.y,210,210)
+            self.rect=pygame.Rect(self.x,self.y,210,210)
     def draw(self,screen,mousetouch):
         if self.rect.collidepoint(mousetouch):
+            screen.blit(self.img1,(self.x,self.y))
             screen.blit(self.img2,(self.x,self.y))
         else:
             screen.blit(self.img1,(self.x,self.y))
@@ -454,7 +488,7 @@ class Conststore:
         self.creepspeed=50
         self.bosscount=0
         self.mapcount=0
-        self.stage='normal'
+        self.stage='boss'
         self.player=Player()
         self.bosses=[]
         self.pluses=[]
@@ -495,6 +529,8 @@ class Mapstore:
         self.regens=[]
         self.chooseafterbosses=[]
         self.slimestucks=[]
+        self.statchoose='none'
+        self.afterbosschoice='none'
 
 class Linestat:
     def __init__(self):
@@ -851,7 +887,412 @@ stayline_info={
                      },        
         },
 }
-
+playerskillscript_info={
+    'dmg':{
+        'active':{
+            'line1':{
+                'line':'SOUL BREAK',
+                'font': smallfont,
+                'color':(111,13,181),
+                'x': 80,
+                'y': 150
+                     },
+            'line2':{
+                'line':'G to use       Skill cooldown: 5 second',
+                'font': smallfont,
+                'color':(111,13,181),
+                'x': 80,
+                'y': 175
+                     },
+            'line3':{
+                'line':'create a big slash with 2.5 damage at the normal',
+                'font': smallfont,
+                'color':(111,13,181),
+                'x': 80,
+                'y': 225
+                     },
+            'line4':{
+                'line':'attack direction',
+                'font': smallfont,
+                'color':(111,13,181),
+                'x': 80,
+                'y': 250
+                     },     
+        },
+        'passive':{
+            'line1':{
+                'line':'SOUL REND',
+                'font': smallfont,
+                'color':(111,13,181),
+                'x': 80,
+                'y': 150
+                     },
+            'line2':{
+                'line':'Passive skill       Skill cooldown: none',
+                'font': smallfont,
+                'color':(111,13,181),
+                'x': 80,
+                'y': 175
+                     },
+            'line3':{
+                'line':'Hitting the same target 3 times applies a mark.',
+                'font': smallfont,
+                'color':(111,13,181),
+                'x': 80,
+                'y': 225
+                     },
+            'line4':{
+                'line':'After a short duration, deals 0.5 DMG.',
+                'font': smallfont,
+                'color':(111,13,181),
+                'x': 80,
+                'y': 250
+                     },     
+        },
+        'return':{
+            'line1':{
+                'line':'Rechoice the stat',
+                'font': smallfont,
+                'color':(111,13,181),
+                'x': 80,
+                'y': 150
+                     },
+            'line2':{
+                'line':' ',
+                'font': smallfont,
+                'color':(111,13,181),
+                'x': 80,
+                'y': 175
+                     },
+            'line3':{
+                'line':' ',
+                'font': smallfont,
+                'color':(111,13,181),
+                'x': 80,
+                'y': 225
+                     },
+            'line4':{
+                'line':' ',
+                'font': smallfont,
+                'color':(111,13,181),
+                'x': 80,
+                'y': 250
+                     },     
+        },
+    },
+    'maxhp':{
+        'active':{
+            'line1':{
+                'line':'SOUL GUARD',
+                'font': smallfont,
+                'color':(111,13,181),
+                'x': 80,
+                'y': 150
+                     },
+            'line2':{
+                'line':'G to use       Skill cooldown: 5 second',
+                'font': smallfont,
+                'color':(111,13,181),
+                'x': 80,
+                'y': 175
+                     },
+            'line3':{
+                'line':'Create a shield that absorbs damage equal',
+                'font': smallfont,
+                'color':(111,13,181),
+                'x': 80,
+                'y': 225
+                     },
+            'line4':{
+                'line':'to 0.2 max hp for 4 seconds.',
+                'font': smallfont,
+                'color':(111,13,181),
+                'x': 80,
+                'y': 250
+                     },     
+        },
+        'passive':{
+            'line1':{
+                'line':'IMMORTAL SOUL',
+                'font': smallfont,
+                'color':(111,13,181),
+                'x': 80,
+                'y': 150
+                     },
+            'line2':{
+                'line':'Passive skill       Skill cooldown: 30 second',
+                'font': smallfont,
+                'color':(111,13,181),
+                'x': 80,
+                'y': 175
+                     },
+            'line3':{
+                'line':'When hp drops below 0.2 max hp, gain',
+                'font': smallfont,
+                'color':(111,13,181),
+                'x': 80,
+                'y': 225
+                     },
+            'line4':{
+                'line':'immortallity for 3 second',
+                'font': smallfont,
+                'color':(111,13,181),
+                'x': 80,
+                'y': 250
+                     },     
+        },
+        'return':{
+            'line1':{
+                'line':'Rechoice the stat',
+                'font': smallfont,
+                'color':(111,13,181),
+                'x': 80,
+                'y': 150
+                     },
+            'line2':{
+                'line':' ',
+                'font': smallfont,
+                'color':(111,13,181),
+                'x': 80,
+                'y': 175
+                     },
+            'line3':{
+                'line':' ',
+                'font': smallfont,
+                'color':(111,13,181),
+                'x': 80,
+                'y': 225
+                     },
+            'line4':{
+                'line':' ',
+                'font': smallfont,
+                'color':(111,13,181),
+                'x': 80,
+                'y': 250
+                     },     
+        },
+    },
+    'maxmana':{
+        'active':{
+            'line1':{
+                'line':'MANA EXPLODE',
+                'font': smallfont,
+                'color':(111,13,181),
+                'x': 80,
+                'y': 150
+                     },
+            'line2':{
+                'line':'G to use       Skill cooldown: 5 second',
+                'font': smallfont,
+                'color':(111,13,181),
+                'x': 80,
+                'y': 175
+                     },
+            'line3':{
+                'line':'Cost 30 mana to explode the area surround',
+                'font': smallfont,
+                'color':(111,13,181),
+                'x': 80,
+                'y': 225
+                     },
+            'line4':{
+                'line':'the player with 0.8 damage and push back',
+                'font': smallfont,
+                'color':(111,13,181),
+                'x': 80,
+                'y': 250
+                     },     
+        },
+        'passive':{
+            'line1':{
+                'line':'SOUL OVERLOAD',
+                'font': smallfont,
+                'color':(111,13,181),
+                'x': 80,
+                'y': 150
+                     },
+            'line2':{
+                'line':'Passive skill       Skill cooldown: none',
+                'font': smallfont,
+                'color':(111,13,181),
+                'x': 80,
+                'y': 175
+                     },
+            'line3':{
+                'line':'When mana is above 80%, Slash deals extra',
+                'font': smallfont,
+                'color':(111,13,181),
+                'x': 80,
+                'y': 225
+                     },
+            'line4':{
+                'line':' 0.5 DMG but cost extra 6 mana.',
+                'font': smallfont,
+                'color':(111,13,181),
+                'x': 80,
+                'y': 250
+                     },     
+        },
+        'return':{
+            'line1':{
+                'line':'Rechoice the stat',
+                'font': smallfont,
+                'color':(111,13,181),
+                'x': 80,
+                'y': 150
+                     },
+            'line2':{
+                'line':' ',
+                'font': smallfont,
+                'color':(111,13,181),
+                'x': 80,
+                'y': 175
+                     },
+            'line3':{
+                'line':' ',
+                'font': smallfont,
+                'color':(111,13,181),
+                'x': 80,
+                'y': 225
+                     },
+            'line4':{
+                'line':' ',
+                'font': smallfont,
+                'color':(111,13,181),
+                'x': 80,
+                'y': 250
+                     },     
+        },
+    },
+    'movespeed':{
+        'active':{
+            'line1':{
+                'line':'SOUL DASH',
+                'font': smallfont,
+                'color':(111,13,181),
+                'x': 80,
+                'y': 150
+                     },
+            'line2':{
+                'line':'G to use       Skill cooldown: 4 second',
+                'font': smallfont,
+                'color':(111,13,181),
+                'x': 80,
+                'y': 175
+                     },
+            'line3':{
+                'line':'Dash forward in the direction of movement',
+                'font': smallfont,
+                'color':(111,13,181),
+                'x': 80,
+                'y': 225
+                     },
+            'line4':{
+                'line':',deal 0.8 damage along the path.',
+                'font': smallfont,
+                'color':(111,13,181),
+                'x': 80,
+                'y': 250
+                     },     
+        },
+        'passive':{
+            'line1':{
+                'line':'SOUL STEP',
+                'font': smallfont,
+                'color':(111,13,181),
+                'x': 80,
+                'y': 150
+                     },
+            'line2':{
+                'line':'Passive skill       Skill cooldown: none',
+                'font': smallfont,
+                'color':(111,13,181),
+                'x': 80,
+                'y': 175
+                     },
+            'line3':{
+                'line':'Move continuously for 1.5 second grants',
+                'font': smallfont,
+                'color':(111,13,181),
+                'x': 80,
+                'y': 225
+                     },
+            'line4':{
+                'line':'0.5 second of immunity to effects.',
+                'font': smallfont,
+                'color':(111,13,181),
+                'x': 80,
+                'y': 250
+                     },     
+        },
+        'return':{
+            'line1':{
+                'line':'Rechoice the stat',
+                'font': smallfont,
+                'color':(111,13,181),
+                'x': 80,
+                'y': 150
+                     },
+            'line2':{
+                'line':' ',
+                'font': smallfont,
+                'color':(111,13,181),
+                'x': 80,
+                'y': 175
+                     },
+            'line3':{
+                'line':' ',
+                'font': smallfont,
+                'color':(111,13,181),
+                'x': 80,
+                'y': 225
+                     },
+            'line4':{
+                'line':' ',
+                'font': smallfont,
+                'color':(111,13,181),
+                'x': 80,
+                'y': 250
+                     },     
+        },
+    },
+    'manaregen':{
+        'active':{
+            'line1':{
+                'line':'Soul break:',
+                'font': smallfont,
+                'color':(227,206,14),
+                'x': 385,
+                'y': 460
+                     },
+            'line2':{
+                'line':'G to use      Skill cooldown:5 minute',
+                'font': smallfont,
+                'color':(227,206,14),
+                'x': 875,
+                'y': 460
+                     },   
+        }
+        },
+    'attackspeed':{
+        'active':{
+            'line1':{
+                'line':'Soul break:',
+                'font': smallfont,
+                'color':(227,206,14),
+                'x': 385,
+                'y': 460
+                     },
+            'line2':{
+                'line':'G to use      Skill cooldown:5 minute',
+                'font': smallfont,
+                'color':(227,206,14),
+                'x': 875,
+                'y': 460
+                     },   
+        }
+    }
+}
 
 
 

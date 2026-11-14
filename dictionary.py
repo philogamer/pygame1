@@ -71,7 +71,6 @@ render_dic={
 }
 playerbuff_dic={
     'normal': lambda *a: fun.buff(*a),
-    'boss': lambda *a: fun.buff(*a),
     'guide': lambda *a: fun.buff(*a),
     'test': lambda *a: fun.buff(*a),
 }
@@ -79,7 +78,7 @@ typechat_dic={
     'start': lambda *a: fun.typingstart(*a,6),
     'end': lambda *a: fun.typingstart(*a,7),
     'guide': lambda *a: fun.guidetyping(*a,2),
-    'test': lambda *a: (fun.returntype(*a), fun.stayline(*a)),
+    'test': lambda *a: (fun.returntype(*a), fun.stayline(*a,2)),
     'none': lambda *a: fun.returntype(*a)
 }
 guidetotest_dic={
@@ -99,10 +98,17 @@ slimepath_dic={
     True: lambda *a:fun.slimepath(*a)
 }
 chooseafterboss_dic={
-    True: lambda *a: fun.healthregen(*a)
+    True: lambda *a: fun.chooseafterboss(*a)
+}
+resultchooseafterboss_dic={
+    'gamble':lambda *a: fun.gamble(*a),
+    'develop':lambda *a: fun.develop(*a)
 }
 slimetrap_dic={
     'normal': lambda *a: fun.slimedeath(*a)
+}
+skillscript_dic={
+    'develop': lambda *a: fun.touchandwrite(*a)
 }
 
 

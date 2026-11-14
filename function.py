@@ -327,6 +327,9 @@ def render1(msto,csto):
             msto.locate.remove(i)
             msto.obstacle.append(Obstacle(i,'st'))
     sideblock(msto)
+    for i in msto.insidef:
+        if i%10==0 or i%10==9 or i<10 and i<190:
+            msto.insidef.remove(i)
 def render2(msto,csto):
     csto.bosses.append(Boss(csto.wave))
     for i in range(1,199):
@@ -480,12 +483,68 @@ def playerbehave(msto,csto,dt,keys):
 def buff(csto,click,mousepos):
     if csto.player.buffstat>0:
         if not csto.pluses:
-            csto.pluses.append(Plus('dmg'))
-            csto.pluses.append(Plus('maxmana'))
-            csto.pluses.append(Plus('maxhp'))
-            csto.pluses.append(Plus('movespeed'))
-            csto.pluses.append(Plus('manaregen'))
-            csto.pluses.append(Plus('attackspeed'))
+            csto.pluses.append(Button('dmg','plus'))
+            csto.pluses.append(Button('maxmana','plus'))
+            csto.pluses.append(Button('maxhp','plus'))
+            csto.pluses.append(Button('movespeed','plus'))
+            csto.pluses.append(Button('manaregen','plus'))
+            csto.pluses.append(Button('attackspeed','plus'))
+        for plus in csto.pluses:
+            if click:
+                if plus.rect.collidepoint(mousepos):
+                    csto.player.buffstat-=1
+                    if plus.type=='dmg':
+                        csto.player.dmg+=1
+                    elif plus.type=='maxmana':
+                        csto.player.maxmana+=15
+                        csto.player.mana+=15
+                    elif plus.type=='maxhp':
+                        csto.player.maxhp+=40
+                        csto.player.hp+=40
+                    elif plus.type=='movespeed':
+                        csto.player.maxspeed+=4                        
+                    elif plus.type=='manaregen':
+                        csto.player.manaregen+=0.5
+                    elif plus.type=='attackspeed':
+                        csto.player.attackspeed+=0.025
+    else:
+        csto.pluses.clear()
+def develop(msto,csto,click,mousepos):
+    if csto.pluses:
+        for plus in csto.pluses:
+            if click:
+                if plus.rect.collidepoint(mousepos):
+                    msto.chooseafterbosses.append(Chooseafterboss(595,245,'blank'))
+                    msto.chooseafterbosses.append(Chooseafterboss(615,285,'active'))
+                    msto.chooseafterbosses.append(Chooseafterboss(615,335,'passive'))
+                    msto.chooseafterbosses.append(Chooseafterboss(615,385,'return'))
+                    if plus.type=='dmg':
+                        csto.player.dmg-=1*2
+                        msto.statchoose='dmg'
+                    elif plus.type=='maxmana':
+                        csto.player.maxmana-=15*2
+                        csto.player.mana-=15*2
+                        if csto.player.mana<=0:
+                            csto.player.mana=1
+                        msto.statchoose='dmg'
+                    elif plus.type=='maxhp':
+                        csto.player.maxhp-=40*2
+                        csto.player.hp-=40*2
+                        if csto.player.hp<=0:
+                            csto.player.hp=1
+                        msto.statchoose='maxhp'
+                    elif plus.type=='movespeed':
+                        csto.player.maxspeed-=4*2  
+                        msto.statchoose='movespeed'                      
+                    elif plus.type=='manaregen':
+                        csto.player.manaregen-=0.5*2
+                        msto.statchoose='manaregen'
+                    elif plus.type=='attackspeed':
+                        csto.player.attackspeed-=0.025*2
+                        msto.statchoose='attackspeed'
+                    csto.pluses=[]    
+def gamble(msto,csto,click,mousepos):
+    if csto.pluses:
         for plus in csto.pluses:
             if click:
                 if plus.rect.collidepoint(mousepos):
@@ -541,38 +600,27 @@ def creeprandom(creep,msto,csto,dt,chase):
     creep.faketargety=creep.y
 def creepmove(creep,msto,csto,dt,chase):
     if creep.touchwally and creep.touchwallx:
-        if creep.testx and not creep.tested=='x2':
-            if creep.tested=='none':
-                creep.tested='x1'
-                creep.randomx*=(-1)
-                creep.touchwallx=False                
-            elif creep.tested=='x1':
-                creep.tested='x2'            
-        elif creep.testy and not creep.tested=='y2':
-            if creep.tested=='none':
-                creep.tested='y1'
-                creep.randomy*=(-1)
-                creep.touchwally=False
-            elif creep.tested=='y1':
-                creep.tested='y2'                        
-        else:
-            if chase==1:
-                creep.notry=True
-                creep.touchwallx=False
-                creep.touchwally=False
-            else:
-                if creep.tested=='none':
-                    creep.testy=True
-                    creep.testx=False
-                elif creep.tested=='x2':
-                    creep.testy=True
-                    creep.testx=False
-                elif creep.tested=='y2':
-                    creep.testx=True
-                    creep.testy=False                               
-    elif creep.testx:
-        if creep.tested=='none':
+        if creep.testx and not creep.tested=='x1':
             creep.tested='x1'
+            creep.randomx*=(-1)
+            creep.touchwallx=False         
+        elif creep.testy and not creep.tested=='y1':
+            creep.tested='y1'
+            creep.randomy*=(-1)
+            creep.touchwally=False                      
+        else:
+            if creep.tested=='none':
+                creep.testy=True
+                creep.testx=False
+            elif creep.tested=='x1':
+                creep.testy=True
+                creep.testx=False
+                creep.tested='none'
+            elif creep.tested=='y1':
+                creep.testx=True
+                creep.tested='none'
+                creep.testy=False                               
+    elif creep.testx:
         creep.targetx=creep.x
         creep.targety=creep.y
         creep.testx=False
@@ -600,8 +648,6 @@ def creepmove(creep,msto,csto,dt,chase):
                 creep.testx=True
                 break
     elif creep.testy:
-        if creep.tested=='none':
-            creep.tested='x1'
         creep.targetx=creep.x
         creep.targety=creep.y                    
         creep.testy=False
@@ -875,7 +921,10 @@ def bossgetdame(msto,csto):
             csto.bosses.remove(boss)
             csto.bosscount+=1
             csto.player.exp+=90*(1+0.02*csto.wave)
-            if not msto.chooseafterbosses: msto.chooseafterbosses.append(Chooseafterboss(595,245,'health'))
+            if not msto.chooseafterbosses: 
+                msto.chooseafterbosses.append(Chooseafterboss(595,245,'health'))
+                msto.chooseafterbosses.append(Chooseafterboss(315,245,'develop'))
+                msto.chooseafterbosses.append(Chooseafterboss(875,245,'gamble'))
             #csto.stage='normal'
             #csto.rendermap=True 
 def chooseskillboss(boss,msto,csto,dt):
@@ -930,7 +979,6 @@ def skillboss4(boss,msto,csto,dt):
     else:    
         boss.skillchoose=0
         boss.cooldown=0           
-
 
 def changemap(msto,csto):
     for i in msto.goable:
@@ -1059,7 +1107,7 @@ def drawgame1(msto,csto,dt,mousetouch):
         pygame.draw.rect(screen,(225,0,0),i.rect,1)
     for i in msto.chooseafterbosses:
         i.draw(screen,mousetouch)
-def renewscreen(msto,csto,dt,mousetouch):
+def renewscreen(msto,csto,dt):
     screen.fill((0,0,0))
 
 def takeline(csto,number,lstat):
@@ -1146,15 +1194,15 @@ def guidetyping(msto,csto,lstat,dt,lenofeachstage):
         darken(msto,csto)
         for i in range(1,lenofeachstage+1):
             smalltyping(csto,i,lstat)
-        stayline(msto,csto,lstat,dt) 
+        stayline(msto,csto,lstat,dt,2) 
 def gainconstline(csto,number,lstat):
     lstat.line=stayline_info.get(csto.stage).get('line'+str(number)).get('line')
     lstat.font=stayline_info.get(csto.stage).get('line'+str(number)).get('font')
     lstat.color=stayline_info.get(csto.stage).get('line'+str(number)).get('color')
     lstat.x=stayline_info.get(csto.stage).get('line'+str(number)).get('x')
     lstat.y=stayline_info.get(csto.stage).get('line'+str(number)).get('y')
-def stayline(msto,csto,lstat,dt):
-    for i in range(1,3):
+def stayline(msto,csto,lstat,dt,number):
+    for i in range(1,number+1):
         gainconstline(csto,i,lstat)
         write(lstat.line,lstat.font,lstat.color,lstat.x,lstat.y)
 
@@ -1173,14 +1221,45 @@ def testtoguide(csto):
 def manaregeneffect(msto,csto):
     msto.regens.append(Regen(csto.player.x,csto.player.y,'mana')) 
 
-def healthregen(msto,csto,mousepos):
+def chooseafterboss(msto,csto,mousepos):
     if msto.chooseafterbosses:
         for i in msto.chooseafterbosses:
-            if i.rect.collidepoint(mousepos):
-                csto.player.hp+=csto.player.maxhp*0.5
-                if csto.player.hp>csto.player.maxhp:
-                    csto.player.hp=csto.player.maxhp
-                msto.chooseafterbosses.remove(i)
-                msto.regens.append(Regen(csto.player.x,csto.player.y,'health'))       
-    
+            if i.rect.collidepoint(mousepos) and i.type!='blank':
+                msto.chooseafterbosses=[]
+                if i.type=='health':
+                    csto.player.hp+=csto.player.maxhp*0.5
+                    if csto.player.hp>csto.player.maxhp:
+                        csto.player.hp=csto.player.maxhp
+                    msto.regens.append(Regen(csto.player.x,csto.player.y,'health'))
+                elif i.type=='develop' or (i.type=='return'and msto.afterbosschoice=='develop'):
+                    csto.pluses.append(Button('dmg','develop'))
+                    csto.pluses.append(Button('maxmana','develop'))
+                    csto.pluses.append(Button('maxhp','develop'))
+                    csto.pluses.append(Button('movespeed','develop'))
+                    csto.pluses.append(Button('manaregen','develop'))
+                    csto.pluses.append(Button('attackspeed','develop'))
+                    msto.afterbosschoice='develop'
+                elif i.type=='gamble' or (i.type=='return'and msto.afterbosschoice=='gamble'):
+                    csto.pluses.append(Button('dmg','gamble'))
+                    csto.pluses.append(Button('maxmana','gamble'))
+                    csto.pluses.append(Button('maxhp','gamble'))
+                    csto.pluses.append(Button('movespeed','gamble'))
+                    csto.pluses.append(Button('manaregen','gamble'))
+                    csto.pluses.append(Button('attackspeed','gamble'))
+                    msto.afterbosschoice='gamble'
+def gainskillscript(msto,number,lstat,type):
+    lstat.line=playerskillscript_info.get(msto.statchoose).get(type).get('line'+str(number)).get('line')
+    lstat.font=playerskillscript_info.get(msto.statchoose).get(type).get('line'+str(number)).get('font')
+    lstat.color=playerskillscript_info.get(msto.statchoose).get(type).get('line'+str(number)).get('color')
+    lstat.x=playerskillscript_info.get(msto.statchoose).get(type).get('line'+str(number)).get('x')
+    lstat.y=playerskillscript_info.get(msto.statchoose).get(type).get('line'+str(number)).get('y')
+def writeskillscript(msto,lstat,type,number):
+    pygame.draw.rect(screen,(0,0,0),pygame.Rect(70,140,490,210))
+    for i in range(1,number+1):
+        gainskillscript(msto,i,lstat,type)
+        write(lstat.line,lstat.font,lstat.color,lstat.x,lstat.y)                           
+def touchandwrite(msto,mousetouch,lstat):
+    for i in msto.chooseafterbosses:
+        if i.rect.collidepoint(mousetouch) and i.type!='blank':
+            writeskillscript(msto,lstat,i.type,4)
                 
