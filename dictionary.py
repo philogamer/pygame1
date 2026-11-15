@@ -102,7 +102,8 @@ chooseafterboss_dic={
 }
 resultchooseafterboss_dic={
     'gamble':lambda *a: fun.gamble(*a),
-    'develop':lambda *a: fun.develop(*a)
+    'develop':lambda *a: fun.develop(*a),
+    'plus':lambda *a: fun.choosebet(*a)
 }
 slimetrap_dic={
     'normal': lambda *a: fun.slimedeath(*a)

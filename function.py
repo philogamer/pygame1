@@ -510,72 +510,78 @@ def buff(csto,click,mousepos):
     else:
         csto.pluses.clear()
 def develop(msto,csto,click,mousepos):
-    if csto.pluses:
-        for plus in csto.pluses:
-            if click:
-                if plus.rect.collidepoint(mousepos):
-                    msto.chooseafterbosses.append(Chooseafterboss(595,245,'blank'))
-                    msto.chooseafterbosses.append(Chooseafterboss(615,285,'active'))
-                    msto.chooseafterbosses.append(Chooseafterboss(615,335,'passive'))
-                    msto.chooseafterbosses.append(Chooseafterboss(615,385,'return'))
-                    if plus.type=='dmg':
-                        csto.player.dmg-=1*2
-                        msto.statchoose='dmg'
-                    elif plus.type=='maxmana':
-                        csto.player.maxmana-=15*2
-                        csto.player.mana-=15*2
-                        if csto.player.mana<=0:
-                            csto.player.mana=1
-                        msto.statchoose='maxmana'
-                    elif plus.type=='maxhp':
-                        csto.player.maxhp-=40*2
-                        csto.player.hp-=40*2
-                        if csto.player.hp<=0:
-                            csto.player.hp=1
-                        msto.statchoose='maxhp'
-                    elif plus.type=='movespeed':
-                        csto.player.maxspeed-=4*2  
-                        msto.statchoose='movespeed'                      
-                    elif plus.type=='manaregen':
-                        csto.player.manaregen-=0.5*2
-                        msto.statchoose='manaregen'
-                    elif plus.type=='attackspeed':
-                        csto.player.attackspeed-=0.025*2
-                        msto.statchoose='attackspeed'
-                    csto.pluses=[]    
+    for plus in csto.pluses:
+        if click:
+            if plus.rect.collidepoint(mousepos):
+                msto.chooseafterbosses.append(Chooseafterboss(595,245,'blank'))
+                msto.chooseafterbosses.append(Chooseafterboss(615,285,'active'))
+                msto.chooseafterbosses.append(Chooseafterboss(615,335,'passive'))
+                msto.chooseafterbosses.append(Chooseafterboss(615,385,'return'))
+                if plus.type=='dmg':
+                    csto.player.dmg-=1*2
+                    msto.statchoose='dmg'
+                elif plus.type=='maxmana':
+                    csto.player.maxmana-=15*2
+                    csto.player.mana-=15*2
+                    if csto.player.mana<=0:
+                        csto.player.mana=1
+                    msto.statchoose='maxmana'
+                elif plus.type=='maxhp':
+                    csto.player.maxhp-=40*2
+                    csto.player.hp-=40*2
+                    if csto.player.hp<=0:
+                        csto.player.hp=1
+                    msto.statchoose='maxhp'
+                elif plus.type=='movespeed':
+                    csto.player.maxspeed-=4*2  
+                    msto.statchoose='movespeed'                      
+                elif plus.type=='manaregen':
+                    csto.player.manaregen-=0.5*2
+                    msto.statchoose='manaregen'
+                elif plus.type=='attackspeed':
+                    csto.player.attackspeed-=0.025*2
+                    msto.statchoose='attackspeed'
+                csto.pluses=[]    
 def gamble(msto,csto,click,mousepos):
-    if csto.pluses:
-        for plus in csto.pluses:
-            if click:
-                if plus.rect.collidepoint(mousepos):
-                    msto.chooseafterbosses.append(Chooseafterboss(595,245,'blank'))
-                    msto.chooseafterbosses.append(Chooseafterboss(615,285,'bet'))
-                    msto.chooseafterbosses.append(Chooseafterboss(615,385,'return'))
-                    if plus.type=='dmg':
-                        csto.player.dmg-=1*2
-                        msto.statchoose='dmg'
-                    elif plus.type=='maxmana':
-                        csto.player.maxmana-=15*2
-                        csto.player.mana-=15*2
-                        if csto.player.mana<=0:
-                            csto.player.mana=1
-                        msto.statchoose='maxmana'
-                    elif plus.type=='maxhp':
-                        csto.player.maxhp-=40*2
-                        csto.player.hp-=40*2
-                        if csto.player.hp<=0:
-                            csto.player.hp=1
-                        msto.statchoose='maxhp'
-                    elif plus.type=='movespeed':
-                        csto.player.maxspeed-=4*2  
-                        msto.statchoose='movespeed'                      
-                    elif plus.type=='manaregen':
-                        csto.player.manaregen-=0.5*2
-                        msto.statchoose='manaregen'
-                    elif plus.type=='attackspeed':
-                        csto.player.attackspeed-=0.025*2
-                        msto.statchoose='attackspeed'
-                    csto.pluses=[] 
+    for plus in csto.pluses:
+        if click:
+            if plus.rect.collidepoint(mousepos):
+                msto.chooseafterbosses.append(Chooseafterboss(595,245,'blank'))
+                msto.chooseafterbosses.append(Chooseafterboss(615,285,'bet'))
+                msto.chooseafterbosses.append(Chooseafterboss(615,385,'return'))
+                if plus.type=='dmg':
+                    csto.player.dmg-=1*2
+                    msto.statchoose='dmg'
+                elif plus.type=='maxmana':
+                    csto.player.maxmana-=15*2
+                    csto.player.mana-=15*2
+                    if csto.player.mana<=0:
+                        csto.player.mana=1
+                    msto.statchoose='maxmana'
+                elif plus.type=='maxhp':
+                    csto.player.maxhp-=40*2
+                    csto.player.hp-=40*2
+                    if csto.player.hp<=0:
+                        csto.player.hp=1
+                    msto.statchoose='maxhp'
+                elif plus.type=='movespeed':
+                    csto.player.maxspeed-=4*2  
+                    msto.statchoose='movespeed'                      
+                elif plus.type=='manaregen':
+                    csto.player.manaregen-=0.5*2
+                    msto.statchoose='manaregen'
+                elif plus.type=='attackspeed':
+                    csto.player.attackspeed-=0.025*2
+                    msto.statchoose='attackspeed'
+                csto.pluses=[]
+def choosebet(msto,csto,click,mousepos):
+    for plus in csto.pluses:
+        if click:
+            if plus.rect.collidepoint(mousepos):
+                if plus.type=='increase' and msto.playerbet<9:
+                    msto.playerbet+=1
+                elif plus.type=='decrease' and msto.playerbet>1:
+                    msto.playerbet-=1
 
 def creeprandom(creep,msto,csto,dt,chase):
     creep.tested='none'
