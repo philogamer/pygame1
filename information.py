@@ -98,7 +98,7 @@ class Player:
         self.wallrect=pygame.Rect(self.x,self.y+(107-73)-(107-70),61,71)
         self.manaregen=12
         self.attackspeed=0.5
-        self.exp=0
+        self.exp=10
         self.level=1
         self.buffstat=0
         self.takedame=True
@@ -113,8 +113,7 @@ class Player:
         pygame.draw.rect(screen,(225,0,0),pygame.Rect(90,710,self.hp*300/self.maxhp,30))
         pygame.draw.rect(screen,(0,0,0),pygame.Rect(85,750,310,40))
         pygame.draw.rect(screen,(50,107,250),pygame.Rect(90,755,self.mana*300/self.maxmana,30))
-        pygame.draw.rect(screen,(0,0,0),pygame.Rect(1425,120,50,500))
-        pygame.draw.rect(screen,(52,6,59),pygame.Rect(1425,120,50,self.exp*500/(90+25*(self.level-1)+5*(self.level-1)**2)))
+        pygame.draw.rect(screen,(52,6,59),pygame.Rect(1400,0,10,self.exp*700/(90+25*(self.level-1)+5*(self.level-1)**2)))
     def move(self,dt):
         dx=self.targetx-self.x
         self.direction='right' if dx>0 else 'left'
@@ -327,16 +326,16 @@ class Button:
             self.x=640
             self.y=750
         elif type=='maxhp':
-            self.x=860
+            self.x=914
             self.y=705
         elif type=='movespeed':
             self.x=914
             self.y=750
         elif type=='manaregen':
-            self.x=1300
+            self.x=1220
             self.y=705
         elif type=='attackspeed':
-            self.x=1300
+            self.x=1220
             self.y=750
         self.img=pygame.image.load(self.img).convert_alpha()
         self.img=pygame.transform.scale(self.img,(30,30))
@@ -775,14 +774,14 @@ chat_info={
         },
         9:{
             'line1':{
-                'line':'this is your experience bar, present',
+                'line':'this is your experience bar and',
                 'font': chatfont,
                 'color':(111,13,181),
                 'x': 385,
                 'y': 235
                     },
             'line2':{
-                'line':'level and target level',
+                'line':'present level',
                 'font': chatfont,
                 'color':(111,13,181),
                 'x': 385,

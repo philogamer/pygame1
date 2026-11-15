@@ -1074,9 +1074,8 @@ def drawgame1(msto,csto,dt,mousetouch):
     write('MOVE SPEED:'+str(csto.player.maxspeed),font,(0,0,0),700,744)
     write('MANA REGEN:'+str(csto.player.manaregen),font,(0,0,0),950,699)
     write('ATTACK SPEED:'+str(csto.player.attackspeed),font,(0,0,0),950,744)
-    write('level',font,(0,0,0),1410,30)
-    write(str(csto.player.level),font,(0,0,0),1430,70)
-    write(str(csto.player.level+1),font,(0,0,0),1430,630)
+    write('level',font,(0,0,0),1415,10)
+    write(str(csto.player.level),font,(0,0,0),1430,40)
     for i in csto.bosses:
         i.draw(screen)
         if msto.bossattacks:
@@ -1179,7 +1178,7 @@ def darken(msto,csto):
         if csto.guidenumber==2: pygame.draw.rect(transparentscreen,(225,225,225,0),pygame.Rect(15,700,400,90))
         if csto.guidenumber==5: pygame.draw.circle(transparentscreen,(225,225,225,0),(700,20),100)
         if csto.guidenumber==4 or csto.guidenumber==6: csto.player.mana=0
-        if csto.guidenumber==9: pygame.draw.rect(transparentscreen,(225,225,225,0),pygame.Rect(1410,30,80,650))
+        if csto.guidenumber==9: pygame.draw.rect(transparentscreen,(225,225,225,0),pygame.Rect(1400,0,100,700))
         if csto.guidenumber==12: pygame.draw.rect(transparentscreen,(225,225,225,0),pygame.Rect(445,700,755,90))
     screen.blit(transparentscreen)     
 def guidetyping(msto,csto,lstat,dt,lenofeachstage):    
