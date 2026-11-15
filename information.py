@@ -321,7 +321,7 @@ class Button:
         elif button=='develop': self.img='assets/exchange.png'
         elif button=='gamble': self.img='assets/minus.png'
         if type=='dmg':
-            self.x=600
+            self.x=640
             self.y=705
         elif type=='maxmana':
             self.x=640
@@ -333,10 +333,10 @@ class Button:
             self.x=914
             self.y=750
         elif type=='manaregen':
-            self.x=1150
+            self.x=1300
             self.y=705
         elif type=='attackspeed':
-            self.x=1200
+            self.x=1300
             self.y=750
         self.img=pygame.image.load(self.img).convert_alpha()
         self.img=pygame.transform.scale(self.img,(30,30))
@@ -908,14 +908,14 @@ playerskillscript_info={
                 'y': 175
                      },
             'line3':{
-                'line':'create a big slash with 2.5 damage at the normal',
+                'line':'create a big slash with 25% Damage at the',
                 'font': smallfont,
                 'color':(111,13,181),
                 'x': 80,
                 'y': 225
                      },
             'line4':{
-                'line':'attack direction',
+                'line':'normal attack direction',
                 'font': smallfont,
                 'color':(111,13,181),
                 'x': 80,
@@ -945,7 +945,7 @@ playerskillscript_info={
                 'y': 225
                      },
             'line4':{
-                'line':'After a short duration, deals 0.5 DMG.',
+                'line':'After a short duration, deals 50% Damage.',
                 'font': smallfont,
                 'color':(111,13,181),
                 'x': 80,
@@ -1007,7 +1007,7 @@ playerskillscript_info={
                 'y': 225
                      },
             'line4':{
-                'line':'to 0.2 max hp for 4 seconds.',
+                'line':'to 20% Max hp for 4 seconds.',
                 'font': smallfont,
                 'color':(111,13,181),
                 'x': 80,
@@ -1030,7 +1030,7 @@ playerskillscript_info={
                 'y': 175
                      },
             'line3':{
-                'line':'When hp drops below 0.2 max hp, gain',
+                'line':'When hp drops below 20% Max hp, gain',
                 'font': smallfont,
                 'color':(111,13,181),
                 'x': 80,
@@ -1099,7 +1099,7 @@ playerskillscript_info={
                 'y': 225
                      },
             'line4':{
-                'line':'the player with 0.8 damage and push back',
+                'line':'the player with 80% Damage and push back',
                 'font': smallfont,
                 'color':(111,13,181),
                 'x': 80,
@@ -1122,14 +1122,14 @@ playerskillscript_info={
                 'y': 175
                      },
             'line3':{
-                'line':'When mana is above 80%, Slash deals extra',
+                'line':'When mana is above 80%, slash deals extra',
                 'font': smallfont,
                 'color':(111,13,181),
                 'x': 80,
                 'y': 225
                      },
             'line4':{
-                'line':' 0.5 DMG but cost extra 6 mana.',
+                'line':' 50% Damage but cost extra 6 mana.',
                 'font': smallfont,
                 'color':(111,13,181),
                 'x': 80,
@@ -1191,7 +1191,7 @@ playerskillscript_info={
                 'y': 225
                      },
             'line4':{
-                'line':',deal 0.8 damage along the path.',
+                'line':',deal 80% Damage along the path.',
                 'font': smallfont,
                 'color':(111,13,181),
                 'x': 80,
@@ -1262,38 +1262,186 @@ playerskillscript_info={
     'manaregen':{
         'active':{
             'line1':{
-                'line':'Soul break:',
+                'line':'SOUL ABSORB',
                 'font': smallfont,
-                'color':(227,206,14),
-                'x': 385,
-                'y': 460
+                'color':(111,13,181),
+                'x': 80,
+                'y': 150
                      },
             'line2':{
-                'line':'G to use      Skill cooldown:5 minute',
+                'line':'G to use       Skill cooldown: 5 second',
                 'font': smallfont,
-                'color':(227,206,14),
-                'x': 875,
-                'y': 460
-                     },   
-        }
+                'color':(111,13,181),
+                'x': 80,
+                'y': 175
+                     },
+            'line3':{
+                'line':'Drains energy from enemies in front,',
+                'font': smallfont,
+                'color':(111,13,181),
+                'x': 80,
+                'y': 225
+                     },
+            'line4':{
+                'line':'restores 25 mana upon hitting a target.',
+                'font': smallfont,
+                'color':(111,13,181),
+                'x': 80,
+                'y': 250
+                     },     
         },
+        'passive':{
+            'line1':{
+                'line':'SOUL DRAIN',
+                'font': smallfont,
+                'color':(111,13,181),
+                'x': 80,
+                'y': 150
+                     },
+            'line2':{
+                'line':'Passive skill       Skill cooldown: none',
+                'font': smallfont,
+                'color':(111,13,181),
+                'x': 80,
+                'y': 175
+                     },
+            'line3':{
+                'line':'Each slash touch normal enemy retore 3',
+                'font': smallfont,
+                'color':(111,13,181),
+                'x': 80,
+                'y': 225
+                     },
+            'line4':{
+                'line':'mana, touch boss restore 5 mana',
+                'font': smallfont,
+                'color':(111,13,181),
+                'x': 80,
+                'y': 250
+                     },     
+        },
+        'return':{
+            'line1':{
+                'line':'Rechoice the stat',
+                'font': smallfont,
+                'color':(111,13,181),
+                'x': 80,
+                'y': 150
+                     },
+            'line2':{
+                'line':' ',
+                'font': smallfont,
+                'color':(111,13,181),
+                'x': 80,
+                'y': 175
+                     },
+            'line3':{
+                'line':' ',
+                'font': smallfont,
+                'color':(111,13,181),
+                'x': 80,
+                'y': 225
+                     },
+            'line4':{
+                'line':' ',
+                'font': smallfont,
+                'color':(111,13,181),
+                'x': 80,
+                'y': 250
+                     },     
+        },
+    },
     'attackspeed':{
         'active':{
             'line1':{
-                'line':'Soul break:',
+                'line':'PHANTOM FLURRY',
                 'font': smallfont,
-                'color':(227,206,14),
-                'x': 385,
-                'y': 460
+                'color':(111,13,181),
+                'x': 80,
+                'y': 150
                      },
             'line2':{
-                'line':'G to use      Skill cooldown:5 minute',
+                'line':'G to use       Skill cooldown: 18 second',
                 'font': smallfont,
-                'color':(227,206,14),
-                'x': 875,
-                'y': 460
-                     },   
-        }
+                'color':(111,13,181),
+                'x': 80,
+                'y': 175
+                     },
+            'line3':{
+                'line':'In 5 second, each normal attack create an',
+                'font': smallfont,
+                'color':(111,13,181),
+                'x': 80,
+                'y': 225
+                     },
+            'line4':{
+                'line':'additional basic attack on the opposite side',
+                'font': smallfont,
+                'color':(111,13,181),
+                'x': 80,
+                'y': 250
+                     },     
+        },
+        'passive':{
+            'line1':{
+                'line':'BERSERK SOUL',
+                'font': smallfont,
+                'color':(111,13,181),
+                'x': 80,
+                'y': 150
+                     },
+            'line2':{
+                'line':'Passive skill       Skill cooldown: none',
+                'font': smallfont,
+                'color':(111,13,181),
+                'x': 80,
+                'y': 175
+                     },
+            'line3':{
+                'line':'Slash touch enemy buff 5% Attack speed',
+                'font': smallfont,
+                'color':(111,13,181),
+                'x': 80,
+                'y': 225
+                     },
+            'line4':{
+                'line':', max 4 stacks, lost each after one second',
+                'font': smallfont,
+                'color':(111,13,181),
+                'x': 80,
+                'y': 250
+                     },     
+        },
+        'return':{
+            'line1':{
+                'line':'Rechoice the stat',
+                'font': smallfont,
+                'color':(111,13,181),
+                'x': 80,
+                'y': 150
+                     },
+            'line2':{
+                'line':' ',
+                'font': smallfont,
+                'color':(111,13,181),
+                'x': 80,
+                'y': 175
+                     },
+            'line3':{
+                'line':' ',
+                'font': smallfont,
+                'color':(111,13,181),
+                'x': 80,
+                'y': 225
+                     },
+            'line4':{
+                'line':' ',
+                'font': smallfont,
+                'color':(111,13,181),
+                'x': 80,
+                'y': 250
+                     },     
+        },
     }
 }
 

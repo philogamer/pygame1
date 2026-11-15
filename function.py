@@ -526,7 +526,7 @@ def develop(msto,csto,click,mousepos):
                         csto.player.mana-=15*2
                         if csto.player.mana<=0:
                             csto.player.mana=1
-                        msto.statchoose='dmg'
+                        msto.statchoose='maxmana'
                     elif plus.type=='maxhp':
                         csto.player.maxhp-=40*2
                         csto.player.hp-=40*2
@@ -1254,7 +1254,7 @@ def gainskillscript(msto,number,lstat,type):
     lstat.x=playerskillscript_info.get(msto.statchoose).get(type).get('line'+str(number)).get('x')
     lstat.y=playerskillscript_info.get(msto.statchoose).get(type).get('line'+str(number)).get('y')
 def writeskillscript(msto,lstat,type,number):
-    pygame.draw.rect(screen,(0,0,0),pygame.Rect(70,140,490,210))
+    pygame.draw.rect(screen,(0,0,0),pygame.Rect(70,140,420,210))
     for i in range(1,number+1):
         gainskillscript(msto,i,lstat,type)
         write(lstat.line,lstat.font,lstat.color,lstat.x,lstat.y)                           
