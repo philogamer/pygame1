@@ -1290,6 +1290,6 @@ def writeskillscript(msto,lstat,type,number):
         write(lstat.line,lstat.font,lstat.color,lstat.x,lstat.y)                           
 def touchandwrite(msto,mousetouch,lstat):
     for i in msto.chooseafterbosses:
-        if i.rect.collidepoint(mousetouch) and i.type!='blank' and i.type!='entergamble':
+        if i.rect.collidepoint(mousetouch) and i.type!='blank':
             writeskillscript(msto,lstat,i.type,4)
                 

@@ -1489,6 +1489,36 @@ betscript_info={
             'y': 250
                     },     
     },
+    'entergamble':{
+        'line1':{
+            'line':'Deduction amount for each bet point:',
+            'font': smallfont,
+            'color':(111,13,181),
+            'x': 80,
+            'y': 150
+                    },
+        'line2':{
+            'line':'damage: '+str(1*2)+'    maxmana: '+str(15*2),
+            'font': smallfont,
+            'color':(111,13,181),
+            'x': 80,
+            'y': 200
+                    },
+        'line3':{
+            'line':'maxhp: '+str(40*2)+'    movespeed: '+str(4*2),
+            'font': smallfont,
+            'color':(111,13,181),
+            'x': 80,
+            'y': 225
+                    },
+        'line4':{
+            'line':'manaregen: '+str(0.5*2)+'    attackspeed: '+str(0.025*2),
+            'font': smallfont,
+            'color':(111,13,181),
+            'x': 80,
+            'y': 250
+                    },     
+    },
     'return':{
         'line1':{
             'line':'Rechoice the stat',
