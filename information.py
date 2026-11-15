@@ -119,8 +119,11 @@ class Player:
         dx=self.targetx-self.x
         self.direction='right' if dx>0 else 'left'
         dy=self.targety-self.y
-        distance=math.hypot(dx,dy)
-        if dx!=0 or dy!=0:    
+        if dx!=0 or dy!=0:
+            if dx!=0 and dy!=0: 
+                dx*=(1/math.sqrt(2))
+                dy*=(1/math.sqrt(2))
+            distance=math.hypot(dx,dy)    
             if self.mana>0: self.mana-=9*dt
             if self.speed*dt>=distance:
                 self.x=self.targetx
