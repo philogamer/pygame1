@@ -94,7 +94,7 @@ while True:
     #draw on screen
     dic.render_dic.get(csto.stage, lambda *b:None)(msto,csto,dt,mousetouch)
     dic.typechat_dic.get(csto.stage,dic.typechat_dic['none'])(msto,csto,lstat,dt)
-    dic.skillscript_dic.get(msto.afterbosschoice,lambda*b:None)(msto,mousetouch,lstat)
+    dic.scriptafterboss_dic.get(msto.afterbosschoice,lambda*b:None)(msto,mousetouch,lstat)
         
                   
             

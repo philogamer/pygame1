@@ -1,6 +1,7 @@
 {
     "conventionalCommits.scopes": [
         "player",
-        "playerskillscript"
+        "playerskillscript",
+        "gamble"
     ]
 }

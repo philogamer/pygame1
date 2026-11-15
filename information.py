@@ -332,11 +332,17 @@ class Button:
             self.x=914
             self.y=750
         elif type=='manaregen':
-            self.x=1220
+            self.x=1210
             self.y=705
         elif type=='attackspeed':
-            self.x=1220
+            self.x=1210
             self.y=750
+        elif type=='decrease':
+            self.x=615
+            self.y=305
+        elif type=='increase':
+            self.x=755
+            self.y=305
         self.img=pygame.image.load(self.img).convert_alpha()
         self.img=pygame.transform.scale(self.img,(30,30))
         self.rect=pygame.Rect(self.x,self.y,30,30)
@@ -449,7 +455,15 @@ class Chooseafterboss:
             self.img2='assets/return.png'
             self.img2=pygame.image.load(self.img2).convert_alpha()
             self.img2=pygame.transform.scale(self.img2,(170,30))
-        if type=='active' or type=='passive' or type=='return':
+        elif type=='bet':
+            self.img2='assets/bet.png'
+            self.img2=pygame.image.load(self.img2).convert_alpha()
+            self.img2=pygame.transform.scale(self.img2,(170,30))
+        elif type=='entergamble':
+            self.img2='assets/gamble.png'
+            self.img2=pygame.image.load(self.img2).convert_alpha()
+            self.img2=pygame.transform.scale(self.img2,(170,30))
+        if type=='active' or type=='passive' or type=='return' or type=='bet' or type=='entergamble':
             self.img1='assets/shade.png'
             self.img1=pygame.image.load(self.img1).convert_alpha()
             self.img1=pygame.transform.scale(self.img1,(173,32))
@@ -533,6 +547,7 @@ class Mapstore:
         self.slimestucks=[]
         self.statchoose='none'
         self.afterbosschoice='none'
+        self.playerbet=0
 
 class Linestat:
     def __init__(self):
@@ -1443,7 +1458,68 @@ playerskillscript_info={
         },
     }
 }
-
+betscript_info={
+    'bet':{
+        'line1':{
+            'line':'select an amount of the index to subtract,',
+            'font': smallfont,
+            'color':(111,13,181),
+            'x': 80,
+            'y': 150
+                    },
+        'line2':{
+            'line':'higher amount higher oppurtunity to own',
+            'font': smallfont,
+            'color':(111,13,181),
+            'x': 80,
+            'y': 175
+                    },
+        'line3':{
+            'line':'rare items',
+            'font': smallfont,
+            'color':(111,13,181),
+            'x': 80,
+            'y': 200
+                    },
+        'line4':{
+            'line':' ',
+            'font': smallfont,
+            'color':(111,13,181),
+            'x': 80,
+            'y': 250
+                    },     
+    },
+    'return':{
+        'line1':{
+            'line':'Rechoice the stat',
+            'font': smallfont,
+            'color':(111,13,181),
+            'x': 80,
+            'y': 150
+                    },
+        'line2':{
+            'line':' ',
+            'font': smallfont,
+            'color':(111,13,181),
+            'x': 80,
+            'y': 175
+                    },
+        'line3':{
+            'line':' ',
+            'font': smallfont,
+            'color':(111,13,181),
+            'x': 80,
+            'y': 225
+                    },
+        'line4':{
+            'line':' ',
+            'font': smallfont,
+            'color':(111,13,181),
+            'x': 80,
+            'y': 250
+                    },     
+    },
+}
 
 
 

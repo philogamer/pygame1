@@ -548,23 +548,34 @@ def gamble(msto,csto,click,mousepos):
         for plus in csto.pluses:
             if click:
                 if plus.rect.collidepoint(mousepos):
-                    csto.player.buffstat-=1
+                    msto.chooseafterbosses.append(Chooseafterboss(595,245,'blank'))
+                    msto.chooseafterbosses.append(Chooseafterboss(615,285,'bet'))
+                    msto.chooseafterbosses.append(Chooseafterboss(615,385,'return'))
                     if plus.type=='dmg':
-                        csto.player.dmg+=1
+                        csto.player.dmg-=1*2
+                        msto.statchoose='dmg'
                     elif plus.type=='maxmana':
-                        csto.player.maxmana+=15
-                        csto.player.mana+=15
+                        csto.player.maxmana-=15*2
+                        csto.player.mana-=15*2
+                        if csto.player.mana<=0:
+                            csto.player.mana=1
+                        msto.statchoose='maxmana'
                     elif plus.type=='maxhp':
-                        csto.player.maxhp+=35
-                        csto.player.hp+=15
+                        csto.player.maxhp-=40*2
+                        csto.player.hp-=40*2
+                        if csto.player.hp<=0:
+                            csto.player.hp=1
+                        msto.statchoose='maxhp'
                     elif plus.type=='movespeed':
-                        csto.player.maxspeed+=1                        
+                        csto.player.maxspeed-=4*2  
+                        msto.statchoose='movespeed'                      
                     elif plus.type=='manaregen':
-                        csto.player.manaregen+=1
+                        csto.player.manaregen-=0.5*2
+                        msto.statchoose='manaregen'
                     elif plus.type=='attackspeed':
-                        csto.player.attackspeed+=0.03
-    else:
-        csto.pluses.clear()
+                        csto.player.attackspeed-=0.025*2
+                        msto.statchoose='attackspeed'
+                    csto.pluses=[] 
 
 def creeprandom(creep,msto,csto,dt,chase):
     creep.tested='none'
@@ -1100,12 +1111,13 @@ def drawgame1(msto,csto,dt,mousetouch):
         i.draw(screen)
     for i in msto.slashes:
         i.draw(screen)
-    for i in csto.pluses:
-        i.draw(screen)
     for i in msto.goable:
         pygame.draw.rect(screen,(225,0,0),i.rect,1)
     for i in msto.chooseafterbosses:
         i.draw(screen,mousetouch)
+    if msto.playerbet!=0: write(str(msto.playerbet),codefont,(111,13,181),685,285)
+    for i in csto.pluses:
+        i.draw(screen)
 def renewscreen(msto,csto,dt):
     screen.fill((0,0,0))
 
@@ -1246,19 +1258,32 @@ def chooseafterboss(msto,csto,mousepos):
                     csto.pluses.append(Button('manaregen','gamble'))
                     csto.pluses.append(Button('attackspeed','gamble'))
                     msto.afterbosschoice='gamble'
+                elif i.type=='bet':
+                    msto.chooseafterbosses.append(Chooseafterboss(595,245,'blank'))
+                    msto.chooseafterbosses.append(Chooseafterboss(615,385,'entergamble'))
+                    csto.pluses.append(Button('increase','plus'))
+                    csto.pluses.append(Button('decrease','gamble'))
+                    msto.playerbet=1
 def gainskillscript(msto,number,lstat,type):
     lstat.line=playerskillscript_info.get(msto.statchoose).get(type).get('line'+str(number)).get('line')
     lstat.font=playerskillscript_info.get(msto.statchoose).get(type).get('line'+str(number)).get('font')
     lstat.color=playerskillscript_info.get(msto.statchoose).get(type).get('line'+str(number)).get('color')
     lstat.x=playerskillscript_info.get(msto.statchoose).get(type).get('line'+str(number)).get('x')
     lstat.y=playerskillscript_info.get(msto.statchoose).get(type).get('line'+str(number)).get('y')
+def gaingamblescript(number,lstat,type):
+    lstat.line=betscript_info.get(type).get('line'+str(number)).get('line')
+    lstat.font=betscript_info.get(type).get('line'+str(number)).get('font')
+    lstat.color=betscript_info.get(type).get('line'+str(number)).get('color')
+    lstat.x=betscript_info.get(type).get('line'+str(number)).get('x')
+    lstat.y=betscript_info.get(type).get('line'+str(number)).get('y')
 def writeskillscript(msto,lstat,type,number):
     pygame.draw.rect(screen,(0,0,0),pygame.Rect(70,140,420,210))
     for i in range(1,number+1):
-        gainskillscript(msto,i,lstat,type)
+        if msto.afterbosschoice=='gamble': gaingamblescript(i,lstat,type)
+        else: gainskillscript(msto,i,lstat,type)
         write(lstat.line,lstat.font,lstat.color,lstat.x,lstat.y)                           
 def touchandwrite(msto,mousetouch,lstat):
     for i in msto.chooseafterbosses:
-        if i.rect.collidepoint(mousetouch) and i.type!='blank':
+        if i.rect.collidepoint(mousetouch) and i.type!='blank' and i.type!='entergamble':
             writeskillscript(msto,lstat,i.type,4)
                 

@@ -107,8 +107,9 @@ resultchooseafterboss_dic={
 slimetrap_dic={
     'normal': lambda *a: fun.slimedeath(*a)
 }
-skillscript_dic={
-    'develop': lambda *a: fun.touchandwrite(*a)
+scriptafterboss_dic={
+    'develop': lambda *a: fun.touchandwrite(*a),
+    'gamble': lambda *a: fun.touchandwrite(*a),
 }
 
 
