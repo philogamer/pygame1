@@ -475,8 +475,8 @@ def playerbehave(msto,csto,dt,keys):
     csto.player.update()
     
     if csto.player.exp>=(90+25*(csto.player.level-1)+5*(csto.player.level-1)**2):
-        csto.player.level+=1
         csto.player.exp-=(90+25*(csto.player.level-1)+5*(csto.player.level-1)**2)
+        csto.player.level+=1
         csto.player.buffstat+=2
     if csto.player.buffstat==0:
         if csto.pluses: csto.pluses=[]
@@ -518,28 +518,16 @@ def develop(msto,csto,click,mousepos):
                 msto.chooseafterbosses.append(Chooseafterboss(615,335,'passive'))
                 msto.chooseafterbosses.append(Chooseafterboss(615,385,'return'))
                 if plus.type=='dmg':
-                    csto.player.dmg-=1*2
                     msto.statchoose='dmg'
                 elif plus.type=='maxmana':
-                    csto.player.maxmana-=15*2
-                    csto.player.mana-=15*2
-                    if csto.player.mana<=0:
-                        csto.player.mana=1
                     msto.statchoose='maxmana'
                 elif plus.type=='maxhp':
-                    csto.player.maxhp-=40*2
-                    csto.player.hp-=40*2
-                    if csto.player.hp<=0:
-                        csto.player.hp=1
                     msto.statchoose='maxhp'
-                elif plus.type=='movespeed':
-                    csto.player.maxspeed-=4*2  
+                elif plus.type=='movespeed': 
                     msto.statchoose='movespeed'                      
                 elif plus.type=='manaregen':
-                    csto.player.manaregen-=0.5*2
                     msto.statchoose='manaregen'
                 elif plus.type=='attackspeed':
-                    csto.player.attackspeed-=0.025*2
                     msto.statchoose='attackspeed'
                 csto.pluses=[]    
 def gamble(msto,csto,click,mousepos):
@@ -1270,6 +1258,59 @@ def chooseafterboss(msto,csto,mousepos):
                     csto.pluses.append(Button('increase','plus'))
                     csto.pluses.append(Button('decrease','gamble'))
                     msto.playerbet=1
+                elif msto.afterbosschoice=='develop':
+                    if i.type=='passive':
+                        if msto.statchoose=='dmg':
+                            csto.player.dmg-=1*2
+                            csto.pska.dmg=True
+                        elif msto.statchoose=='maxmana':
+                            csto.player.maxmana-=15*2
+                            csto.player.mana-=15*2
+                            if csto.player.mana<=0:
+                                csto.player.mana=1
+                            csto.pska.maxmana=True
+                        elif msto.statchoose=='maxhp':
+                            csto.player.maxhp-=40*2
+                            csto.player.hp-=40*2
+                            if csto.player.hp<=0:
+                                csto.player.hp=1
+                            csto.pska.maxhp=True
+                        elif msto.statchoose=='movespeed' :
+                            csto.player.maxspeed-=4*2 
+                            csto.pska.movespeed=True                
+                        elif msto.statchoose=='manaregen':
+                            csto.player.manaregen-=0.5*2
+                            csto.pska.manaregen=True
+                        elif msto.statchoose=='attackspeed':
+                            csto.player.attackspeed-=0.025*2
+                            csto.pska.attackspeed=True
+                    elif i.type=='active':
+                        if msto.statchoose=='dmg':
+                            csto.player.dmg-=1*2
+                            csto.aska.dmg=True
+                        elif msto.statchoose=='maxmana':
+                            csto.player.maxmana-=15*2
+                            csto.player.mana-=15*2
+                            if csto.player.mana<=0:
+                                csto.player.mana=1
+                            csto.aska.maxmana=True
+                        elif msto.statchoose=='maxhp':
+                            csto.player.maxhp-=40*2
+                            csto.player.hp-=40*2
+                            if csto.player.hp<=0:
+                                csto.player.hp=1
+                            csto.aska.maxhp=True
+                        elif msto.statchoose=='movespeed' :
+                            csto.player.maxspeed-=4*2 
+                            csto.aska.movespeed=True                
+                        elif msto.statchoose=='manaregen':
+                            csto.player.manaregen-=0.5*2
+                            csto.aska.manaregen=True
+                        elif msto.statchoose=='attackspeed':
+                            csto.player.attackspeed-=0.025*2
+                            csto.aska.attackspeed=True
+                            
+                    
 def gainskillscript(msto,number,lstat,type):
     lstat.line=playerskillscript_info.get(msto.statchoose).get(type).get('line'+str(number)).get('line')
     lstat.font=playerskillscript_info.get(msto.statchoose).get(type).get('line'+str(number)).get('font')

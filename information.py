@@ -490,8 +490,22 @@ class Slimestuck:
     def draw(self,screen,dt):
         self.duration+=dt
         screen.blit(self.img,(self.x,self.y-(107-70)))
-        
-
+class Passiveskillactivate:
+    def __init__(self):
+        self.dmg=False
+        self.maxhp=False
+        self.maxmana=False
+        self.movespeed=False
+        self.attackspeed=False
+        self.manaregen=False                
+class Activeskillactivate:
+    def __init__(self):
+        self.dmg=False
+        self.maxhp=False
+        self.maxmana=False
+        self.movespeed=False
+        self.attackspeed=False
+        self.manaregen=False
         
 
 class Conststore:
@@ -506,6 +520,8 @@ class Conststore:
         self.mapcount=0
         self.stage='boss'
         self.player=Player()
+        self.pska=Passiveskillactivate()
+        self.aska=Activeskillactivate()
         self.bosses=[]
         self.pluses=[]
         #end and start
