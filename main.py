@@ -62,7 +62,7 @@ while True:
              
         #creep logic
     if csto.stage=='normal':
-        dic.creepspawn_dic.get(len(msto.creeps),lambda *b: None)(msto,csto)   
+        dic.creepspawn_dic.get(len(msto.creeps)+len(msto.slimes),lambda *b: None)(msto,csto)   
         for creep in msto.creeps:
             dic.creepmove_dic.get(math.hypot(csto.player.x-creep.x,csto.player.y-creep.y)>creep.range
             ).get(math.hypot(csto.player.x-creep.x,csto.player.y-creep.y)>creep.view or creep.notry)(creep,msto,csto,dt)
