@@ -328,7 +328,7 @@ def render1(msto,csto):
             msto.obstacle.append(Obstacle(i,'st'))
     sideblock(msto)
     for i in msto.insidef:
-        if i%10==0 or i%10==9 or i<10 and i<190:
+        if i%10==0 or i%10==9 or i<10 or i<190:
             msto.insidef.remove(i)
 def render2(msto,csto):
     csto.bosses.append(Boss(csto.wave))
