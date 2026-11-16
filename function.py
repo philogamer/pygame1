@@ -759,7 +759,7 @@ def creepspawn(msto,csto):
         csto.stage='boss'
         csto.rendermap=True
     else:
-        creepsquare=random.sample(msto.insidef,int(len(msto.insidef)/12*(1+0.5*msto.mapstay)))
+        creepsquare=random.sample(msto.insidef,int(len(msto.insidef)/15*(1+0.5*msto.mapstay)))
         msto.mapstay+=1
         for i in creepsquare:
             if i%2==0:
@@ -1007,7 +1007,7 @@ def chooseskillboss(boss,msto,csto,dt):
     boss.skillchoose=random.randint(1,4)
     boss.skillprepare=0
 def skillboss1(boss,msto,csto,dt):
-    for i in range(0,360,int(360/(24+6*csto.bosscount))):
+    for i in range(0,360,int(360/(24+3*csto.bosscount))):
         msto.bullets.append(Bullet(boss.x+boss.w/2,boss.y+boss.h/2-18,boss.x+2000*math.cos(math.radians(i)),boss.y+2000*math.sin(math.radians(i)),boss.dmg))
         boss.cooldown=0
         boss.skillchoose=0  
@@ -1034,8 +1034,8 @@ def skillboss2(boss,msto,csto,dt):
             boss.cooldown=0
 def skillboss3(boss,msto,csto,dt):               
     if boss.skillprepare==0:
-        for i in range(8+2*csto.bosscount):
-            msto.bossattacks.append(Bossattack(random.uniform(71,1329),random.uniform(141,629),0.6*boss.dmg,90+10*csto.bosscount))
+        for i in range(8+csto.bosscount):
+            msto.bossattacks.append(Bossattack(random.uniform(71,1329),random.uniform(141,629),0.6*boss.dmg,90+5*csto.bosscount))
     elif boss.skillprepare>=1:
         for bossattack in msto.bossattacks:
             if bossattack.rect.colliderect(csto.player.rect):
@@ -1051,7 +1051,7 @@ def skillboss4(boss,msto,csto,dt):
         boss.cooldown=1.8
     if boss.skillprepare<360:
         msto.bullets.append(Bullet(boss.x+boss.w/2,boss.y+boss.h/2-18,boss.x+2000*math.cos(math.radians(boss.skillprepare)),boss.y+2000*math.sin(math.radians(boss.skillprepare)),boss.dmg))
-        boss.skillprepare+=int(360/(24+6*csto.bosscount))
+        boss.skillprepare+=int(360/(24+3*csto.bosscount))
     else:    
         boss.skillchoose=0
         boss.cooldown=0           
@@ -1180,6 +1180,7 @@ def drawgame1(msto,csto,dt,mousetouch):
         pygame.draw.rect(screen,(225,0,0),i.rect,1)
     for i in msto.chooseafterbosses:
         i.draw(screen,mousetouch)
+        pygame.draw.rect(screen,(225,0,0),i.rect,1)
     if msto.playerbet!=0: write(str(msto.playerbet),codefont,(111,13,181),685,285)
     for i in csto.pluses:
         i.draw(screen)
@@ -1306,6 +1307,8 @@ def chooseafterboss(msto,csto,mousepos):
             if i.rect.collidepoint(mousepos) and i.type!='blank':
                 if msto.afterbosschoice=='develop':
                     if i.type=='passive':
+                        csto.stage='normal'
+                        csto.rendermap=True
                         if msto.statchoose=='dmg' and csto.pska.dmgratio<2:
                             csto.player.dmg-=1*2
                             csto.pska.dmg=True
@@ -1338,6 +1341,8 @@ def chooseafterboss(msto,csto,mousepos):
                             csto.pska.attackspeedratio+=1
                         else:
                             msto.limitdevelopskill=5
+                            csto.stage='boss'
+                            csto.rendermap=False
                             break
                     elif i.type=='active':
                         if msto.statchoose=='dmg':

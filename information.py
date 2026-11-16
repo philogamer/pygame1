@@ -173,29 +173,28 @@ class Creep:
             self.img='assets/ghost.png'
             self.h=30*2
             self.w=24*2
-            self.hp=70*(1+0.08*buff)
-            self.maxhp=70*(1+0.08*buff)
+            self.hp=70*(1+0.05*buff)
+            self.maxhp=70*(1+0.05*buff)
             self.range=125
             self.view=400
-            self.dmg=10*(1+0.05*buff)
+            self.dmg=10*(1+0.02*buff)
         elif self.type=='elite':
             self.img='assets/ghost1.png'
             self.h=30*2
             self.w=24*2
-            self.hp=150*(1+0.06*buff)
-            self.maxhp=150*(1+0.06*buff)
+            self.hp=150*(1+0.04*buff)
+            self.maxhp=150*(1+0.04*buff)
             self.range=125
             self.view=400
-            self.dmg=15*(1+0.05*buff)
+            self.dmg=15*(1+0.02*buff)
         elif self.type=='slime':
             self.img='assets/slime.png'
             self.h=14*2
             self.w=19*2
-            self.hp=50*(1+0.07*buff)
-            self.maxhp=50*(1+0.07*buff)
+            self.hp=50*(1+0.035*buff)
+            self.maxhp=50*(1+0.035*buff)
             self.range=130
             self.view=400
-            self.dmg=5*(1+0.05*buff)
         
         self.faketargetx=self.x
         self.faketargety=self.y
@@ -358,11 +357,11 @@ class Boss:
     def __init__(self,buff):
         self.x=750
         self.y=400
-        self.hp=280*(1+0.09*buff)
-        self.maxhp=280*(1+0.09*buff)
-        self.speed=182*(1+0.15*buff)
+        self.hp=280*(1+0.05*buff)
+        self.maxhp=280*(1+0.07*buff)
+        self.speed=182*(1+0.02*buff)
         self.cooldown=0
-        self.dmg=20**(1+0.09*buff)
+        self.dmg=20*(1+0.04*buff)
         self.img='assets/skull.png'
         self.w=150
         self.h=150
