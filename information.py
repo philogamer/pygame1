@@ -104,8 +104,7 @@ class Player:
         self.takedame=True
         self.slashcooldown=0
         self.sloweffect=0
-        self.immortal=3
-        self.immortalcooldown=30
+        self.immortal=0
         self.attackspeedstack=0
         self.movestack=1.5
         self.moving='yes'
@@ -115,7 +114,10 @@ class Player:
     def draw(self,screen):
         screen.blit(self.img,(self.x,self.y-(107-70)))
         pygame.draw.rect(screen,(0,0,0),pygame.Rect(85,705,310,40))
-        pygame.draw.rect(screen,(225,0,0),pygame.Rect(90,710,self.hp*300/self.maxhp,30))
+        if self.immortal<0:
+            pygame.draw.rect(screen,(70,70,70),pygame.Rect(90,710,self.hp*300/self.maxhp,30))
+        else:
+            pygame.draw.rect(screen,(225,0,0),pygame.Rect(90,710,self.hp*300/self.maxhp,30))
         pygame.draw.rect(screen,(0,0,0),pygame.Rect(85,750,310,40))
         pygame.draw.rect(screen,(50,107,250),pygame.Rect(90,755,self.mana*300/self.maxmana,30))
         pygame.draw.rect(screen,(52,6,59),pygame.Rect(1400,0,10,self.exp*700/(90+25*(self.level-1)+5*(self.level-1)**2)))
@@ -358,7 +360,7 @@ class Boss:
         self.x=750
         self.y=400
         self.hp=280*(1+0.05*buff)
-        self.maxhp=280*(1+0.07*buff)
+        self.maxhp=280*(1+0.05*buff)
         self.speed=182*(1+0.02*buff)
         self.cooldown=0
         self.dmg=20*(1+0.04*buff)
@@ -533,7 +535,7 @@ class Conststore:
         self.creepspeed=50
         self.bosscount=0
         self.mapcount=0
-        self.stage='normal'
+        self.stage='boss'
         self.player=Player()
         self.pska=Passiveskillactivate()
         self.aska=Activeskillactivate()

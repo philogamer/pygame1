@@ -17,8 +17,11 @@ chatfont=pygame.font.Font('assets/endfont.ttf',30)
 smallfont=pygame.font.Font('assets/endfont.ttf',15)
 
 
-
-
+def limit(msto,csto):
+    if csto.player.mana>csto.player.maxmana:
+        csto.player.mana=csto.player.maxmana
+    if csto.player.hp>csto.player.maxhp:
+        csto.player.hp=csto.player.maxhp
 
 def write(text,font,color,x,y):
     screen.blit(font.render(text,True,color),(x,y))
@@ -472,8 +475,6 @@ def playerbehave(msto,csto,dt,keys):
     if not msto.slashes: csto.player.slashcooldown-=dt
     if csto.player.mana<csto.player.maxmana:
         csto.player.mana+=csto.player.manaregen*dt
-        if csto.player.mana>csto.player.maxmana:
-            csto.player.mana=csto.player.maxmana
 
     csto.player.move(dt)
     csto.player.update()
@@ -486,14 +487,19 @@ def playerbehave(msto,csto,dt,keys):
     if csto.player.attackspeedstack>0: csto.player.attackspeedstack-=dt*0.05
     else: csto.player.attackspeedstack=0
     
-    if csto.player.immortal<=0:
-        csto.player.immortalcooldown=30
-        csto.player.immortal=3+csto.pska.maxhpratio
     if csto.pska.maxhp:
-        if csto.player.immortalcooldown>=0: csto.player.immortalcooldown-=dt
-        else: 
-            if csto.player.hp<csto.player.maxhp*0.2:
+        if csto.player.immortal<-(3+csto.pska.maxhpratio):
+            csto.player.immortal=30
+        else:
+            if csto.player.immortal>0:
                 csto.player.immortal-=dt
+                if csto.player.immortal<0:
+                    csto.player.immortal=0
+            else: 
+                if csto.player.hp<csto.player.maxhp*0.2:
+                    csto.player.immortal-=dt
+                else:
+                    csto.player.immortal=0
                 
     if csto.pska.movespeed:
         if csto.player.movestack>0 and csto.player.moving!='immune':
@@ -1025,7 +1031,7 @@ def skillboss2(boss,msto,csto,dt):
         boss.move(dt)
         boss.update()
         if boss.rect.colliderect(csto.player.rect) and csto.player.takedame and csto.player.immortal==3:
-            csto.player.hp-=boss.dmg
+            if csto.player.immortal>=0: csto.player.hp-=boss.dmg
             csto.player.takedame=False
         if int(boss.x)==int(boss.targetx) and int(boss.y)==int(boss.targety):
             boss.skillchoose=0
@@ -1037,7 +1043,7 @@ def skillboss3(boss,msto,csto,dt):
     elif boss.skillprepare>=1:
         for bossattack in msto.bossattacks:
             if bossattack.rect.colliderect(csto.player.rect):
-                if csto.player.immortal==3: csto.player.hp-=bossattack.dmg
+                if csto.player.immortal>=0: csto.player.hp-=bossattack.dmg
                 msto.bossattacks.remove(bossattack)
         if boss.skillprepare>=2:
             boss.skillchoose=0
@@ -1072,7 +1078,7 @@ def bulleteffect(msto,csto,dt):
         bullet.move(dt)
         bullet.update()
         if bullet.rect.colliderect(csto.player.rect):
-            if csto.player.immortal==3: csto.player.hp-=bullet.dmg
+            if csto.player.immortal>=0: csto.player.hp-=bullet.dmg
             msto.bullets.remove(bullet)
         elif bullet.x>=(1400-20) or bullet.x<=0 or bullet.y<=0 or bullet.y>=(700-20):
             msto.bullets.remove(bullet)
@@ -1080,7 +1086,7 @@ def bulleteffect(msto,csto,dt):
             for object in msto.obstacle:
                 if bullet.wallrect.colliderect(object.rect):
                     msto.bullets.remove(bullet)
-                    if csto.bosscount>=2 and csto.stage=='boss':
+                    if csto.bosscount>=2 and csto.stage=='boss' and csto.bosses:
                         for i in range(0,360,int(360/(6+1*csto.bosscount))):
                             msto.smallbullets.append(Smallbullet(bullet.x,bullet.y,csto.bosses[0].x+2000*math.cos(math.radians(i)),csto.bosses[0].y+2000*math.sin(math.radians(i)),csto.bosses[0].dmg/2))        
                     break
@@ -1089,7 +1095,7 @@ def smallbulleteffect(msto,csto,dt):
         bullet.move(dt)
         bullet.update()
         if bullet.rect.colliderect(csto.player.rect):
-            if csto.player.immortal==3: csto.player.hp-=bullet.dmg
+            if csto.player.immortal>=0: csto.player.hp-=bullet.dmg
             msto.smallbullets.remove(bullet)
         elif bullet.x>=(1400-20) or bullet.x<=0 or bullet.y<=0 or bullet.y>=(700-20):
             msto.bullets.remove(bullet)
@@ -1370,8 +1376,6 @@ def chooseafterboss(msto,csto,mousepos):
                 msto.chooseafterbosses=[]
                 if i.type=='health':
                     csto.player.hp+=csto.player.maxhp*0.5
-                    if csto.player.hp>csto.player.maxhp:
-                        csto.player.hp=csto.player.maxhp
                     msto.regens.append(Regen(csto.player.x,csto.player.y,'health'))
                 elif i.type=='develop' or (i.type=='return'and msto.afterbosschoice=='develop'):
                     csto.pluses.append(Button('dmg','develop'))
@@ -1419,5 +1423,11 @@ def touchandwrite(msto,mousetouch,lstat):
     for i in msto.chooseafterbosses:
         if i.rect.collidepoint(mousetouch) and i.type!='blank':
             writeskillscript(msto,lstat,i.type,4)
+
+
+
+
+
+
 
                 

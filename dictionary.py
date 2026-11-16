@@ -1,4 +1,7 @@
 import function as fun
+limit_dic={
+    'onlythis': lambda *a: fun.limit(*a)
+}
 gachamap_dic={
     'normal': lambda *a: fun.render1(*a),
     'boss': lambda *a: fun.render2(*a),

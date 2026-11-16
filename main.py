@@ -57,9 +57,10 @@ while True:
     dic.playerbehaviour_dic.get(csto.stage,lambda *b: None)(msto,csto,dt,keys)
     dic.playerbuff_dic.get(csto.stage,lambda *b: None)(csto,click,mousepos)
     if csto.player.hp<=0:
-        csto.stage='end'                    
+        csto.player.hp=csto.player.maxhp #just to survive to test
+        #csto.stage='end'                    
                         
-             
+    csto.player.maxmana<csto.player.mana
         #creep logic
     if csto.stage=='normal':
         dic.creepspawn_dic.get(len(msto.creeps)+len(msto.slimes),lambda *b: None)(msto,csto)   
@@ -92,6 +93,7 @@ while True:
         dic.bullets_dic.get('smallbullet')(msto,csto,dt)
         dic.bullets_dic.get('slashbullet')(msto,csto,dt)
                 
+    dic.limit_dic.get('onlythis')(msto,csto)
          
     
     #draw on screen
