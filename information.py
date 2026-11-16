@@ -84,7 +84,7 @@ class Player:
         self.targetx=self.x
         self.targety=self.y
         self.direction='right'
-        self.dmg=500
+        self.dmg=10#*50
         self.speed=200
         self.maxspeed=200
         self.hp=500
@@ -374,7 +374,7 @@ class Boss:
         self.takedame=False
         self.skillchoose=0
         self.skillprepare=0
-        self.dmgtick
+        self.dmgtick=1
     def draw(self,screen):
         screen.blit(self.img,(self.x,self.y))
         pygame.draw.rect(screen,(112,112,112),pygame.Rect(200,10,1000,30))
@@ -500,19 +500,19 @@ class Slimestuck:
 class Passiveskillactivate:
     def __init__(self):
         self.dmg=False
-        self.dmgratio=0
+        self.dmgratio=-1
         self.maxhp=False
-        self.maxhpratio=0
+        self.maxhpratio=-1
         self.maxmana=False
-        self.maxmanaratio=0
+        self.maxmanaratio=-1
         self.movespeed=False
-        self.movespeedratio=0
+        self.movespeedratio=-1
         self.attackspeed=False
-        self.attackspeedratio=0
+        self.attackspeedratio=-1
         self.manaregen=False
-        self.manaregenratio=0
+        self.manaregenratio=-1
         self.dracula=False
-        self.dracularatio=0
+        self.dracularatio=-1
                        
 class Activeskillactivate:
     def __init__(self):
@@ -534,7 +534,7 @@ class Conststore:
         self.creepspeed=50
         self.bosscount=0
         self.mapcount=0
-        self.stage='boss'
+        self.stage='normal'
         self.player=Player()
         self.pska=Passiveskillactivate()
         self.aska=Activeskillactivate()
@@ -566,20 +566,26 @@ class Mapstore:
         self.st=[]
         self.insidef=[]
         self.wall=[]
+        
         self.creeps=[]
         self.slimes=[]
+        self.mapstay=0
+        
         self.bullets=[]
         self.smallbullets=[]
         self.slimepaths=[]
+        self.slimestucks=[]
         self.slashes=[]
-        self.mapstay=0
+        
         self.bossattacks=[]
         self.regens=[]
+        
         self.chooseafterbosses=[]
-        self.slimestucks=[]
         self.statchoose='none'
         self.afterbosschoice='none'
+        
         self.playerbet=0
+        self.limitdevelopskill=0
 
 class Linestat:
     def __init__(self):

@@ -490,7 +490,7 @@ def playerbehave(msto,csto,dt,keys):
     
     if csto.player.immortal<=0:
         csto.player.immortalcooldown=30
-        csto.player.immortal=3
+        csto.player.immortal=3+csto.pska.maxhpratio
     if csto.pska.maxhp:
         if csto.player.immortalcooldown>=0: csto.player.immortalcooldown-=dt
         else: 
@@ -504,7 +504,7 @@ def playerbehave(msto,csto,dt,keys):
             else:
                 csto.player.movestack=1.5
         else:
-            if csto.player.movestack<=0.5:
+            if csto.player.movestack<=0.5+csto.pska.maxmanaratio*0.25:
                 csto.player.movestack+=dt
                 csto.player.moving='immune'
             else:
@@ -777,8 +777,10 @@ def creepgetdame(msto,csto,dt):
                     else: testpassiveskill.append(1)
         if 1 not in testpassiveskill and testpassiveskill: 
             if csto.pska.maxmana and csto.player.mana>=0.8*csto.player.maxmana: csto.player.mana-=12
-            if csto.pska.manaregen: csto.player.mana+=3
-            if csto.pska.attackspeed and csto.player.attackspeedstack<=0.15: csto.player.attackspeedstack+=0.05
+            if csto.pska.manaregen: 
+                csto.player.mana+=2+csto.pska.manaregenratio
+                msto.regens.append(Regen(csto.player.x,csto.player.y,'mana'))
+            if csto.pska.attackspeed and csto.player.attackspeedstack<=0.15*(1+csto.pska.attackspeedratio*0.5): csto.player.attackspeedstack+=0.05
     for creep in msto.creeps + msto.slimes:
         for slash in msto.slashes:
             if creep.rect.colliderect(slash.rect) and creep.takedame:
@@ -789,10 +791,10 @@ def creepgetdame(msto,csto,dt):
                         if creep.dmgtick==4:
                             creep.dmgtick-=dt
                     else: 
-                        creep.hp-=slash.dmg*0.5
+                        creep.hp-=slash.dmg*0.5*(0.5+csto.pska.dmgratio*0.1)
                         creep.dmgtick+=1
                 if csto.pska.maxmana and csto.player.mana>=0.8*csto.player.maxmana:
-                    creep.hp-=slash.dmg*1.5
+                    creep.hp-=slash.dmg*(1.5+csto.pska.maxmanaratio*0.5)
                 creep.takedame=False
             if creep.hp<=0:
                 if creep in msto.creeps: msto.creeps.remove(creep)
@@ -981,13 +983,15 @@ def bossgetdame(msto,csto,dt):
                         if boss.dmgtick==4:
                             boss.dmgtick-=dt
                     else: 
-                        boss.hp-=slash.dmg*0.5
+                        boss.hp-=slash.dmg*(0.5+csto.pska.dmgratio*0.1)
                         boss.dmgtick=1
                 if csto.pska.maxmana and csto.player.mana>=0.8*csto.player.maxmana:
-                    boss.hp-=slash.dmg*1.5
+                    boss.hp-=slash.dmg*(1.5+csto.pska.maxmanaratio*0.5)
                     csto.player.mana-=12
-                if csto.pska.manaregen: csto.player.mana+=5
-                if csto.pska.attackspeed and csto.player.attackspeedstack<=0.15: csto.player.attackspeedstack+=0.05
+                if csto.pska.manaregen: 
+                    csto.player.mana+=3+csto.pska.manaregenratio
+                    msto.regens.append(Regen(csto.player.x,csto.player.y,'mana'))
+                if csto.pska.attackspeed and csto.player.attackspeedstack<=0.15*(1+csto.pska.attackspeedratio*0.5): csto.player.attackspeedstack+=0.05
                 boss.takedame=False
             if boss.hp<=0:
                 csto.bosses.remove(boss)
@@ -1179,6 +1183,9 @@ def drawgame1(msto,csto,dt,mousetouch):
     if msto.playerbet!=0: write(str(msto.playerbet),codefont,(111,13,181),685,285)
     for i in csto.pluses:
         i.draw(screen)
+    if msto.limitdevelopskill>0:
+        write('reached limit of skill level',chatfont,(227,206,14),700,175)
+        msto.limitdevelopskill-=dt
 def renewscreen(msto,csto,dt):
     screen.fill((0,0,0))
 
@@ -1297,6 +1304,66 @@ def chooseafterboss(msto,csto,mousepos):
     if msto.chooseafterbosses:
         for i in msto.chooseafterbosses:
             if i.rect.collidepoint(mousepos) and i.type!='blank':
+                if msto.afterbosschoice=='develop':
+                    if i.type=='passive':
+                        if msto.statchoose=='dmg' and csto.pska.dmgratio<2:
+                            csto.player.dmg-=1*2
+                            csto.pska.dmg=True
+                            csto.pska.dmgratio+=1
+                        elif msto.statchoose=='maxmana' and csto.pska.maxmanaratio<2:
+                            csto.player.maxmana-=15*2
+                            csto.player.mana-=15*2
+                            if csto.player.mana<=0:
+                                csto.player.mana=1
+                            csto.pska.maxmana=True
+                            csto.pska.maxmanaratio+=1
+                        elif msto.statchoose=='maxhp' and csto.pska.maxhpratio<2:
+                            csto.player.maxhp-=40*2
+                            csto.player.hp-=40*2
+                            if csto.player.hp<=0:
+                                csto.player.hp=1
+                            csto.pska.maxhp=True
+                            csto.pska.maxhp+=1
+                        elif msto.statchoose=='movespeed' and csto.pska.movespeedratio<2:
+                            csto.player.maxspeed-=4*2 
+                            csto.pska.movespeed=True
+                            csto.pska.movespeedratio+=1               
+                        elif msto.statchoose=='manaregen' and csto.pska.manaregenratio<2:
+                            csto.player.manaregen-=0.5*2
+                            csto.pska.manaregen=True
+                            csto.pska.manaregenratio+=1
+                        elif msto.statchoose=='attackspeed' and csto.pska.attackspeedratio<2:
+                            csto.player.attackspeed-=0.025*2
+                            csto.pska.attackspeed=True
+                            csto.pska.attackspeedratio+=1
+                        else:
+                            msto.limitdevelopskill=5
+                            break
+                    elif i.type=='active':
+                        if msto.statchoose=='dmg':
+                            csto.player.dmg-=1*2
+                            csto.aska.dmg=True
+                        elif msto.statchoose=='maxmana':
+                            csto.player.maxmana-=15*2
+                            csto.player.mana-=15*2
+                            if csto.player.mana<=0:
+                                csto.player.mana=1
+                            csto.aska.maxmana=True
+                        elif msto.statchoose=='maxhp':
+                            csto.player.maxhp-=40*2
+                            csto.player.hp-=40*2
+                            if csto.player.hp<=0:
+                                csto.player.hp=1
+                            csto.aska.maxhp=True
+                        elif msto.statchoose=='movespeed' :
+                            csto.player.maxspeed-=4*2 
+                            csto.aska.movespeed=True                
+                        elif msto.statchoose=='manaregen':
+                            csto.player.manaregen-=0.5*2
+                            csto.aska.manaregen=True
+                        elif msto.statchoose=='attackspeed':
+                            csto.player.attackspeed-=0.025*2
+                            csto.aska.attackspeed=True                
                 msto.chooseafterbosses=[]
                 if i.type=='health':
                     csto.player.hp+=csto.player.maxhp*0.5
@@ -1325,57 +1392,6 @@ def chooseafterboss(msto,csto,mousepos):
                     csto.pluses.append(Button('increase','plus'))
                     csto.pluses.append(Button('decrease','gamble'))
                     msto.playerbet=1
-                elif msto.afterbosschoice=='develop':
-                    if i.type=='passive':
-                        if msto.statchoose=='dmg':
-                            csto.player.dmg-=1*2
-                            csto.pska.dmg=True
-                        elif msto.statchoose=='maxmana':
-                            csto.player.maxmana-=15*2
-                            csto.player.mana-=15*2
-                            if csto.player.mana<=0:
-                                csto.player.mana=1
-                            csto.pska.maxmana=True
-                        elif msto.statchoose=='maxhp':
-                            csto.player.maxhp-=40*2
-                            csto.player.hp-=40*2
-                            if csto.player.hp<=0:
-                                csto.player.hp=1
-                            csto.pska.maxhp=True
-                        elif msto.statchoose=='movespeed' :
-                            csto.player.maxspeed-=4*2 
-                            csto.pska.movespeed=True                
-                        elif msto.statchoose=='manaregen':
-                            csto.player.manaregen-=0.5*2
-                            csto.pska.manaregen=True
-                        elif msto.statchoose=='attackspeed':
-                            csto.player.attackspeed-=0.025*2
-                            csto.pska.attackspeed=True
-                    elif i.type=='active':
-                        if msto.statchoose=='dmg':
-                            csto.player.dmg-=1*2
-                            csto.aska.dmg=True
-                        elif msto.statchoose=='maxmana':
-                            csto.player.maxmana-=15*2
-                            csto.player.mana-=15*2
-                            if csto.player.mana<=0:
-                                csto.player.mana=1
-                            csto.aska.maxmana=True
-                        elif msto.statchoose=='maxhp':
-                            csto.player.maxhp-=40*2
-                            csto.player.hp-=40*2
-                            if csto.player.hp<=0:
-                                csto.player.hp=1
-                            csto.aska.maxhp=True
-                        elif msto.statchoose=='movespeed' :
-                            csto.player.maxspeed-=4*2 
-                            csto.aska.movespeed=True                
-                        elif msto.statchoose=='manaregen':
-                            csto.player.manaregen-=0.5*2
-                            csto.aska.manaregen=True
-                        elif msto.statchoose=='attackspeed':
-                            csto.player.attackspeed-=0.025*2
-                            csto.aska.attackspeed=True
                             
                     
 def gainskillscript(msto,number,lstat,type):

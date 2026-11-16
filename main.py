@@ -30,6 +30,9 @@ while True:
         #change in guide:
         if keys[pygame.K_t]:
             dic.guidetotest_dic.get(csto.stage,lambda *b:None)(csto)
+        if keys[pygame.K_9]: #just for test
+            csto.player.hp=csto.player.maxhp
+            csto.player.mana=csto.player.maxmana
         if keys[pygame.K_g]:
             dic.testtoguide_dic.get(csto.stage,lambda *b:None)(csto)
         if event.type==pygame.MOUSEBUTTONDOWN and event.button==1:
