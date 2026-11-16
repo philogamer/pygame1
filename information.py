@@ -104,6 +104,11 @@ class Player:
         self.takedame=True
         self.slashcooldown=0
         self.sloweffect=0
+        self.immortal=3
+        self.immortalcooldown=30
+        self.attackspeedstack=0
+        self.movestack=1.5
+        self.moving='yes'
     def put(self,xy):
         self.y=xy%10*70
         self.x=(xy-xy%10)/10*70    
@@ -163,6 +168,7 @@ class Creep:
         self.testy=False
         self.takedame=False
         self.tested='none'
+        self.dmgtick=1
         if self.type=='normal':
             self.img='assets/ghost.png'
             self.h=30*2
@@ -368,6 +374,7 @@ class Boss:
         self.takedame=False
         self.skillchoose=0
         self.skillprepare=0
+        self.dmgtick
     def draw(self,screen):
         screen.blit(self.img,(self.x,self.y))
         pygame.draw.rect(screen,(112,112,112),pygame.Rect(200,10,1000,30))
@@ -1152,14 +1159,14 @@ playerskillscript_info={
                 'y': 175
                      },
             'line3':{
-                'line':'When mana is above 80%, slash deals extra',
+                'line':'When mana is above 80%, normal attack deals',
                 'font': smallfont,
                 'color':(111,13,181),
                 'x': 80,
                 'y': 225
                      },
             'line4':{
-                'line':' 50% Damage but cost extra 6 mana.',
+                'line':'extra 150% Damage by cost extra 12 mana.',
                 'font': smallfont,
                 'color':(111,13,181),
                 'x': 80,
@@ -1244,14 +1251,14 @@ playerskillscript_info={
                 'y': 175
                      },
             'line3':{
-                'line':'Move continuously for 1.5 second grants',
+                'line':'Move continuously for 1.5 second grants 0.5 second',
                 'font': smallfont,
                 'color':(111,13,181),
                 'x': 80,
                 'y': 225
                      },
             'line4':{
-                'line':'0.5 second of immunity to effects.',
+                'line':'of immunity to effects that impacts movement.',
                 'font': smallfont,
                 'color':(111,13,181),
                 'x': 80,
@@ -1428,7 +1435,7 @@ playerskillscript_info={
                 'y': 175
                      },
             'line3':{
-                'line':'Slash touch enemy buff 5% Attack speed',
+                'line':'Normal attack touch enemy buff 5% Attack speed',
                 'font': smallfont,
                 'color':(111,13,181),
                 'x': 80,

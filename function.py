@@ -398,18 +398,21 @@ def sideblock(msto):
     msto.obstacle.append(Obstacle(1400,'nothingy'))
 
 def playerbehave(msto,csto,dt,keys):
+    if csto.player.moving!='immune': csto.player.moving='no'
     csto.creepspeed=50*(1+0.01*csto.wave)
     csto.player.speed=csto.creepspeed-10+(csto.player.maxspeed-csto.creepspeed)*(csto.player.mana/(csto.player.maxmana))
     csto.player.sloweffect=0
-    for i in msto.slimepaths:
-        if i.rect.colliderect(csto.player.rect):
-            csto.player.sloweffect=1
-            break
+    if csto.player.moving!='immune':
+        for i in msto.slimepaths:
+            if i.rect.colliderect(csto.player.rect):
+                csto.player.sloweffect=1
+                break
     csto.player.speed-=csto.player.sloweffect*0.7*csto.player.speed
     csto.player.targetx=csto.player.x
     csto.player.targety=csto.player.y
-    if not msto.slimestucks:
+    if not msto.slimestucks or csto.player.moving=='immune':
         if keys[pygame.K_a]:
+            if csto.player.moving!='immune': csto.player.moving='yes'
             csto.player.targetx=csto.player.x-1
             csto.player.checkwall()
             for i in msto.obstacle:
@@ -417,6 +420,7 @@ def playerbehave(msto,csto,dt,keys):
                     csto.player.targetx=csto.player.x
                     csto.player.checkwall()
         if keys[pygame.K_d]:
+            if csto.player.moving!='immune': csto.player.moving='yes'
             csto.player.targetx=csto.player.x+1
             csto.player.checkwall()
             for i in msto.obstacle:
@@ -424,6 +428,7 @@ def playerbehave(msto,csto,dt,keys):
                     csto.player.targetx=csto.player.x
                     csto.player.checkwall() 
         if keys[pygame.K_w]:
+            if csto.player.moving!='immune': csto.player.moving='yes'
             csto.player.targety=csto.player.y-1
             csto.player.checkwall()
             for i in msto.obstacle:
@@ -431,6 +436,7 @@ def playerbehave(msto,csto,dt,keys):
                     csto.player.targety=csto.player.y
                     csto.player.checkwall()
         if keys[pygame.K_s]:
+            if csto.player.moving!='immune': csto.player.moving='yes'
             csto.player.targety=csto.player.y+1
             csto.player.checkwall()
             for i in msto.obstacle:
@@ -438,10 +444,10 @@ def playerbehave(msto,csto,dt,keys):
                     csto.player.targety=csto.player.y
                     csto.player.checkwall()
                 
-    if keys[pygame.K_LEFT] and csto.player.slashcooldown<=0 and csto.player.mana>=6:
+    if keys[pygame.K_LEFT] and csto.player.slashcooldown<=0 and csto.player.mana>=6:    
         csto.player.mana-=6
         msto.slashes.append(Slash(csto.player.x,csto.player.y-(107-70),'left',csto.player.dmg))
-        csto.player.slashcooldown=1-csto.player.attackspeed
+        csto.player.slashcooldown=(1-csto.player.attackspeed)*(1-csto.player.attackspeedstack)
         for creep in msto.creeps+msto.slimes:
             creep.takedame=True
         if csto.bosses:
@@ -451,7 +457,7 @@ def playerbehave(msto,csto,dt,keys):
     if keys[pygame.K_RIGHT] and csto.player.slashcooldown<=0 and csto.player.mana>=6:
         csto.player.mana-=6
         msto.slashes.append(Slash(csto.player.x,csto.player.y-(107-70),'right',csto.player.dmg))
-        csto.player.slashcooldown=1-csto.player.attackspeed
+        csto.player.slashcooldown=(1-csto.player.attackspeed)*(1-csto.player.attackspeedstack)
         for creep in msto.creeps+msto.slimes:
             creep.takedame=True
         if csto.bosses:
@@ -468,9 +474,7 @@ def playerbehave(msto,csto,dt,keys):
         csto.player.mana+=csto.player.manaregen*dt
         if csto.player.mana>csto.player.maxmana:
             csto.player.mana=csto.player.maxmana
-    
-            
-    
+
     csto.player.move(dt)
     csto.player.update()
     
@@ -480,6 +484,33 @@ def playerbehave(msto,csto,dt,keys):
         csto.player.buffstat+=2
     if csto.player.buffstat==0:
         if csto.pluses: csto.pluses=[]
+    
+    if csto.player.attackspeedstack>0: csto.player.attackspeedstack-=dt*0.05
+    else: csto.player.attackspeedstack=0
+    
+    if csto.player.immortal<=0:
+        csto.player.immortalcooldown=30
+        csto.player.immortal=3
+    if csto.pska.maxhp:
+        if csto.player.immortalcooldown>=0: csto.player.immortalcooldown-=dt
+        else: 
+            if csto.player.hp<csto.player.maxhp*0.2:
+                csto.player.immortal-=dt
+                
+    if csto.pska.movespeed:
+        if csto.player.movestack>0 and csto.player.moving!='immune':
+            if csto.player.moving=='yes':
+                csto.player.movestack-=dt
+            else:
+                csto.player.movestack=1.5
+        else:
+            if csto.player.movestack<=0.5:
+                csto.player.movestack+=dt
+                csto.player.moving='immune'
+            else:
+                csto.player.movestack=1.5
+                csto.player.moving='no'
+            
 def buff(csto,click,mousepos):
     if csto.player.buffstat>0:
         if not csto.pluses:
@@ -736,22 +767,44 @@ def creepspawn(msto,csto):
             else:
                 msto.slimes.append(Creep(i,'slime',csto.wave))
         msto.creeps.append(Creep(random.choice(msto.insidef),'elite',csto.wave))
-def creepgetdame(msto,csto):
+def creepgetdame(msto,csto,dt):
+    if (csto.pska.maxmana and csto.player.mana>=0.8*csto.player.maxmana) or csto.pska.manaregen:
+        testpassiveskill=[]
+        for creep in msto.creeps + msto.slimes:
+            for slash in msto.slashes: 
+                if creep.rect.colliderect(slash.rect):
+                    if creep.takedame: testpassiveskill.append(0)
+                    else: testpassiveskill.append(1)
+        if 1 not in testpassiveskill and testpassiveskill: 
+            if csto.pska.maxmana and csto.player.mana>=0.8*csto.player.maxmana: csto.player.mana-=12
+            if csto.pska.manaregen: csto.player.mana+=3
+            if csto.pska.attackspeed and csto.player.attackspeedstack<=0.15: csto.player.attackspeedstack+=0.05
     for creep in msto.creeps + msto.slimes:
-        if creep.rect.colliderect(msto.slashes[0].rect) and creep.takedame:
-            creep.hp-=msto.slashes[0].dmg
-            creep.takedame=False
-        if creep.hp<=0:
-            if creep in msto.creeps: msto.creeps.remove(creep)
-            csto.enemykilled+=1
-            if creep.type=='normal':
-                csto.player.exp+=12*(1+0.02*csto.wave)
-            elif creep.type=='slime':
-                csto.player.exp+=8*(1+0.02*csto.wave)
-            elif creep.type=='elite':
-                csto.player.exp+=30*(1+0.02*csto.wave)
-            if len(msto.creeps)==0:
-                csto.player.exp+=30*(1+0.02*csto.wave)
+        for slash in msto.slashes:
+            if creep.rect.colliderect(slash.rect) and creep.takedame:
+                creep.hp-=slash.dmg
+                if csto.pska.dmg:
+                    if creep.dmgtick>0:
+                        creep.dmgtick+=1
+                        if creep.dmgtick==4:
+                            creep.dmgtick-=dt
+                    else: 
+                        creep.hp-=slash.dmg*0.5
+                        creep.dmgtick+=1
+                if csto.pska.maxmana and csto.player.mana>=0.8*csto.player.maxmana:
+                    creep.hp-=slash.dmg*1.5
+                creep.takedame=False
+            if creep.hp<=0:
+                if creep in msto.creeps: msto.creeps.remove(creep)
+                csto.enemykilled+=1
+                if creep.type=='normal':
+                    csto.player.exp+=12*(1+0.02*csto.wave)
+                elif creep.type=='slime':
+                    csto.player.exp+=8*(1+0.02*csto.wave)
+                elif creep.type=='elite':
+                    csto.player.exp+=30*(1+0.02*csto.wave)
+                if len(msto.creeps)==0:
+                    csto.player.exp+=30*(1+0.02*csto.wave)
 
 def slimemove(creep,msto,csto,dt,chase):
     creep.tested='none'
@@ -916,22 +969,36 @@ def slimedeath(creep,msto,csto,dt):
         msto.slimes.remove(creep)
         msto.slimestucks.append(Slimestuck(csto.player.x,csto.player.y))
 
-def bossgetdame(msto,csto):
+def bossgetdame(msto,csto,dt):
     if csto.bosses:
         boss=csto.bosses[0]
-        if boss.rect.colliderect(msto.slashes[0].rect) and boss.takedame:
-            boss.hp-=msto.slashes[0].dmg
-            boss.takedame=False
-        if boss.hp<=0:
-            csto.bosses.remove(boss)
-            csto.bosscount+=1
-            csto.player.exp+=90*(1+0.02*csto.wave)
-            if not msto.chooseafterbosses: 
-                msto.chooseafterbosses.append(Chooseafterboss(595,245,'health'))
-                msto.chooseafterbosses.append(Chooseafterboss(315,245,'develop'))
-                msto.chooseafterbosses.append(Chooseafterboss(875,245,'gamble'))
-            #csto.stage='normal'
-            #csto.rendermap=True 
+        for slash in msto.slashes:
+            if boss.rect.colliderect(slash.rect) and boss.takedame:
+                boss.hp-=slash.dmg
+                if csto.pska.dmg:
+                    if boss.dmgtick>0:
+                        boss.dmgtick+=1
+                        if boss.dmgtick==4:
+                            boss.dmgtick-=dt
+                    else: 
+                        boss.hp-=slash.dmg*0.5
+                        boss.dmgtick=1
+                if csto.pska.maxmana and csto.player.mana>=0.8*csto.player.maxmana:
+                    boss.hp-=slash.dmg*1.5
+                    csto.player.mana-=12
+                if csto.pska.manaregen: csto.player.mana+=5
+                if csto.pska.attackspeed and csto.player.attackspeedstack<=0.15: csto.player.attackspeedstack+=0.05
+                boss.takedame=False
+            if boss.hp<=0:
+                csto.bosses.remove(boss)
+                csto.bosscount+=1
+                csto.player.exp+=90*(1+0.02*csto.wave)
+                if not msto.chooseafterbosses: 
+                    msto.chooseafterbosses.append(Chooseafterboss(595,245,'health'))
+                    msto.chooseafterbosses.append(Chooseafterboss(315,245,'develop'))
+                    msto.chooseafterbosses.append(Chooseafterboss(875,245,'gamble'))
+                #csto.stage='normal'
+                #csto.rendermap=True 
 def chooseskillboss(boss,msto,csto,dt):
     boss.skillchoose=random.randint(1,4)
     boss.skillprepare=0
@@ -955,7 +1022,7 @@ def skillboss2(boss,msto,csto,dt):
     else:
         boss.move(dt)
         boss.update()
-        if boss.rect.colliderect(csto.player.rect) and csto.player.takedame:
+        if boss.rect.colliderect(csto.player.rect) and csto.player.takedame and csto.player.immortal==3:
             csto.player.hp-=boss.dmg
             csto.player.takedame=False
         if int(boss.x)==int(boss.targetx) and int(boss.y)==int(boss.targety):
@@ -968,7 +1035,7 @@ def skillboss3(boss,msto,csto,dt):
     elif boss.skillprepare>=1:
         for bossattack in msto.bossattacks:
             if bossattack.rect.colliderect(csto.player.rect):
-                csto.player.hp-=bossattack.dmg
+                if csto.player.immortal==3: csto.player.hp-=bossattack.dmg
                 msto.bossattacks.remove(bossattack)
         if boss.skillprepare>=2:
             boss.skillchoose=0
@@ -1003,7 +1070,7 @@ def bulleteffect(msto,csto,dt):
         bullet.move(dt)
         bullet.update()
         if bullet.rect.colliderect(csto.player.rect):
-            csto.player.hp-=bullet.dmg
+            if csto.player.immortal==3: csto.player.hp-=bullet.dmg
             msto.bullets.remove(bullet)
         elif bullet.x>=(1400-20) or bullet.x<=0 or bullet.y<=0 or bullet.y>=(700-20):
             msto.bullets.remove(bullet)
@@ -1020,7 +1087,7 @@ def smallbulleteffect(msto,csto,dt):
         bullet.move(dt)
         bullet.update()
         if bullet.rect.colliderect(csto.player.rect):
-            csto.player.hp-=bullet.dmg
+            if csto.player.immortal==3: csto.player.hp-=bullet.dmg
             msto.smallbullets.remove(bullet)
         elif bullet.x>=(1400-20) or bullet.x<=0 or bullet.y<=0 or bullet.y>=(700-20):
             msto.bullets.remove(bullet)
@@ -1030,12 +1097,12 @@ def smallbulleteffect(msto,csto,dt):
                     msto.smallbullets.remove(bullet)
                     break        
 def slashbullet(msto,csto,dt):
-    if msto.slashes:
+    for slash in msto.slashes:
         for bullet in msto.bullets:
-            if bullet.rect.colliderect(msto.slashes[0].rect):
+            if bullet.rect.colliderect(slash.rect):
                 msto.bullets.remove(bullet)                    
         for bullet in msto.smallbullets:
-            if bullet.rect.colliderect(msto.slashes[0].rect):
+            if bullet.rect.colliderect(slash.rect):
                 msto.smallbullets.remove(bullet)  
 
 def startgame(csto,keys,msto,lstat,dt):
@@ -1333,4 +1400,5 @@ def touchandwrite(msto,mousetouch,lstat):
     for i in msto.chooseafterbosses:
         if i.rect.collidepoint(mousetouch) and i.type!='blank':
             writeskillscript(msto,lstat,i.type,4)
+
                 
