@@ -328,7 +328,7 @@ def render1(msto,csto):
             msto.obstacle.append(Obstacle(i,'st'))
     sideblock(msto)
     for i in msto.insidef:
-        if i%10==0 or i%10==9 or i<10 or i<190:
+        if i%10==0 or i%10==9 or i<10 or i>190:
             msto.insidef.remove(i)
 def render2(msto,csto):
     csto.bosses.append(Boss(csto.wave))
@@ -482,8 +482,6 @@ def playerbehave(msto,csto,dt,keys):
         csto.player.exp-=(90+25*(csto.player.level-1)+5*(csto.player.level-1)**2)
         csto.player.level+=1
         csto.player.buffstat+=2
-    if csto.player.buffstat==0:
-        if csto.pluses: csto.pluses=[]
     
     if csto.player.attackspeedstack>0: csto.player.attackspeedstack-=dt*0.05
     else: csto.player.attackspeedstack=0
