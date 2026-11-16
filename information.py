@@ -500,11 +500,20 @@ class Slimestuck:
 class Passiveskillactivate:
     def __init__(self):
         self.dmg=False
+        self.dmgratio=0
         self.maxhp=False
+        self.maxhpratio=0
         self.maxmana=False
+        self.maxmanaratio=0
         self.movespeed=False
+        self.movespeedratio=0
         self.attackspeed=False
-        self.manaregen=False                
+        self.attackspeedratio=0
+        self.manaregen=False
+        self.manaregenratio=0
+        self.dracula=False
+        self.dracularatio=0
+                       
 class Activeskillactivate:
     def __init__(self):
         self.dmg=False
@@ -931,7 +940,7 @@ playerskillscript_info={
     'dmg':{
         'active':{
             'line1':{
-                'line':'SOUL BREAK',
+                'line':'SOUL BREAK(level up buff damage)',
                 'font': smallfont,
                 'color':(111,13,181),
                 'x': 80,
@@ -945,14 +954,14 @@ playerskillscript_info={
                 'y': 175
                      },
             'line3':{
-                'line':'create a big slash with 25% Damage at the',
+                'line':'create a big slash with 250%/300%/350%',
                 'font': smallfont,
                 'color':(111,13,181),
                 'x': 80,
                 'y': 225
                      },
             'line4':{
-                'line':'normal attack direction',
+                'line':'Damage at the normal attack direction',
                 'font': smallfont,
                 'color':(111,13,181),
                 'x': 80,
@@ -961,7 +970,7 @@ playerskillscript_info={
         },
         'passive':{
             'line1':{
-                'line':'SOUL REND',
+                'line':'SOUL REND(level up buff damage)',
                 'font': smallfont,
                 'color':(111,13,181),
                 'x': 80,
@@ -982,7 +991,7 @@ playerskillscript_info={
                 'y': 225
                      },
             'line4':{
-                'line':'After a short duration, deals 50% Damage.',
+                'line':'After a short duration, deals 50%/60%/70% Damage.',
                 'font': smallfont,
                 'color':(111,13,181),
                 'x': 80,
@@ -1023,7 +1032,7 @@ playerskillscript_info={
     'maxhp':{
         'active':{
             'line1':{
-                'line':'SOUL GUARD',
+                'line':'SOUL GUARD(level up buff amount)',
                 'font': smallfont,
                 'color':(111,13,181),
                 'x': 80,
@@ -1044,7 +1053,7 @@ playerskillscript_info={
                 'y': 225
                      },
             'line4':{
-                'line':'to 20% Max hp for 4 seconds.',
+                'line':'to 20%/25%/30% Max hp for 4 seconds.',
                 'font': smallfont,
                 'color':(111,13,181),
                 'x': 80,
@@ -1053,7 +1062,7 @@ playerskillscript_info={
         },
         'passive':{
             'line1':{
-                'line':'IMMORTAL SOUL',
+                'line':'IMMORTAL SOUL(level up buff time)',
                 'font': smallfont,
                 'color':(111,13,181),
                 'x': 80,
@@ -1074,7 +1083,7 @@ playerskillscript_info={
                 'y': 225
                      },
             'line4':{
-                'line':'immortallity for 3 second',
+                'line':'immortallity for 3/4/5 second',
                 'font': smallfont,
                 'color':(111,13,181),
                 'x': 80,
@@ -1115,7 +1124,7 @@ playerskillscript_info={
     'maxmana':{
         'active':{
             'line1':{
-                'line':'MANA EXPLODE',
+                'line':'MANA EXPLODE(level up buff range)',
                 'font': smallfont,
                 'color':(111,13,181),
                 'x': 80,
@@ -1129,14 +1138,14 @@ playerskillscript_info={
                 'y': 175
                      },
             'line3':{
-                'line':'Cost 30 mana to explode the area surround',
+                'line':'Cost 30 mana to explode the area surround (70/105/140)',
                 'font': smallfont,
                 'color':(111,13,181),
                 'x': 80,
                 'y': 225
                      },
             'line4':{
-                'line':'the player with 80% Damage and push back',
+                'line':'with 80% Damage, block fly object and push back normal enemy ',
                 'font': smallfont,
                 'color':(111,13,181),
                 'x': 80,
@@ -1145,7 +1154,7 @@ playerskillscript_info={
         },
         'passive':{
             'line1':{
-                'line':'SOUL OVERLOAD',
+                'line':'SOUL OVERLOAD(level up buff damage)',
                 'font': smallfont,
                 'color':(111,13,181),
                 'x': 80,
@@ -1166,7 +1175,7 @@ playerskillscript_info={
                 'y': 225
                      },
             'line4':{
-                'line':'extra 150% Damage by cost extra 12 mana.',
+                'line':'extra 150%/200%/250% Damage by cost extra 12 mana.',
                 'font': smallfont,
                 'color':(111,13,181),
                 'x': 80,
@@ -1207,14 +1216,14 @@ playerskillscript_info={
     'movespeed':{
         'active':{
             'line1':{
-                'line':'SOUL DASH',
+                'line':'SOUL DASH(level up reduce cooldown)',
                 'font': smallfont,
                 'color':(111,13,181),
                 'x': 80,
                 'y': 150
                      },
             'line2':{
-                'line':'G to use       Skill cooldown: 4 second',
+                'line':'G to use       Skill cooldown: 4/3.5/3 second',
                 'font': smallfont,
                 'color':(111,13,181),
                 'x': 80,
@@ -1237,7 +1246,7 @@ playerskillscript_info={
         },
         'passive':{
             'line1':{
-                'line':'SOUL STEP',
+                'line':'SOUL STEP(level up buff time)',
                 'font': smallfont,
                 'color':(111,13,181),
                 'x': 80,
@@ -1251,7 +1260,7 @@ playerskillscript_info={
                 'y': 175
                      },
             'line3':{
-                'line':'Move continuously for 1.5 second grants 0.5 second',
+                'line':'Move continuously for 1.5 second grants 0.5/0.75/1 second',
                 'font': smallfont,
                 'color':(111,13,181),
                 'x': 80,
@@ -1299,7 +1308,7 @@ playerskillscript_info={
     'manaregen':{
         'active':{
             'line1':{
-                'line':'SOUL ABSORB',
+                'line':'SOUL ABSORB(level up buff amount)',
                 'font': smallfont,
                 'color':(111,13,181),
                 'x': 80,
@@ -1320,7 +1329,7 @@ playerskillscript_info={
                 'y': 225
                      },
             'line4':{
-                'line':'restores 25 mana upon hitting a target.',
+                'line':'restores 10/20/30 mana upon hitting a target.',
                 'font': smallfont,
                 'color':(111,13,181),
                 'x': 80,
@@ -1329,7 +1338,7 @@ playerskillscript_info={
         },
         'passive':{
             'line1':{
-                'line':'SOUL DRAIN',
+                'line':'SOUL DRAIN(level up buff amount)',
                 'font': smallfont,
                 'color':(111,13,181),
                 'x': 80,
@@ -1343,14 +1352,14 @@ playerskillscript_info={
                 'y': 175
                      },
             'line3':{
-                'line':'Each slash touch normal enemy retore 3',
+                'line':'Each slash touch normal enemy retore 2/3/4',
                 'font': smallfont,
                 'color':(111,13,181),
                 'x': 80,
                 'y': 225
                      },
             'line4':{
-                'line':'mana, touch boss restore 5 mana',
+                'line':'mana, touch boss restore 3/4/5 mana',
                 'font': smallfont,
                 'color':(111,13,181),
                 'x': 80,
@@ -1391,7 +1400,7 @@ playerskillscript_info={
     'attackspeed':{
         'active':{
             'line1':{
-                'line':'PHANTOM FLURRY',
+                'line':'PHANTOM FLURRY(level up buff time)',
                 'font': smallfont,
                 'color':(111,13,181),
                 'x': 80,
@@ -1405,7 +1414,7 @@ playerskillscript_info={
                 'y': 175
                      },
             'line3':{
-                'line':'In 5 second, each normal attack create an',
+                'line':'In 5/7/9 second, each normal attack create an',
                 'font': smallfont,
                 'color':(111,13,181),
                 'x': 80,
@@ -1421,7 +1430,7 @@ playerskillscript_info={
         },
         'passive':{
             'line1':{
-                'line':'BERSERK SOUL',
+                'line':'BERSERK SOUL(level up buff stacks)',
                 'font': smallfont,
                 'color':(111,13,181),
                 'x': 80,
@@ -1442,7 +1451,7 @@ playerskillscript_info={
                 'y': 225
                      },
             'line4':{
-                'line':', max 4 stacks, lost each after one second',
+                'line':', max 4/6/8 stacks, lost each after one second',
                 'font': smallfont,
                 'color':(111,13,181),
                 'x': 80,
