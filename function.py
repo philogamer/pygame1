@@ -506,9 +506,9 @@ def playerbehave(msto,csto,dt,keys):
             if csto.player.moving=='yes':
                 csto.player.movestack-=dt
             else:
-                csto.player.movestack=1.5
+                csto.player.movestack=3
         else:
-            if csto.player.movestack<=0.5+csto.pska.maxmanaratio*0.25:
+            if csto.player.movestack<=1+csto.pska.maxmanaratio*0.5:
                 csto.player.movestack+=dt
                 csto.player.moving='immune'
             else:
@@ -772,19 +772,18 @@ def creepspawn(msto,csto):
                 msto.slimes.append(Creep(i,'slime',csto.wave))
         msto.creeps.append(Creep(random.choice(msto.insidef),'elite',csto.wave))
 def creepgetdame(msto,csto,dt):
-    if (csto.pska.maxmana and csto.player.mana>=0.8*csto.player.maxmana) or csto.pska.manaregen:
-        testpassiveskill=[]
-        for creep in msto.creeps + msto.slimes:
-            for slash in msto.slashes: 
-                if creep.rect.colliderect(slash.rect):
-                    if creep.takedame: testpassiveskill.append(0)
-                    else: testpassiveskill.append(1)
-        if 1 not in testpassiveskill and testpassiveskill: 
-            if csto.pska.maxmana and csto.player.mana>=0.8*csto.player.maxmana: csto.player.mana-=12
-            if csto.pska.manaregen: 
-                csto.player.mana+=2+csto.pska.manaregenratio
-                msto.regens.append(Regen(csto.player.x,csto.player.y,'mana'))
-            if csto.pska.attackspeed and csto.player.attackspeedstack<=0.15*(1+csto.pska.attackspeedratio*0.5): csto.player.attackspeedstack+=0.05
+    testpassiveskill=[]
+    for creep in msto.creeps + msto.slimes:
+        for slash in msto.slashes: 
+            if creep.rect.colliderect(slash.rect):
+                if creep.takedame: testpassiveskill.append(0)
+                else: testpassiveskill.append(1)
+    if 1 not in testpassiveskill and testpassiveskill: 
+        if csto.pska.maxmana and csto.player.mana>=0.8*csto.player.maxmana: csto.player.mana-=12
+        if csto.pska.manaregen: 
+            csto.player.mana+=2+csto.pska.manaregenratio
+            manaregeneffect(msto,csto)
+        if csto.pska.attackspeed and csto.player.attackspeedstack<=0.05*(3+csto.pska.attackspeedratio*2): csto.player.attackspeedstack+=0.05
     for creep in msto.creeps + msto.slimes:
         for slash in msto.slashes:
             if creep.rect.colliderect(slash.rect) and creep.takedame:
@@ -994,8 +993,8 @@ def bossgetdame(msto,csto,dt):
                     csto.player.mana-=12
                 if csto.pska.manaregen: 
                     csto.player.mana+=3+csto.pska.manaregenratio
-                    msto.regens.append(Regen(csto.player.x,csto.player.y,'mana'))
-                if csto.pska.attackspeed and csto.player.attackspeedstack<=0.15*(1+csto.pska.attackspeedratio*0.5): csto.player.attackspeedstack+=0.05
+                    manaregeneffect(msto,csto)
+                if csto.pska.attackspeed and csto.player.attackspeedstack<=0.05*(3+csto.pska.attackspeedratio*2): csto.player.attackspeedstack+=0.05
                 boss.takedame=False
             if boss.hp<=0:
                 csto.bosses.remove(boss)
@@ -1165,6 +1164,8 @@ def drawgame1(msto,csto,dt,mousetouch):
             elif i.skillprepare>=1:
                 for bossattack in msto.bossattacks:
                     bossattack.update(screen)    
+    if csto.pska.maxmana and csto.player.mana>=0.8*csto.player.maxmana: 
+        pygame.draw.ellipse(screen,(0,0,225),pygame.Rect(csto.player.x+2,csto.player.y-(107-70)+95+2,57,10),2)
     csto.player.draw(screen)
     for i in msto.slimestucks:
         i.draw(screen,dt)
@@ -1344,7 +1345,7 @@ def chooseafterboss(msto,csto,mousepos):
                             csto.pska.attackspeed=True
                             csto.pska.attackspeedratio+=1
                         else:
-                            msto.limitdevelopskill=5
+                            msto.limitdevelopskill=1
                             csto.stage='boss'
                             csto.rendermap=False
                             break
@@ -1414,7 +1415,7 @@ def gaingamblescript(number,lstat,type):
     lstat.x=betscript_info.get(type).get('line'+str(number)).get('x')
     lstat.y=betscript_info.get(type).get('line'+str(number)).get('y')
 def writeskillscript(msto,lstat,type,number):
-    pygame.draw.rect(screen,(0,0,0),pygame.Rect(70,140,420,210))
+    pygame.draw.rect(screen,(0,0,0),pygame.Rect(70,140,490,210))
     for i in range(1,number+1):
         if msto.afterbosschoice=='gamble': gaingamblescript(i,lstat,type)
         else: gainskillscript(msto,i,lstat,type)

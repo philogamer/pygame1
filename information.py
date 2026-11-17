@@ -112,6 +112,8 @@ class Player:
         self.y=xy%10*70
         self.x=(xy-xy%10)/10*70    
     def draw(self,screen):
+        if self.attackspeedstack>0: pygame.draw.ellipse(screen,(225,0,0),pygame.Rect(self.x,self.y-(107-70)+95,61,14),2)
+        if self.moving=='immune':pygame.draw.ellipse(screen,(227,206,14),pygame.Rect(self.x+2,self.y-(107-70)+95+4,53,6),2)
         screen.blit(self.img,(self.x,self.y-(107-70)))
         pygame.draw.rect(screen,(0,0,0),pygame.Rect(85,705,310,40))
         if self.immortal<0:
@@ -210,6 +212,8 @@ class Creep:
         screen.blit(self.img,(self.x,self.y))
         pygame.draw.rect(screen,(112,112,112),pygame.Rect(self.x,self.y-4,self.w,4))
         pygame.draw.rect(screen,(225,0,0),pygame.Rect(self.x,self.y-4,self.hp*self.w/self.maxhp,4))
+        if self.dmgtick==4:
+            pygame.draw.rect(screen,(0,0,225),pygame.Rect(self.x+(self.w-4)/2,self.y-10,4,4))
     def move(self,dt):
         dx=self.targetx-self.x
         self.direction='right' if dx>0 else 'left'
@@ -506,7 +510,7 @@ class Passiveskillactivate:
         self.maxhpratio=-1
         self.maxmana=False
         self.maxmanaratio=-1
-        self.movespeed=False
+        self.movespeed=True
         self.movespeedratio=-1
         self.attackspeed=False
         self.attackspeedratio=-1
@@ -535,7 +539,7 @@ class Conststore:
         self.creepspeed=50
         self.bosscount=0
         self.mapcount=0
-        self.stage='boss'
+        self.stage='normal'
         self.player=Player()
         self.pska=Passiveskillactivate()
         self.aska=Activeskillactivate()
@@ -1267,14 +1271,14 @@ playerskillscript_info={
                 'y': 175
                      },
             'line3':{
-                'line':'Move continuously for 1.5 second grants 0.5/0.75/1 second',
+                'line':'Move continuously for 1.5 second grants 1/1.5/2',
                 'font': smallfont,
                 'color':(111,13,181),
                 'x': 80,
                 'y': 225
                      },
             'line4':{
-                'line':'of immunity to effects that impacts movement.',
+                'line':'second of immunity to effects that impacts movement.',
                 'font': smallfont,
                 'color':(111,13,181),
                 'x': 80,
