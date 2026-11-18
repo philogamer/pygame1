@@ -1181,11 +1181,8 @@ def drawgame1(msto,csto,dt,mousetouch):
         i.draw(screen)
     for i in msto.slashes:
         i.draw(screen)
-    for i in msto.goable:
-        pygame.draw.rect(screen,(225,0,0),i.rect,1)
     for i in msto.chooseafterbosses:
         i.draw(screen,mousetouch)
-        pygame.draw.rect(screen,(225,0,0),i.rect,1)
     if msto.playerbet!=0: write(str(msto.playerbet),codefont,(111,13,181),685,285)
     for i in csto.pluses:
         i.draw(screen)
