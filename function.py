@@ -572,28 +572,16 @@ def gamble(msto,csto,click,mousepos):
                 msto.chooseafterbosses.append(Chooseafterboss(615,285,'bet'))
                 msto.chooseafterbosses.append(Chooseafterboss(615,385,'return'))
                 if plus.type=='dmg':
-                    csto.player.dmg-=1*2
                     msto.statchoose='dmg'
                 elif plus.type=='maxmana':
-                    csto.player.maxmana-=15*2
-                    csto.player.mana-=15*2
-                    if csto.player.mana<=0:
-                        csto.player.mana=1
                     msto.statchoose='maxmana'
                 elif plus.type=='maxhp':
-                    csto.player.maxhp-=40*2
-                    csto.player.hp-=40*2
-                    if csto.player.hp<=0:
-                        csto.player.hp=1
                     msto.statchoose='maxhp'
                 elif plus.type=='movespeed':
-                    csto.player.maxspeed-=4*2  
                     msto.statchoose='movespeed'                      
                 elif plus.type=='manaregen':
-                    csto.player.manaregen-=0.5*2
                     msto.statchoose='manaregen'
                 elif plus.type=='attackspeed':
-                    csto.player.attackspeed-=0.025*2
                     msto.statchoose='attackspeed'
                 csto.pluses=[]
 def choosebet(msto,csto,click,mousepos):
@@ -1151,7 +1139,7 @@ def drawgame1(msto,csto,dt,mousetouch):
     write('MAX HP:'+str(csto.player.maxhp),font,(0,0,0),700,699)
     write('MOVE SPEED:'+str(csto.player.maxspeed),font,(0,0,0),700,744)
     write('MANA REGEN:'+str(csto.player.manaregen),font,(0,0,0),950,699)
-    write('ATTACK SPEED:'+str(csto.player.attackspeed),font,(0,0,0),950,744)
+    write('ATTACK SPEED:'+str(round(csto.player.attackspeed,2)),font,(0,0,0),950,744)
     write('level',font,(0,0,0),1415,10)
     write(str(csto.player.level),font,(0,0,0),1430,40)
     for i in csto.bosses:
@@ -1344,7 +1332,29 @@ def chooseafterboss(msto,csto,mousepos):
                             msto.limitdevelopskill=1
                             csto.stage='boss'
                             csto.rendermap=False
-                            break           
+                            break
+                if i.type=='entergamble':
+                    csto.stage='normal'
+                    csto.rendermap=True
+                    if msto.statchoose=='dmg':
+                        csto.player.dmg-=1*2*msto.playerbet
+                    elif msto.statchoose=='maxmana':
+                        csto.player.maxmana-=15*2*msto.playerbet
+                        csto.player.mana-=15*2*msto.playerbet
+                        if csto.player.mana<=0:
+                            csto.player.mana=1
+                    elif msto.statchoose=='maxhp':
+                        csto.player.maxhp-=40*2*msto.playerbet
+                        csto.player.hp-=40*2*msto.playerbet
+                        if csto.player.hp<=0:
+                            csto.player.hp=1
+                    elif msto.statchoose=='movespeed':
+                        csto.player.maxspeed-=4*2*msto.playerbet          
+                    elif msto.statchoose=='manaregen':
+                        csto.player.manaregen-=0.5*2*msto.playerbet
+                    elif msto.statchoose=='attackspeed':
+                        csto.player.attackspeed-=0.025*2*msto.playerbet
+                    csto.pluses=[]   
                 msto.chooseafterbosses=[]
                 if i.type=='health':
                     csto.player.hp+=csto.player.maxhp*0.5

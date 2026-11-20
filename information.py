@@ -84,7 +84,7 @@ class Player:
         self.targetx=self.x
         self.targety=self.y
         self.direction='right'
-        self.dmg=10#*50
+        self.dmg=10*50
         self.speed=200
         self.maxspeed=200
         self.hp=500
@@ -530,7 +530,7 @@ class Conststore:
         self.creepspeed=50
         self.bosscount=0
         self.mapcount=0
-        self.stage='normal'
+        self.stage='boss'
         self.player=Player()
         self.pska=Passiveskillactivate()
         self.bosses=[]
