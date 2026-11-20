@@ -156,6 +156,10 @@ class Creep:
         self.position=xy
         self.y=xy%10*70
         self.x=(xy-xy%10)/10*70
+        if self.y<10:
+            self.y=10
+        if self.x<22:
+            self.x=22
         self.targetx=self.x
         self.targety=self.y
         self.direction='right'
