@@ -110,6 +110,8 @@ class Player:
         self.attackspeedstack=0
         self.movestack=1.5
         self.moving='yes'
+        self.exhaust=0
+        self.survive=10
     def put(self,xy):
         self.y=xy%10*70
         self.x=(xy-xy%10)/10*70    
@@ -1181,7 +1183,7 @@ playerskillscript_info={
                 'y': 225
                      },
             'line4':{
-                'line':'second of immunity to effects that impacts movement.',
+                'line':'second of immunity to bad effects that rely on movement.',
                 'font': smallfont,
                 'color':(111,13,181),
                 'x': 80,
@@ -1399,7 +1401,7 @@ playerskillscript_info={
                 'y': 225
                      },
             'line4':{
-                'line':'the player can make from all sources',
+                'line':'the player can make from normal attack',
                 'font': smallfont,
                 'color':(111,13,181),
                 'x': 80,

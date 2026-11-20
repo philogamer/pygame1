@@ -42,7 +42,7 @@ while True:
     if csto.play==1:
     
         if csto.rendermap:
-            csto.player.mana=csto.player.maxmana
+            if not csto.pska.nonregenmana: csto.player.mana=csto.player.maxmana
             msto=info.Mapstore()
             csto.player.slashcooldown=0
             csto.mapcount+=1
