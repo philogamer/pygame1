@@ -558,6 +558,7 @@ class Conststore:
         self.player=Player()
         self.pska=Passiveskillactivate()
         self.skillgained=[]
+        self.skilldidntgain=['dracula','exhaust','survive','nonregenmana']
         self.skilllevel=[]
         
         self.bosses=[]

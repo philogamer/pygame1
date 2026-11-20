@@ -1392,6 +1392,7 @@ def chooseafterboss(msto,csto,mousepos):
                     elif msto.statchoose=='attackspeed':
                         csto.player.attackspeed-=0.025*2*msto.playerbet
                     csto.pluses=[]
+                    startgamble(msto,csto)
                 msto.chooseafterbosses=[]
                 if i.type=='health':
                     csto.stage='normal'
@@ -1426,7 +1427,65 @@ def chooseafterboss(msto,csto,mousepos):
                     csto.pluses.append(Button('increase','plus'))
                     csto.pluses.append(Button('decrease','gamble'))
                     msto.playerbet=1
-                            
+def startgamble(msto,csto):
+    a=random.randint(1,50)
+    if a<=msto.playerbet:
+        b=random.choice(csto.skilldidntgain)
+        if b=='dracula':
+            csto.pska.dracula=True
+            csto.pska.dracularatio+=1
+            if 'dracula' in csto.skillgained:
+                a=csto.skillgained.index('dracula')
+                csto.skilllevel[a]+=1
+            else:
+                csto.skilllevel.append(1)
+                csto.skillgained.append('dracula')
+        elif b=='exhaust':
+            csto.pska.exhaust=True
+            csto.pska.exhaustratio+=1
+            if 'exhaust' in csto.skillgained:
+                a=csto.skillgained.index('exhaust')
+                csto.skilllevel[a]+=1
+            else:
+                csto.skilllevel.append(1)
+                csto.skillgained.append('exhaust')
+        elif b=='survive':
+            csto.pska.survive=True
+            csto.pska.surviveratio+=1
+            if 'survive' in csto.skillgained:
+                a=csto.skillgained.index('survive')
+                csto.skilllevel[a]+=1
+            else:
+                csto.skilllevel.append(1)
+                csto.skillgained.append('survive')
+        elif b=='nonregenmana':
+            csto.pska.nonregenmana=True
+            csto.pska.nonregenmanaratio+=1
+            if 'nonregenmana' in csto.skillgained:
+                a=csto.skillgained.index('nonregenmana')
+                csto.skilllevel[a]+=1
+            else:
+                csto.skilllevel.append(1)
+                csto.skillgained.append('nonregenmana')
+    elif a<=msto.playerbet*2:
+        csto.player.hp=csto.player.maxhp
+    else:
+        csto.player.maxhp+=random.randint(-2,2)*20
+        if csto.player.maxhp<csto.player.hp:
+            csto.player.hp=csto.player.maxhp
+        csto.player.maxmana+=random.randint(-2,2)*15
+        if csto.player.maxmana<=csto.player.mana:
+            if csto.player.maxmana<=0: csto.player.mana=6
+            csto.player.hp=csto.player.maxmana
+        csto.player.dmg+=random.randint(-2,2)*2
+        csto.player.maxspeed+=random.randint(-2,2)*8
+        if csto.player.maxspeed<1:csto.player.movespeed=1
+        csto.player.manaregen+=random.randint(-2,2)
+        if csto.player.manaregen<1:csto.player.manaregen=1
+        csto.player.attackspeed+=random.randint(-2,2)*0.05
+        if csto.player.attackspeed<0.05:csto.player.attackspeed=0.05
+        
+            
                     
 def gainskillscript(msto,number,lstat,type):
     lstat.line=playerskillscript_info.get(msto.statchoose).get(type).get('line'+str(number)).get('line')
