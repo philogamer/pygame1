@@ -549,7 +549,6 @@ def develop(msto,csto,click,mousepos):
         if click:
             if plus.rect.collidepoint(mousepos):
                 msto.chooseafterbosses.append(Chooseafterboss(595,245,'blank'))
-                msto.chooseafterbosses.append(Chooseafterboss(615,285,'active'))
                 msto.chooseafterbosses.append(Chooseafterboss(615,335,'passive'))
                 msto.chooseafterbosses.append(Chooseafterboss(615,385,'return'))
                 if plus.type=='dmg':
@@ -1345,32 +1344,7 @@ def chooseafterboss(msto,csto,mousepos):
                             msto.limitdevelopskill=1
                             csto.stage='boss'
                             csto.rendermap=False
-                            break
-                    elif i.type=='active':
-                        if msto.statchoose=='dmg':
-                            csto.player.dmg-=1*2
-                            csto.aska.dmg=True
-                        elif msto.statchoose=='maxmana':
-                            csto.player.maxmana-=15*2
-                            csto.player.mana-=15*2
-                            if csto.player.mana<=0:
-                                csto.player.mana=1
-                            csto.aska.maxmana=True
-                        elif msto.statchoose=='maxhp':
-                            csto.player.maxhp-=40*2
-                            csto.player.hp-=40*2
-                            if csto.player.hp<=0:
-                                csto.player.hp=1
-                            csto.aska.maxhp=True
-                        elif msto.statchoose=='movespeed' :
-                            csto.player.maxspeed-=4*2 
-                            csto.aska.movespeed=True                
-                        elif msto.statchoose=='manaregen':
-                            csto.player.manaregen-=0.5*2
-                            csto.aska.manaregen=True
-                        elif msto.statchoose=='attackspeed':
-                            csto.player.attackspeed-=0.025*2
-                            csto.aska.attackspeed=True                
+                            break           
                 msto.chooseafterbosses=[]
                 if i.type=='health':
                     csto.player.hp+=csto.player.maxhp*0.5

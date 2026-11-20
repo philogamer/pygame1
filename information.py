@@ -455,10 +455,6 @@ class Chooseafterboss:
             self.img1='assets/blankframe.png'
             self.img1=pygame.image.load(self.img1).convert_alpha()
             self.img1=pygame.transform.scale(self.img1,(210,210))
-        elif type=='active':
-            self.img2='assets/active.png'
-            self.img2=pygame.image.load(self.img2).convert_alpha()
-            self.img2=pygame.transform.scale(self.img2,(170,30))
         elif type=='passive':
             self.img2='assets/passive.png'
             self.img2=pygame.image.load(self.img2).convert_alpha()
@@ -475,7 +471,7 @@ class Chooseafterboss:
             self.img2='assets/gamble.png'
             self.img2=pygame.image.load(self.img2).convert_alpha()
             self.img2=pygame.transform.scale(self.img2,(170,30))
-        if type=='active' or type=='passive' or type=='return' or type=='bet' or type=='entergamble':
+        if type=='passive' or type=='return' or type=='bet' or type=='entergamble':
             self.img1='assets/shade.png'
             self.img1=pygame.image.load(self.img1).convert_alpha()
             self.img1=pygame.transform.scale(self.img1,(173,32))
@@ -510,7 +506,7 @@ class Passiveskillactivate:
         self.maxhpratio=-1
         self.maxmana=False
         self.maxmanaratio=-1
-        self.movespeed=True
+        self.movespeed=False
         self.movespeedratio=-1
         self.attackspeed=False
         self.attackspeedratio=-1
@@ -518,15 +514,6 @@ class Passiveskillactivate:
         self.manaregenratio=-1
         self.dracula=False
         self.dracularatio=-1
-                       
-class Activeskillactivate:
-    def __init__(self):
-        self.dmg=False
-        self.maxhp=False
-        self.maxmana=False
-        self.movespeed=False
-        self.attackspeed=False
-        self.manaregen=False
         
 
 class Conststore:
@@ -542,7 +529,6 @@ class Conststore:
         self.stage='normal'
         self.player=Player()
         self.pska=Passiveskillactivate()
-        self.aska=Activeskillactivate()
         self.bosses=[]
         self.pluses=[]
         #end and start
@@ -949,36 +935,6 @@ stayline_info={
 }
 playerskillscript_info={
     'dmg':{
-        'active':{
-            'line1':{
-                'line':'SOUL BREAK(level up buff damage)',
-                'font': smallfont,
-                'color':(111,13,181),
-                'x': 80,
-                'y': 150
-                     },
-            'line2':{
-                'line':'G to use       Skill cooldown: 5 second',
-                'font': smallfont,
-                'color':(111,13,181),
-                'x': 80,
-                'y': 175
-                     },
-            'line3':{
-                'line':'create a big slash with 250%/300%/350%',
-                'font': smallfont,
-                'color':(111,13,181),
-                'x': 80,
-                'y': 225
-                     },
-            'line4':{
-                'line':'Damage at the normal attack direction',
-                'font': smallfont,
-                'color':(111,13,181),
-                'x': 80,
-                'y': 250
-                     },     
-        },
         'passive':{
             'line1':{
                 'line':'SOUL REND(level up buff damage)',
@@ -1041,36 +997,6 @@ playerskillscript_info={
         },
     },
     'maxhp':{
-        'active':{
-            'line1':{
-                'line':'SOUL GUARD(level up buff amount)',
-                'font': smallfont,
-                'color':(111,13,181),
-                'x': 80,
-                'y': 150
-                     },
-            'line2':{
-                'line':'G to use       Skill cooldown: 5 second',
-                'font': smallfont,
-                'color':(111,13,181),
-                'x': 80,
-                'y': 175
-                     },
-            'line3':{
-                'line':'Create a shield that absorbs damage equal',
-                'font': smallfont,
-                'color':(111,13,181),
-                'x': 80,
-                'y': 225
-                     },
-            'line4':{
-                'line':'to 20%/25%/30% Max hp for 4 seconds.',
-                'font': smallfont,
-                'color':(111,13,181),
-                'x': 80,
-                'y': 250
-                     },     
-        },
         'passive':{
             'line1':{
                 'line':'IMMORTAL SOUL(level up buff time)',
@@ -1133,36 +1059,6 @@ playerskillscript_info={
         },
     },
     'maxmana':{
-        'active':{
-            'line1':{
-                'line':'MANA EXPLODE(level up buff range)',
-                'font': smallfont,
-                'color':(111,13,181),
-                'x': 80,
-                'y': 150
-                     },
-            'line2':{
-                'line':'G to use       Skill cooldown: 5 second',
-                'font': smallfont,
-                'color':(111,13,181),
-                'x': 80,
-                'y': 175
-                     },
-            'line3':{
-                'line':'Cost 30 mana to explode the area surround (70/105/140)',
-                'font': smallfont,
-                'color':(111,13,181),
-                'x': 80,
-                'y': 225
-                     },
-            'line4':{
-                'line':'with 80% Damage, block fly object and push back normal enemy ',
-                'font': smallfont,
-                'color':(111,13,181),
-                'x': 80,
-                'y': 250
-                     },     
-        },
         'passive':{
             'line1':{
                 'line':'SOUL OVERLOAD(level up buff damage)',
@@ -1225,36 +1121,6 @@ playerskillscript_info={
         },
     },
     'movespeed':{
-        'active':{
-            'line1':{
-                'line':'SOUL DASH(level up reduce cooldown)',
-                'font': smallfont,
-                'color':(111,13,181),
-                'x': 80,
-                'y': 150
-                     },
-            'line2':{
-                'line':'G to use       Skill cooldown: 4/3.5/3 second',
-                'font': smallfont,
-                'color':(111,13,181),
-                'x': 80,
-                'y': 175
-                     },
-            'line3':{
-                'line':'Dash forward in the direction of movement',
-                'font': smallfont,
-                'color':(111,13,181),
-                'x': 80,
-                'y': 225
-                     },
-            'line4':{
-                'line':',deal 80% Damage along the path.',
-                'font': smallfont,
-                'color':(111,13,181),
-                'x': 80,
-                'y': 250
-                     },     
-        },
         'passive':{
             'line1':{
                 'line':'SOUL STEP(level up buff time)',
@@ -1317,36 +1183,6 @@ playerskillscript_info={
         },
     },
     'manaregen':{
-        'active':{
-            'line1':{
-                'line':'SOUL ABSORB(level up buff amount)',
-                'font': smallfont,
-                'color':(111,13,181),
-                'x': 80,
-                'y': 150
-                     },
-            'line2':{
-                'line':'G to use       Skill cooldown: 5 second',
-                'font': smallfont,
-                'color':(111,13,181),
-                'x': 80,
-                'y': 175
-                     },
-            'line3':{
-                'line':'Drains energy from enemies in front,',
-                'font': smallfont,
-                'color':(111,13,181),
-                'x': 80,
-                'y': 225
-                     },
-            'line4':{
-                'line':'restores 10/20/30 mana upon hitting a target.',
-                'font': smallfont,
-                'color':(111,13,181),
-                'x': 80,
-                'y': 250
-                     },     
-        },
         'passive':{
             'line1':{
                 'line':'SOUL DRAIN(level up buff amount)',
@@ -1409,36 +1245,6 @@ playerskillscript_info={
         },
     },
     'attackspeed':{
-        'active':{
-            'line1':{
-                'line':'PHANTOM FLURRY(level up buff time)',
-                'font': smallfont,
-                'color':(111,13,181),
-                'x': 80,
-                'y': 150
-                     },
-            'line2':{
-                'line':'G to use       Skill cooldown: 18 second',
-                'font': smallfont,
-                'color':(111,13,181),
-                'x': 80,
-                'y': 175
-                     },
-            'line3':{
-                'line':'In 5/7/9 second, each normal attack create an',
-                'font': smallfont,
-                'color':(111,13,181),
-                'x': 80,
-                'y': 225
-                     },
-            'line4':{
-                'line':'additional basic attack on the opposite side',
-                'font': smallfont,
-                'color':(111,13,181),
-                'x': 80,
-                'y': 250
-                     },     
-        },
         'passive':{
             'line1':{
                 'line':'BERSERK SOUL(level up buff stacks)',
