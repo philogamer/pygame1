@@ -1362,13 +1362,19 @@ def chooseafterboss(msto,csto,mousepos):
                     csto.player.hp+=csto.player.maxhp*0.5
                     msto.regens.append(Regen(csto.player.x,csto.player.y,'health'))
                 elif i.type=='develop' or (i.type=='return'and msto.afterbosschoice=='develop'):
-                    csto.pluses.append(Button('dmg','develop'))
-                    csto.pluses.append(Button('maxmana','develop'))
-                    csto.pluses.append(Button('maxhp','develop'))
-                    csto.pluses.append(Button('movespeed','develop'))
-                    csto.pluses.append(Button('manaregen','develop'))
-                    csto.pluses.append(Button('attackspeed','develop'))
-                    msto.afterbosschoice='develop'
+                    if csto.pska.manaregenratio+csto.pska.maxmanaratio+csto.pska.dmgratio+csto.pska.maxhpratio+csto.pska.movespeedratio+csto.pska.attackspeedratio==12:
+                        msto.chooseafterbosses.append(Chooseafterboss(595,245,'health'))
+                        msto.chooseafterbosses.append(Chooseafterboss(315,245,'develop'))
+                        msto.chooseafterbosses.append(Chooseafterboss(875,245,'gamble'))
+                        msto.limitdevelopskill=1
+                    else:   
+                        csto.pluses.append(Button('dmg','develop'))
+                        csto.pluses.append(Button('maxmana','develop'))
+                        csto.pluses.append(Button('maxhp','develop'))
+                        csto.pluses.append(Button('movespeed','develop'))
+                        csto.pluses.append(Button('manaregen','develop'))
+                        csto.pluses.append(Button('attackspeed','develop'))
+                        msto.afterbosschoice='develop'
                 elif i.type=='gamble' or (i.type=='return'and msto.afterbosschoice=='gamble'):
                     csto.pluses.append(Button('dmg','gamble'))
                     csto.pluses.append(Button('maxmana','gamble'))
