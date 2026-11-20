@@ -1117,7 +1117,7 @@ def skip(csto,keys,msto,lstat,dt):
         returntype(msto,csto,lstat,dt)   
     return csto
 
-def drawgame1(msto,csto,dt,mousetouch):
+def drawgame1(msto,csto,dt):
     screen.fill((70,70,70))
     transparentscreen.fill((0,0,0,0))
     for i in msto.map:
@@ -1169,7 +1169,7 @@ def drawgame1(msto,csto,dt,mousetouch):
     for i in msto.slashes:
         i.draw(screen)
     for i in msto.chooseafterbosses:
-        i.draw(screen,mousetouch)
+        i.draw(screen,msto.mousetouch)
     if msto.playerbet!=0: write(str(msto.playerbet),codefont,(111,13,181),685,285)
     for i in csto.pluses:
         i.draw(screen)
@@ -1239,8 +1239,8 @@ def returntype(msto,csto,lstat,dt):
     csto.changeline=1
     csto.writeduration=0
     csto.endchat==0
-def darken(msto,csto):
-    drawgame1(msto,csto)
+def darken(msto,csto,dt):
+    drawgame1(msto,csto,dt)
     transparentscreen.fill((0,0,0,210))
     if csto.guidenumber==12: csto.player.buffstat=2
     if csto.endchat==1: 
@@ -1260,7 +1260,7 @@ def guidetyping(msto,csto,lstat,dt,lenofeachstage):
     if csto.startwrite>=0.1:
         csto.startwrite=0
         csto.writeduration+=1
-        darken(msto,csto)
+        darken(msto,csto,dt)
         for i in range(1,lenofeachstage+1):
             smalltyping(csto,i,lstat)
         stayline(msto,csto,lstat,dt,2) 
@@ -1302,6 +1302,7 @@ def chooseafterboss(msto,csto,mousepos):
                             csto.player.dmg-=1*2
                             csto.pska.dmg=True
                             csto.pska.dmgratio+=1
+                            csto.skillgained.append('dmg')
                         elif msto.statchoose=='maxmana' and csto.pska.maxmanaratio<2:
                             csto.player.maxmana-=15*2
                             csto.player.mana-=15*2
@@ -1309,6 +1310,7 @@ def chooseafterboss(msto,csto,mousepos):
                                 csto.player.mana=1
                             csto.pska.maxmana=True
                             csto.pska.maxmanaratio+=1
+                            csto.skillgained.append('maxmana')
                         elif msto.statchoose=='maxhp' and csto.pska.maxhpratio<2:
                             csto.player.maxhp-=40*2
                             csto.player.hp-=40*2
@@ -1316,18 +1318,22 @@ def chooseafterboss(msto,csto,mousepos):
                                 csto.player.hp=1
                             csto.pska.maxhp=True
                             csto.pska.maxhp+=1
+                            csto.skillgained.append('maxhp')
                         elif msto.statchoose=='movespeed' and csto.pska.movespeedratio<2:
                             csto.player.maxspeed-=4*2 
                             csto.pska.movespeed=True
-                            csto.pska.movespeedratio+=1               
+                            csto.pska.movespeedratio+=1
+                            csto.skillgained.append('movespeed')          
                         elif msto.statchoose=='manaregen' and csto.pska.manaregenratio<2:
                             csto.player.manaregen-=0.5*2
                             csto.pska.manaregen=True
                             csto.pska.manaregenratio+=1
+                            csto.skillgained.append('manaregen')
                         elif msto.statchoose=='attackspeed' and csto.pska.attackspeedratio<2:
                             csto.player.attackspeed-=0.025*2
                             csto.pska.attackspeed=True
                             csto.pska.attackspeedratio+=1
+                            csto.skillgained.append('attackspeed')
                         else:
                             msto.limitdevelopskill=1
                             csto.stage='boss'
@@ -1410,9 +1416,9 @@ def writeskillscript(msto,lstat,type,number):
         if msto.afterbosschoice=='gamble': gaingamblescript(i,lstat,type)
         else: gainskillscript(msto,i,lstat,type)
         write(lstat.line,lstat.font,lstat.color,lstat.x,lstat.y)                           
-def touchandwrite(msto,mousetouch,lstat):
+def touchandwrite(msto,lstat):
     for i in msto.chooseafterbosses:
-        if i.rect.collidepoint(mousetouch) and i.type!='blank':
+        if i.rect.collidepoint(msto.mousetouch) and i.type!='blank':
             writeskillscript(msto,lstat,i.type,4)
 
 def pauseorplay(csto,mousepos):
@@ -1420,7 +1426,31 @@ def pauseorplay(csto,mousepos):
         csto.play*=-1
     csto.pauseorplay.draw(screen,csto.play)
 
-
-
-
+def pausescreen(msto,csto,lstat,dt):
+    darken(msto,csto,dt)
+    pygame.draw.rect(screen,(60,60,60),pygame.Rect(560,140,770,490))
+    pygame.draw.rect(screen,(111,13,181),pygame.Rect(560,140,770,490),1)
+    skillboxs=skillbox()
+    touchandwriteinpause(csto,msto,lstat,skillboxs)
+def skillbox():
+    skillboxs=[]
+    a=0
+    for i in range(0,11,2):
+        for j in range (i*10+83,i*10+89,2):
+            skillboxs.append(Map(j,'f'))
+        if i<10:
+            for j in range ((i+1)*10+82,(i+1)*10+89,2):
+                skillboxs.append(Map(j,'f'))
+    for i in skillboxs:
+        i.draw(screen)
+        a+=1
+        write(str(a),font,(0,0,0),i.x+5,i.y)
+        i.number=a
+    return skillboxs
+def touchandwriteinpause(csto,msto,lstat,skillboxs):
+    for i in skillboxs:
+        if i.rect.collidepoint(msto.mousetouch) and i.number<=len(csto.skillgained):
+            msto.statchoose=csto.skillgained[i.number-1]
+            writeskillscript(msto,lstat,'passive',4)
+            msto.statchoose='none'
                 

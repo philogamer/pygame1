@@ -118,7 +118,9 @@ scriptafterboss_dic={
 pauseorplay_dic={
     'only': lambda *a:fun.pauseorplay(*a)
 }
-
+pausescreen_dic={
+    'only': lambda *a:fun.pausescreen(*a)
+}
 
 
 

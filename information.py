@@ -14,6 +14,7 @@ class Map:
         self.position=xy
         self.y=xy%10*70
         self.x=(xy-xy%10)/10*70
+        self.number=0
         if type=='w':
             self.img='assets/wall.png'
         elif type=='f':
@@ -26,6 +27,7 @@ class Map:
                 self.img='assets/F3.png'
         self.img=pygame.image.load(self.img).convert_alpha()
         self.img=pygame.transform.scale(self.img,(70,70))
+        self.rect=pygame.Rect(self.x,self.y,70,70)
     def draw(self,screen):
         screen.blit(self.img,(self.x,self.y))
 class Goable:
@@ -524,11 +526,11 @@ class Pauseorplay:
         self.y=710
         self.img1='assets/pause.png'
         self.img1=pygame.image.load(self.img1).convert_alpha()
-        self.img1=pygame.transform.scale(self.img1,(80,80))
+        self.img1=pygame.transform.scale(self.img1,(75,75))
         self.img2='assets/play.png'
         self.img2=pygame.image.load(self.img2).convert_alpha()
-        self.img2=pygame.transform.scale(self.img2,(80,80))
-        self.rect=pygame.Rect(self.x,self.y,80,80)
+        self.img2=pygame.transform.scale(self.img2,(75,75))
+        self.rect=pygame.Rect(self.x,self.y,75,75)
     def draw(self,screen,play):
         if play==1: img=self.img1
         else: img=self.img2
@@ -546,8 +548,11 @@ class Conststore:
         self.bosscount=0
         self.mapcount=0
         self.stage='boss'
+        
         self.player=Player()
         self.pska=Passiveskillactivate()
+        self.skillgained=[]
+        
         self.bosses=[]
         self.pluses=[]
         #end and start
@@ -563,6 +568,8 @@ class Conststore:
 
 class Mapstore:
     def __init__(self):
+        self.mousetouch=(0,0)
+        
         self.locate=list(range(200))
         self.goable=[]
         self.map=[]

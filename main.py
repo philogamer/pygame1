@@ -22,7 +22,7 @@ while True:
     click=False
     dt=clock.tick(60)/1000
     mousepos=(0,0)
-    mousetouch=pygame.mouse.get_pos()
+    msto.mousetouch=pygame.mouse.get_pos()
     for event in pygame.event.get():
         if event.type==pygame.QUIT:
             quit(0)
@@ -99,10 +99,14 @@ while True:
             
         
         #draw on screen
-        dic.render_dic.get(csto.stage, lambda *b:None)(msto,csto,dt,mousetouch)
+        dic.render_dic.get(csto.stage, lambda *b:None)(msto,csto,dt)
         dic.typechat_dic.get(csto.stage,dic.typechat_dic['none'])(msto,csto,lstat,dt)
-        dic.scriptafterboss_dic.get(msto.afterbosschoice,lambda*b:None)(msto,mousetouch,lstat)
-    
+        dic.scriptafterboss_dic.get(msto.afterbosschoice,lambda*b:None)(msto,lstat)
+    else:
+        dic.pausescreen_dic.get('only')(msto,csto,lstat,dt)
+        
+        
+        
     dic.pauseorplay_dic.get('only')(csto,mousepos)   
                   
             
