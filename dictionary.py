@@ -115,7 +115,9 @@ scriptafterboss_dic={
     'develop': lambda *a: fun.touchandwrite(*a),
     'gamble': lambda *a: fun.touchandwrite(*a),
 }
-
+pauseorplay_dic={
+    'only': lambda *a:fun.pauseorplay(*a)
+}
 
 
 

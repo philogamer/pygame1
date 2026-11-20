@@ -518,7 +518,22 @@ class Passiveskillactivate:
         self.manaregenratio=-1
         self.dracula=False
         self.dracularatio=-1
-        
+class Pauseorplay:
+    def __init__(self):
+        self.x=1410
+        self.y=710
+        self.img1='assets/pause.png'
+        self.img1=pygame.image.load(self.img1).convert_alpha()
+        self.img1=pygame.transform.scale(self.img1,(80,80))
+        self.img2='assets/play.png'
+        self.img2=pygame.image.load(self.img2).convert_alpha()
+        self.img2=pygame.transform.scale(self.img2,(80,80))
+        self.rect=pygame.Rect(self.x,self.y,80,80)
+    def draw(self,screen,play):
+        if play==1: img=self.img1
+        else: img=self.img2
+        screen.blit(img,(self.x,self.y))
+
 
 class Conststore:
     def __init__(self):
@@ -542,6 +557,9 @@ class Conststore:
         #guid
         self.guidenumber=1
         self.endchat=0 #chat not end
+        #pause
+        self.play=1
+        self.pauseorplay=Pauseorplay()
 
 class Mapstore:
     def __init__(self):

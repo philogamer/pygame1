@@ -1016,7 +1016,7 @@ def skillboss2(boss,msto,csto,dt):
     else:
         boss.move(dt)
         boss.update()
-        if boss.rect.colliderect(csto.player.rect) and csto.player.takedame and csto.player.immortal==3:
+        if boss.rect.colliderect(csto.player.rect) and csto.player.takedame and csto.player.immortal>=0:
             if csto.player.immortal>=0: csto.player.hp-=boss.dmg
             csto.player.takedame=False
         if int(boss.x)==int(boss.targetx) and int(boss.y)==int(boss.targety):
@@ -1354,9 +1354,11 @@ def chooseafterboss(msto,csto,mousepos):
                         csto.player.manaregen-=0.5*2*msto.playerbet
                     elif msto.statchoose=='attackspeed':
                         csto.player.attackspeed-=0.025*2*msto.playerbet
-                    csto.pluses=[]   
+                    csto.pluses=[]
                 msto.chooseafterbosses=[]
                 if i.type=='health':
+                    csto.stage='normal'
+                    csto.rendermap=True
                     csto.player.hp+=csto.player.maxhp*0.5
                     msto.regens.append(Regen(csto.player.x,csto.player.y,'health'))
                 elif i.type=='develop' or (i.type=='return'and msto.afterbosschoice=='develop'):
@@ -1397,6 +1399,7 @@ def gaingamblescript(number,lstat,type):
     lstat.y=betscript_info.get(type).get('line'+str(number)).get('y')
 def writeskillscript(msto,lstat,type,number):
     pygame.draw.rect(screen,(0,0,0),pygame.Rect(70,140,490,210))
+    pygame.draw.rect(screen,(111,13,181),pygame.Rect(70,140,490,210),1)
     for i in range(1,number+1):
         if msto.afterbosschoice=='gamble': gaingamblescript(i,lstat,type)
         else: gainskillscript(msto,i,lstat,type)
@@ -1406,8 +1409,10 @@ def touchandwrite(msto,mousetouch,lstat):
         if i.rect.collidepoint(mousetouch) and i.type!='blank':
             writeskillscript(msto,lstat,i.type,4)
 
-
-
+def pauseorplay(csto,mousepos):
+    if csto.pauseorplay.rect.collidepoint(mousepos):    
+        csto.play*=-1
+    csto.pauseorplay.draw(screen,csto.play)
 
 
 
