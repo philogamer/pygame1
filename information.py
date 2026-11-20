@@ -552,6 +552,7 @@ class Conststore:
         self.player=Player()
         self.pska=Passiveskillactivate()
         self.skillgained=[]
+        self.skilllevel=[]
         
         self.bosses=[]
         self.pluses=[]

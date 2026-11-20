@@ -1303,7 +1303,12 @@ def chooseafterboss(msto,csto,mousepos):
                             csto.player.dmg-=1*2
                             csto.pska.dmg=True
                             csto.pska.dmgratio+=1
-                            csto.skillgained.append('dmg')
+                            if 'dmg' in csto.skillgained:
+                                a=csto.skillgained.index('dmg')
+                                csto.skilllevel[a]+=1
+                            else:
+                                csto.skilllevel.append(1)
+                                csto.skillgained.append('dmg')
                         elif msto.statchoose=='maxmana' and csto.pska.maxmanaratio<2:
                             csto.player.maxmana-=15*2
                             csto.player.mana-=15*2
@@ -1311,7 +1316,12 @@ def chooseafterboss(msto,csto,mousepos):
                                 csto.player.mana=1
                             csto.pska.maxmana=True
                             csto.pska.maxmanaratio+=1
-                            csto.skillgained.append('maxmana')
+                            if 'maxmana' in csto.skillgained:
+                                a=csto.skillgained.index('maxmana')
+                                csto.skilllevel[a]+=1
+                            else:
+                                csto.skilllevel.append(1)
+                                csto.skillgained.append('maxmana')
                         elif msto.statchoose=='maxhp' and csto.pska.maxhpratio<2:
                             csto.player.maxhp-=40*2
                             csto.player.hp-=40*2
@@ -1319,22 +1329,42 @@ def chooseafterboss(msto,csto,mousepos):
                                 csto.player.hp=1
                             csto.pska.maxhp=True
                             csto.pska.maxhp+=1
-                            csto.skillgained.append('maxhp')
+                            if 'maxhp' in csto.skillgained:
+                                a=csto.skillgained.index('maxhp')
+                                csto.skilllevel[a]+=1
+                            else:
+                                csto.skilllevel.append(1)
+                                csto.skillgained.append('maxhp')
                         elif msto.statchoose=='movespeed' and csto.pska.movespeedratio<2:
                             csto.player.maxspeed-=4*2 
                             csto.pska.movespeed=True
                             csto.pska.movespeedratio+=1
-                            csto.skillgained.append('movespeed')          
+                            if 'movespeed' in csto.skillgained:
+                                a=csto.skillgained.index('movespeed')
+                                csto.skilllevel[a]+=1
+                            else:
+                                csto.skilllevel.append(1)
+                                csto.skillgained.append('movespeed')          
                         elif msto.statchoose=='manaregen' and csto.pska.manaregenratio<2:
                             csto.player.manaregen-=0.5*2
                             csto.pska.manaregen=True
                             csto.pska.manaregenratio+=1
-                            csto.skillgained.append('manaregen')
+                            if 'manaregen' in csto.skillgained:
+                                a=csto.skillgained.index('manaregen')
+                                csto.skilllevel[a]+=1
+                            else:
+                                csto.skilllevel.append(1)
+                                csto.skillgained.append('manaregen')
                         elif msto.statchoose=='attackspeed' and csto.pska.attackspeedratio<2:
                             csto.player.attackspeed-=0.025*2
                             csto.pska.attackspeed=True
                             csto.pska.attackspeedratio+=1
-                            csto.skillgained.append('attackspeed')
+                            if 'attackspeed' in csto.skillgained:
+                                a=csto.skillgained.index('attackspeed')
+                                csto.skilllevel[a]+=1
+                            else:
+                                csto.skilllevel.append(1)
+                                csto.skillgained.append('attackspeed')
                         else:
                             msto.limitdevelopskill=1
                             csto.stage='boss'
@@ -1453,5 +1483,6 @@ def touchandwriteinpause(csto,msto,lstat,skillboxs):
         if i.rect.collidepoint(msto.mousetouch) and i.number<=len(csto.skillgained):
             msto.statchoose=csto.skillgained[i.number-1]
             writeskillscript(msto,lstat,'passive',4)
+            write('current skill level '+str(csto.skilllevel[i.number-1]),font,(111,13,181),80,350)
             msto.statchoose='none'
                 
