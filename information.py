@@ -520,6 +520,12 @@ class Passiveskillactivate:
         self.manaregenratio=-1
         self.dracula=False
         self.dracularatio=-1
+        self.exhaust=False
+        self.exhaustratio=-1
+        self.survive=False
+        self.surviveratio=-1
+        self.nonregenmana=False
+        self.nonregenmanaratio=-1
 class Pauseorplay:
     def __init__(self):
         self.x=1410
@@ -1335,7 +1341,135 @@ playerskillscript_info={
                 'y': 250
                      },     
         },
-    }
+    },
+    'dracula':{
+        'passive':{
+            'line1':{
+                'line':'DRACULA SOUL(level up buff amounts)',
+                'font': smallfont,
+                'color':(111,13,181),
+                'x': 80,
+                'y': 150
+                     },
+            'line2':{
+                'line':'Passive skill       Skill cooldown: none',
+                'font': smallfont,
+                'color':(111,13,181),
+                'x': 80,
+                'y': 175
+                     },
+            'line3':{
+                'line':'Normal attack touch each enemy revenge Hp',
+                'font': smallfont,
+                'color':(111,13,181),
+                'x': 80,
+                'y': 225
+                     },
+            'line4':{
+                'line':'depend on 25(+25 each level)% Damage',
+                'font': smallfont,
+                'color':(111,13,181),
+                'x': 80,
+                'y': 250
+                     },     
+        },
+    },
+    'exhaust':{
+        'passive':{
+            'line1':{
+                'line':'LAZY SOUL(level up increase watse)',
+                'font': smallfont,
+                'color':(111,13,181),
+                'x': 80,
+                'y': 150
+                     },
+            'line2':{
+                'line':'Passive skill       Skill cooldown: none',
+                'font': smallfont,
+                'color':(111,13,181),
+                'x': 80,
+                'y': 175
+                     },
+            'line3':{
+                'line':'Longer continuosly moving, smaller the damage',
+                'font': smallfont,
+                'color':(111,13,181),
+                'x': 80,
+                'y': 225
+                     },
+            'line4':{
+                'line':'the player can make from all sources',
+                'font': smallfont,
+                'color':(111,13,181),
+                'x': 80,
+                'y': 250
+                     },     
+        },
+    },   
+    'survive':{
+        'passive':{
+            'line1':{
+                'line':'SURVIVE SOUL(level up buff amount)',
+                'font': smallfont,
+                'color':(111,13,181),
+                'x': 80,
+                'y': 150
+                     },
+            'line2':{
+                'line':'Passive skill       Skill cooldown: none',
+                'font': smallfont,
+                'color':(111,13,181),
+                'x': 80,
+                'y': 175
+                     },
+            'line3':{
+                'line':'Each 10s you do not gain damage from any',
+                'font': smallfont,
+                'color':(111,13,181),
+                'x': 80,
+                'y': 225
+                     },
+            'line4':{
+                'line':'sources, heal 20(+10 each level) Hp',
+                'font': smallfont,
+                'color':(111,13,181),
+                'x': 80,
+                'y': 250
+                     },     
+        },
+    },   
+    'nonregenmana':{
+        'passive':{
+            'line1':{
+                'line':'EXHAUSTED SOUL(no level up)',
+                'font': smallfont,
+                'color':(111,13,181),
+                'x': 80,
+                'y': 150
+                     },
+            'line2':{
+                'line':'Passive skill       Skill cooldown: none',
+                'font': smallfont,
+                'color':(111,13,181),
+                'x': 80,
+                'y': 175
+                     },
+            'line3':{
+                'line':'Get into a new map now do not fully',
+                'font': smallfont,
+                'color':(111,13,181),
+                'x': 80,
+                'y': 225
+                     },
+            'line4':{
+                'line':'regen your mana',
+                'font': smallfont,
+                'color':(111,13,181),
+                'x': 80,
+                'y': 250
+                     },     
+        },
+    },
 }
 betscript_info={
     'bet':{
