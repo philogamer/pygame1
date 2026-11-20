@@ -226,12 +226,13 @@ def render1(msto,csto):
                 break
             else:
                 doorban.extend(d)
-        while True:
-            start=random.choice(startablefloor)
-            if ((start+1) in msto.locate and not (start+1) in doorban) or ((start-1) in msto.locate and not (start-1) in doorban) or ((start+10) in msto.locate and not (start+10) in doorban) or ((start-10) in msto.locate and not (start-10) in doorban):
-                break
-            else:
-                startablefloor.remove(start)
+        if startablefloor:
+            while True:
+                start=random.choice(startablefloor)
+                if ((start+1) in msto.locate and not (start+1) in doorban) or ((start-1) in msto.locate and not (start-1) in doorban) or ((start+10) in msto.locate and not (start+10) in doorban) or ((start-10) in msto.locate and not (start-10) in doorban):
+                    break
+                else:
+                    startablefloor.remove(start)
     csto.firstdoor.append(doorside)
     csto.firstdoor.append(doorlong+1)   
     csto.rendermap=False
