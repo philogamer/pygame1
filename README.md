@@ -7,7 +7,7 @@ A top-down action game made with pygame. Fight ghosts, slimes and bosses, level 
 This project was made with Python and pygame and pixilart. It has:
 - Procedurally generated maps with doors and walls
 - Enemy AI that wanders, chases the player and shoots or leaves slime trails
-- A boss fight every 5 waves
+- A boss fight every 5 waves with boss skills
 - A reward system (health, develop, gamble) after each boss
 - Pixilart to draw assets (all assets I draw with my own)
 
