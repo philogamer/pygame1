@@ -40,7 +40,7 @@ while True:
             mousepos=event.pos
     
     if csto.play==1:
-    
+        csto=dic.buttonchangemap_dic.get(csto.stage,lambda *b:csto)(csto,keys,msto,lstat,dt)
         if csto.rendermap:
             if not csto.pska.nonregenmana: 
                 csto.player.mana=csto.player.maxmana
@@ -49,7 +49,7 @@ while True:
             csto.mapcount+=1
             dic.gachamap_dic.get(csto.stage,lambda*b:None)(msto,csto)
             csto.rendermap=False
-        csto=dic.buttonchangemap_dic.get(csto.stage,lambda *b:csto)(csto,keys,msto,lstat,dt)
+        
         if csto.stage=='guide':
             if csto.player.y<=-((107-70)-(107-70)): 
                 csto.player.put(99)

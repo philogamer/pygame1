@@ -1134,8 +1134,10 @@ def replay(csto,keys,msto,lstat,dt):
 def skip(csto,keys,msto,lstat,dt):
     if keys[pygame.K_k]:
         csto.stage='normal'
+        csto.player.buffstat=0
+        csto.player=Player()
         csto.rendermap=True
-        returntype(msto,csto,lstat,dt)   
+        returntype(msto,csto,lstat,dt)
     return csto
 
 def drawgame1(msto,csto,dt):
@@ -1499,7 +1501,7 @@ def startgamble(msto,csto):
             csto.player.hp=csto.player.maxmana
         csto.player.dmg+=random.randint(-2,2)*2
         csto.player.maxspeed+=random.randint(-2,2)*8
-        if csto.player.maxspeed<1:csto.player.movespeed=1
+        if csto.player.maxspeed<1:csto.player.maxspeed=1
         csto.player.manaregen+=random.randint(-2,2)
         if csto.player.manaregen<1:csto.player.manaregen=1
         csto.player.attackspeed+=random.randint(-2,2)*0.05
