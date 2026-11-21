@@ -13,7 +13,7 @@ This project was made with Python and pygame and pixilart. It has:
 
 ## Project structure
 - `main.py`: main game loop
-- `information.py`: classes (Player, Creep, Boss, Bullet, ...) and all on-screen text
+- `information.py`: classes and all on-screen text
 - `function.py`: game logic
 - `dictionary.py`: the events in game
 
