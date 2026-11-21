@@ -1295,7 +1295,7 @@ def stayline(msto,csto,lstat,dt,number):
         write(lstat.line,lstat.font,lstat.color,lstat.x,lstat.y)
 
 def guidetotest(csto):
-    if csto.guidenumber<13:
+    if csto.guidenumber<15:
         csto.stage='test'
         csto.guidenumber+=1
     else:

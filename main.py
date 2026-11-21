@@ -108,7 +108,7 @@ while True:
         
         
         
-    dic.pauseorplay_dic.get('only')(csto,mousepos)   
+    if csto.stage!='start' and csto.stage!='end': dic.pauseorplay_dic.get('only')(csto,mousepos)   
                   
             
                 

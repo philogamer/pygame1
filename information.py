@@ -86,7 +86,7 @@ class Player:
         self.targetx=self.x
         self.targety=self.y
         self.direction='right'
-        self.dmg=10*50
+        self.dmg=10#*50
         self.speed=200
         self.maxspeed=200
         self.hp=500
@@ -555,7 +555,7 @@ class Conststore:
         self.creepspeed=50
         self.bosscount=0
         self.mapcount=0
-        self.stage='boss'
+        self.stage='start'
         
         self.player=Player()
         self.pska=Passiveskillactivate()
@@ -920,6 +920,38 @@ chat_info={
                     },     
         },
         13:{
+            'line1':{
+                'line':'There is a pause button in the right',
+                'font': chatfont,
+                'color':(111,13,181),
+                'x': 385,
+                'y': 235
+                    },
+            'line2':{
+                'line':'bottom corner.',
+                'font': chatfont,
+                'color':(111,13,181),
+                'x': 385,
+                'y': 275
+                    },     
+        },
+        14:{
+            'line1':{
+                'line':'When the game is paused, you can see',
+                'font': chatfont,
+                'color':(111,13,181),
+                'x': 385,
+                'y': 235
+                    },
+            'line2':{
+                'line':'boxs which store your passive skills',
+                'font': chatfont,
+                'color':(111,13,181),
+                'x': 385,
+                'y': 275
+                    },     
+        },
+        15:{
             'line1':{
                 'line':'ready to start?, press T to play',
                 'font': chatfont,
