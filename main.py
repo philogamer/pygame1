@@ -3,6 +3,7 @@ import random
 import math
 import dictionary as dic
 import information as info
+import sys
 pygame.init()
 pygame.mixer.init()
 pygame.font.init()
@@ -26,6 +27,7 @@ while True:
     for event in pygame.event.get():
         if event.type==pygame.QUIT:
             pygame.quit()
+            sys.exit()
         keys=pygame.key.get_pressed()
         #change in guide:
         if keys[pygame.K_t]:
