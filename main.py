@@ -25,7 +25,7 @@ while True:
     msto.mousetouch=pygame.mouse.get_pos()
     for event in pygame.event.get():
         if event.type==pygame.QUIT:
-            quit(0)
+            pygame.quit()
         keys=pygame.key.get_pressed()
         #change in guide:
         if keys[pygame.K_t]:
