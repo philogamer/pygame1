@@ -187,7 +187,7 @@ class Creep:
             self.w=24*2
             self.hp=70*(1+0.05*buff)
             self.maxhp=70*(1+0.05*buff)
-            self.range=125
+            self.range=115
             self.view=400
             self.dmg=10*(1+0.02*buff)
         elif self.type=='elite':
@@ -196,7 +196,7 @@ class Creep:
             self.w=24*2
             self.hp=150*(1+0.04*buff)
             self.maxhp=150*(1+0.04*buff)
-            self.range=125
+            self.range=115
             self.view=400
             self.dmg=15*(1+0.02*buff)
         elif self.type=='slime':
@@ -205,7 +205,7 @@ class Creep:
             self.w=19*2
             self.hp=50*(1+0.035*buff)
             self.maxhp=50*(1+0.035*buff)
-            self.range=130
+            self.range=115
             self.view=400
         
         self.faketargetx=self.x
