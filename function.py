@@ -807,7 +807,7 @@ def creepgetdame(msto,csto,dt):
                     csto.player.exp+=8*(1+0.02*csto.wave)
                 elif creep.type=='elite':
                     csto.player.exp+=30*(1+0.02*csto.wave)
-                if len(msto.creeps)==0:
+                if len(msto.creeps)+len(msto.slimes)==0:
                     csto.player.exp+=30*(1+0.02*csto.wave)
 
 def slimemove(creep,msto,csto,dt,chase):
@@ -971,6 +971,8 @@ def slimedeath(creep,msto,csto,dt):
     creep.update()
     if creep.rect.colliderect(csto.player.rect): 
         msto.slimes.remove(creep)
+        if len(msto.creeps)+len(msto.slimes)==0:
+            csto.player.exp+=30*(1+0.02*csto.wave)
         msto.slimestucks.append(Slimestuck(csto.player.x,csto.player.y))
 
 def bossgetdame(msto,csto,dt):
