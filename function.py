@@ -524,6 +524,7 @@ def playerbehave(msto,csto,dt,keys):
         if csto.player.survive<=0:
             csto.player.survive=10
             csto.player.hp+=20+csto.pska.surviveratio*10
+            msto.regens.append(Regen(csto.player.x,csto.player.y,'health'))
             
 def buff(csto,click,mousepos):
     if csto.player.buffstat>0:
@@ -1003,8 +1004,6 @@ def bossgetdame(msto,csto,dt):
                     msto.chooseafterbosses.append(Chooseafterboss(595,245,'health'))
                     msto.chooseafterbosses.append(Chooseafterboss(315,245,'develop'))
                     msto.chooseafterbosses.append(Chooseafterboss(875,245,'gamble'))
-                #csto.stage='normal'
-                #csto.rendermap=True 
 def chooseskillboss(boss,msto,csto,dt):
     boss.skillchoose=random.randint(1,4)
     boss.skillprepare=0
@@ -1487,6 +1486,7 @@ def startgamble(msto,csto):
                 csto.skillgained.append('nonregenmana')
     elif a<=msto.playerbet*2:
         csto.player.hp=csto.player.maxhp
+        msto.regens.append(Regen(csto.player.x,csto.player.y,'health'))
     else:
         csto.player.maxhp+=random.randint(-2,2)*20
         if csto.player.maxhp<csto.player.hp:

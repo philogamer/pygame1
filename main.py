@@ -60,8 +60,8 @@ while True:
         dic.playerbehaviour_dic.get(csto.stage,lambda *b: None)(msto,csto,dt,keys)
         dic.playerbuff_dic.get(csto.stage,lambda *b: None)(csto,click,mousepos)
         if csto.player.hp<=0:
-            csto.player.hp=csto.player.maxhp #just to survive to test
-            #csto.stage='end'                    
+            #csto.player.hp=csto.player.maxhp #just to survive to test
+            csto.stage='end'                    
 
 
             #creep logic
