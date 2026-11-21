@@ -403,8 +403,8 @@ def sideblock(msto):
 
 def playerbehave(msto,csto,dt,keys):
     if csto.player.moving!='immune': csto.player.moving='no'
-    csto.creepspeed=50*(1+0.01*csto.wave)
-    csto.player.speed=csto.creepspeed-10+(csto.player.maxspeed-csto.creepspeed)*(csto.player.mana/(csto.player.maxmana))
+    csto.creepspeed=round(50*(1+0.008*csto.wave))
+    csto.player.speed=csto.creepspeed+(csto.player.maxspeed-csto.creepspeed)*(csto.player.mana/(csto.player.maxmana))
     csto.player.sloweffect=0
     if csto.player.moving!='immune':
         for i in msto.slimepaths:
@@ -1091,9 +1091,9 @@ def bulleteffect(msto,csto,dt):
             for object in msto.obstacle:
                 if bullet.wallrect.colliderect(object.rect):
                     msto.bullets.remove(bullet)
-                    if csto.bosscount>=2 and csto.stage=='boss' and csto.bosses:
-                        for i in range(0,360,int(360/(6+1*csto.bosscount))):
-                            msto.smallbullets.append(Smallbullet(bullet.x,bullet.y,csto.bosses[0].x+2000*math.cos(math.radians(i)),csto.bosses[0].y+2000*math.sin(math.radians(i)),csto.bosses[0].dmg/2))        
+                    if csto.bosscount>=4 and csto.stage=='boss' and csto.bosses:
+                        for i in range(0,360,int(360/(4+1*csto.bosscount))):
+                            msto.smallbullets.append(Smallbullet(bullet.x,bullet.y,csto.bosses[0].x+2000*math.cos(math.radians(i)),csto.bosses[0].y+2000*math.sin(math.radians(i)),csto.bosses[0].dmg*0.35))        
                     break
 def smallbulleteffect(msto,csto,dt):
     for bullet in msto.smallbullets:
@@ -1105,7 +1105,7 @@ def smallbulleteffect(msto,csto,dt):
                 csto.player.survive=10
             msto.smallbullets.remove(bullet)
         elif bullet.x>=(1400-20) or bullet.x<=0 or bullet.y<=0 or bullet.y>=(700-20):
-            msto.bullets.remove(bullet)
+            msto.smallbullets.remove(bullet)
         else:
             for object in msto.obstacle:
                 if bullet.wallrect.colliderect(object.rect):
@@ -1348,7 +1348,7 @@ def chooseafterboss(msto,csto,mousepos):
                             if csto.player.hp<=0:
                                 csto.player.hp=1
                             csto.pska.maxhp=True
-                            csto.pska.maxhp+=1
+                            csto.pska.maxhpratio+=1
                             if 'maxhp' in csto.skillgained:
                                 a=csto.skillgained.index('maxhp')
                                 csto.skilllevel[a]+=1

@@ -112,7 +112,7 @@ while True:
                   
             
                 
-            if len(msto.creeps)==0:
+
     
     
     pygame.display.update()
